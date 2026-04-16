@@ -111,11 +111,13 @@ class Filters extends BaseFilters
                 'contact/send',
                 'apply/form',
                 'incubatees/apply/form',
+                'games/guess-the-startup/profile',
             ],
             'after' => [
                 'contact',
                 'apply/form',
                 'incubatees/apply/form',
+                'games/guess-the-startup/profile',
             ],
         ],
     ];

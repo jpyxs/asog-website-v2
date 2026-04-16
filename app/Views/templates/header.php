@@ -24,7 +24,9 @@
     <!-- ================== CSS/JS  ===================== -->
     <link href="<?= base_url('style.css') ?>" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <?php if (empty($hideSiteHeader)): ?>
     <script src="<?= base_url('assets/js/header.js') ?>" defer></script>
+    <?php endif; ?>
 
     <!-- ================== GOOGLE FONTS  ===================== -->
     <link
@@ -71,6 +73,7 @@
     $isOrg           = $seg1 === 'organization';
     $isProgramsPage  = $seg1 === 'programs';
     $isLandingPage   = ! empty($isLanding);
+    $hideSiteHeader  = ! empty($hideSiteHeader);
 
     // $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact'], true)
     //     || str_starts_with($uriPath, 'apply');
@@ -78,6 +81,8 @@
     $activeClass = static fn(bool $isActive): string => $isActive ? ' is-active' : '';
     ?>
     <a class="sr-only focus:not-sr-only" href="#main">Skip to content</a>
+
+    <?php if (! $hideSiteHeader): ?>
 
     <!--
          ╔══════════════════════════════════════════════════════════════╗
@@ -229,3 +234,4 @@
             class="mt-8 text-center font-body text-[.72rem] font-bold tracking-[.14em] uppercase text-white bg-sky px-8 py-4 rounded-sm no-underline transition-colors hover:bg-sky/80">Be
             an Incubatee</a>
     </div>
+    <?php endif; ?>

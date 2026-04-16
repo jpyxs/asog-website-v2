@@ -1,0 +1,1658 @@
+:root {
+    --gsp-ink: #123f62;
+    --gsp-soft: #315b7e;
+    --gsp-line: rgba(58, 96, 129, 0.28);
+    --gsp-panel: rgba(238, 247, 255, 0.67);
+    --gsp-blue: #0b5d99;
+    --gsp-blue-dark: #083f6b;
+    --gsp-gold: #efb13d;
+    --gsp-green: #4aa067;
+    --gsp-amber: #c89f36;
+    --gsp-gray: #7d8d9b;
+}
+
+.gsp-root {
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: clamp(82px, 9vw, 110px) 1rem 3rem;
+    background: linear-gradient(180deg, #d4e8f9 0%, #c6e0f5 44%, #b2d6ef 100%);
+}
+
+.gsp-scenery {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.gsp-sun {
+    position: absolute;
+    top: 11%;
+    right: 10%;
+    width: clamp(88px, 15vw, 166px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #fff7d5 0%, #ffd589 44%, #f4bb53 100%);
+    box-shadow: 0 0 108px 22px rgba(245, 183, 80, 0.32);
+}
+
+.gsp-cloud-layer {
+    position: absolute;
+    top: 20%;
+    left: -10%;
+    width: 120%;
+    animation: gspCloudDrift 30s linear infinite;
+}
+
+.gsp-cloud {
+    position: absolute;
+    width: 170px;
+    height: 42px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(244, 250, 255, 0.9), rgba(223, 238, 250, 0.7));
+}
+
+.gsp-cloud::before,
+.gsp-cloud::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: inherit;
+}
+
+.gsp-cloud::before {
+    width: 58px;
+    height: 58px;
+    top: -27px;
+    left: 16px;
+}
+
+.gsp-cloud::after {
+    width: 70px;
+    height: 70px;
+    top: -33px;
+    right: 18px;
+}
+
+.gsp-cloud.c1 {
+    left: 10%;
+}
+
+.gsp-cloud.c2 {
+    left: 46%;
+    width: 196px;
+}
+
+.gsp-cloud.c3 {
+    right: 14%;
+}
+
+.gsp-mountain {
+    position: absolute;
+    bottom: 0;
+    width: 120%;
+    left: -10%;
+    clip-path: polygon(0 100%, 10% 72%, 20% 86%, 34% 50%, 46% 76%, 58% 40%, 70% 67%, 82% 45%, 92% 75%, 100% 58%, 100% 100%);
+}
+
+.gsp-mountain.m1 {
+    height: 44%;
+    background: linear-gradient(180deg, #8dbf95, #6d9b75);
+    opacity: 0.68;
+}
+
+.gsp-mountain.m2 {
+    height: 36%;
+    background: linear-gradient(180deg, #7ba983, #567a61);
+    opacity: 0.82;
+    transform: translateY(10%);
+}
+
+.gsp-mountain.m3 {
+    height: 29%;
+    background: linear-gradient(180deg, #61896b, #456452);
+    opacity: 0.94;
+    transform: translateY(18%);
+}
+
+.gsp-ground {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 20%;
+    background: linear-gradient(180deg, rgba(64, 102, 77, 0), rgba(64, 102, 77, 0.68) 46%, #3f644c 100%);
+}
+
+.gsp-shell {
+    position: relative;
+    z-index: 1;
+    width: min(900px, 100%);
+    margin: 0 auto;
+    display: grid;
+    gap: 0.8rem;
+    color: var(--gsp-ink);
+}
+
+.gsp-gamebar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.gsp-gamebar-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-self: start;
+}
+
+.gsp-gamebar-center {
+    display: inline-flex;
+    justify-self: center;
+}
+
+.gsp-gamebar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+}
+
+.gsp-gamebar-brand img {
+    width: auto;
+    height: 42px;
+    object-fit: contain;
+}
+
+.gsp-gamebar-brand span {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.gsp-gamebar-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-self: end;
+}
+
+.gsp-gamebar-score {
+    display: inline-grid;
+    gap: 0.04rem;
+    text-align: right;
+}
+
+.gsp-gamebar-time {
+    display: inline-grid;
+    gap: 0.04rem;
+    text-align: right;
+}
+
+.gsp-gamebar-score span {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.62rem;
+}
+
+.gsp-gamebar-time span {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.62rem;
+}
+
+.gsp-gamebar-score strong {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.gsp-gamebar-time strong {
+    font-size: 1.12rem;
+    line-height: 1;
+    min-width: 5ch;
+    font-variant-numeric: tabular-nums;
+}
+
+.gsp-exit-btn {
+    border: 1px solid rgba(67, 109, 142, 0.34);
+    background: rgba(230, 242, 252, 0.68);
+    color: #1e4e73;
+    border-radius: 999px;
+    padding: 0.42rem 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.gsp-exit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.gsp-back {
+    justify-self: start;
+    border: 1px solid rgba(67, 109, 142, 0.34);
+    background: rgba(230, 242, 252, 0.68);
+    color: #1e4e73;
+    border-radius: 999px;
+    padding: 0.38rem 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.gsp-back-link {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.gsp-gate,
+.gsp-hud,
+.gsp-round,
+.gsp-reward,
+.gsp-final {
+    border: 1px solid var(--gsp-line);
+    border-radius: 14px;
+    background: var(--gsp-panel);
+    box-shadow: 0 18px 34px -28px rgba(14, 39, 61, 0.58);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 0.86rem 0.92rem;
+}
+
+.gsp-gate[hidden] {
+    display: none !important;
+}
+
+.gsp-gate {
+    max-width: 660px;
+    display: grid;
+    gap: 0.46rem;
+}
+
+.gsp-title {
+    margin: 0;
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(1.45rem, 3.1vw, 2.08rem);
+    line-height: 1.05;
+    color: #133f61;
+}
+
+.gsp-subtitle {
+    margin: 0;
+    color: #355f80;
+    font-size: clamp(0.95rem, 2.2vw, 1.07rem);
+}
+
+.gsp-gate-note {
+    margin: 0;
+    color: #4e6e8c;
+    font-size: 0.87rem;
+}
+
+.gsp-profile-info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gsp-profile-info-row .gsp-gate-note {
+    flex: 1;
+}
+
+.gsp-profile-info-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(83, 118, 149, 0.34);
+    background: rgba(231, 243, 253, 0.76);
+    color: #214f72;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    flex: 0 0 34px;
+}
+
+.gsp-hud {
+    display: grid;
+    gap: 0.48rem;
+}
+
+.gsp-hud-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.52rem;
+    align-items: center;
+}
+
+.gsp-hud-stat {
+    border: 1px solid rgba(83, 118, 149, 0.25);
+    border-radius: 10px;
+    background: rgba(249, 252, 255, 0.72);
+    padding: 0.44rem 0.56rem;
+    display: grid;
+    gap: 0.1rem;
+}
+
+.gsp-hud-stat span {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.65rem;
+    color: #587692;
+}
+
+.gsp-hud-stat strong {
+    font-size: 1rem;
+    color: #133f62;
+}
+
+.gsp-score-info {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(83, 118, 149, 0.34);
+    background: rgba(231, 243, 253, 0.76);
+    color: #214f72;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.gsp-round {
+    display: grid;
+    gap: 0.62rem;
+}
+
+.gsp-round-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.gsp-round-head h3 {
+    margin: 0;
+    color: #143f62;
+    font-size: clamp(1.08rem, 2.2vw, 1.34rem);
+    font-weight: 800;
+}
+
+.gsp-round-timer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(74, 111, 142, 0.35);
+    background: rgba(236, 246, 255, 0.82);
+    color: #164c75;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    font-size: 0.74rem;
+    padding: 0.34rem 0.62rem;
+    min-width: 72px;
+}
+
+.gsp-round-host {
+    min-height: 220px;
+}
+
+.gsp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.52rem;
+}
+
+.gsp-feedback {
+    min-height: 30px;
+}
+
+.gs-feedback-good,
+.gs-feedback-bad,
+.gs-feedback-note {
+    border-radius: 10px;
+    padding: 0.55rem 0.68rem;
+    font-size: 0.92rem;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.gs-feedback-good {
+    background: rgba(215, 241, 223, 0.92);
+    color: #0f6f44;
+}
+
+.gs-feedback-bad {
+    background: rgba(251, 221, 225, 0.92);
+    color: #8e2430;
+}
+
+.gs-feedback-note {
+    background: rgba(220, 237, 251, 0.92);
+    color: #25517c;
+}
+
+.gs-btn {
+    border-radius: 10px;
+    border: 1px solid transparent;
+    padding: 0.56rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.045em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.gs-btn:active {
+    transform: translateY(1px);
+}
+
+.gs-btn-primary {
+    background: linear-gradient(180deg, var(--gsp-blue), var(--gsp-blue-dark));
+    color: #fff;
+}
+
+.gs-btn-primary:hover {
+    filter: brightness(1.06);
+}
+
+.gs-btn-secondary {
+    background: rgba(255, 241, 208, 0.9);
+    border-color: rgba(184, 132, 33, 0.35);
+    color: #7a5101;
+}
+
+.gs-btn-ghost {
+    background: rgba(228, 240, 251, 0.86);
+    border-color: rgba(79, 116, 148, 0.3);
+    color: #214e7a;
+}
+
+.gs-logo-wrap,
+.gs-hints,
+.gs-code-wrap {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.gs-logo-wrap {
+    justify-items: center;
+}
+
+.gs-logo-wrap .gs-text-soft {
+    text-align: center;
+}
+
+.gs-text-soft {
+    margin: 0;
+    color: #355f80;
+    line-height: 1.48;
+}
+
+.gs-logo-box {
+    border-radius: 12px;
+    border: 1px solid rgba(88, 123, 155, 0.26);
+    background: rgba(246, 251, 255, 0.72);
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.gs-logo-box img {
+    max-width: 220px;
+    max-height: 122px;
+    transition: filter 0.26s ease;
+}
+
+.gs-logo-fallback {
+    color: #6f8398;
+    font-size: 0.77rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.gs-wordle-cues {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.34rem;
+    justify-content: center;
+}
+
+.gs-wordle-cue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(84, 118, 148, 0.3);
+    border-radius: 999px;
+    background: rgba(235, 245, 253, 0.86);
+    color: #214f72;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.56rem;
+}
+
+.gs-wordle-grid {
+    display: grid;
+    gap: 0.38rem;
+}
+
+.gs-wordle-row {
+    display: grid;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.gs-tile {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid rgba(90, 124, 155, 0.34);
+    background: rgba(243, 250, 255, 0.72);
+    color: #1b4368;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.gs-tile-empty {
+    background: rgba(243, 250, 255, 0.72);
+}
+
+.gs-tile-draft {
+    background: rgba(233, 243, 251, 0.9);
+    border-color: rgba(65, 104, 138, 0.44);
+}
+
+.gs-tile.flip {
+    animation: gspFlipTile 0.28s ease both;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+@keyframes gspFlipTile {
+    0% {
+        transform: rotateX(0deg);
+    }
+    45% {
+        transform: rotateX(90deg);
+    }
+    100% {
+        transform: rotateX(0deg);
+    }
+}
+
+.gs-tile-correct {
+    background: var(--gsp-green);
+    border-color: var(--gsp-green);
+    color: #fff;
+}
+
+.gs-tile-present {
+    background: var(--gsp-amber);
+    border-color: var(--gsp-amber);
+    color: #fff;
+}
+
+.gs-tile-absent {
+    background: var(--gsp-gray);
+    border-color: var(--gsp-gray);
+    color: #fff;
+}
+
+.gs-wordle-keys {
+    display: grid;
+    gap: 0.32rem;
+    width: min(520px, 100%);
+}
+
+.gs-key-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.24rem;
+}
+
+.gs-key {
+    border: 1px solid rgba(82, 118, 148, 0.3);
+    background: rgba(242, 249, 255, 0.88);
+    color: #1a496d;
+    border-radius: 8px;
+    min-width: 34px;
+    height: 40px;
+    padding: 0 0.34rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    user-select: none;
+}
+
+.gs-key:active {
+    transform: translateY(1px);
+}
+
+.gs-key-special {
+    min-width: 64px;
+    font-size: 0.72rem;
+}
+
+.gs-key-correct {
+    background: var(--gsp-green);
+    border-color: var(--gsp-green);
+    color: #fff;
+}
+
+.gs-key-present {
+    background: var(--gsp-amber);
+    border-color: var(--gsp-amber);
+    color: #fff;
+}
+
+.gs-key-absent {
+    background: #c95663;
+    border-color: #c95663;
+    color: #fff;
+}
+
+.gs-wordle-tip {
+    margin: 0;
+    color: #3f6685;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.gs-guess-input {
+    width: min(360px, 100%);
+    border: 1px solid rgba(89, 123, 154, 0.32);
+    border-radius: 10px;
+    padding: 0.58rem 0.68rem;
+    background: rgba(248, 252, 255, 0.86);
+    color: #11385b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.gs-hint-card {
+    border: 1px solid rgba(90, 124, 154, 0.24);
+    border-radius: 10px;
+    background: rgba(244, 250, 255, 0.72);
+    padding: 0.45rem 0.56rem;
+    color: #2f5a7c;
+}
+
+.gs-hint-card strong {
+    color: #153f62;
+}
+
+.gs-spotlight-chip {
+    align-self: start;
+    display: inline-flex;
+    border: 1px solid rgba(69, 125, 97, 0.4);
+    background: rgba(223, 245, 232, 0.82);
+    color: #1f7b52;
+    border-radius: 999px;
+    padding: 0.24rem 0.52rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+}
+
+.gs-code-snippet {
+    border-radius: 10px;
+    border: 1px solid rgba(82, 117, 149, 0.28);
+    background: rgba(239, 247, 255, 0.76);
+    padding: 0.75rem;
+    color: #0f304f;
+    overflow: auto;
+    font-size: 0.9rem;
+    line-height: 1.44;
+}
+
+.gs-charade-clue {
+    border: 1px dashed rgba(76, 112, 143, 0.4);
+    border-radius: 10px;
+    background: rgba(237, 247, 255, 0.78);
+    color: #174d76;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-align: center;
+    padding: 0.64rem 0.72rem;
+}
+
+.gs-asog-context {
+    margin: 0;
+    color: #2f5c80;
+    font-size: 0.88rem;
+}
+
+.gs-option-grid {
+    display: grid;
+    gap: 0.46rem;
+}
+
+.gs-choice {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.55rem;
+    align-items: center;
+    border-radius: 10px;
+    border: 1px solid rgba(86, 121, 152, 0.26);
+    background: rgba(244, 250, 255, 0.76);
+    padding: 0.58rem 0.62rem;
+    color: #173f64;
+    cursor: pointer;
+    transition: border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.gs-choice:hover {
+    border-color: rgba(68, 106, 141, 0.45);
+    background: rgba(236, 246, 255, 0.86);
+}
+
+.gs-choice input {
+    margin: 0;
+}
+
+.gsp-profile-card {
+    width: min(640px, 100%);
+}
+
+.gsp-profile-form {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.gsp-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+}
+
+.gsp-form-grid-profile-meta {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+
+.gsp-form-row {
+    display: grid;
+    gap: 0.3rem;
+}
+
+.gsp-form-note {
+    margin-top: 0.1rem;
+    border: 1px dashed rgba(86, 121, 152, 0.3);
+    border-radius: 10px;
+    background: rgba(245, 251, 255, 0.7);
+    padding: 0.55rem 0.65rem;
+}
+
+.gsp-form-note p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #355f80;
+    line-height: 1.45;
+}
+
+.gsp-form-row-hidden {
+    display: none;
+}
+
+.gsp-form-row label {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.66rem;
+    color: #315b7d;
+    font-weight: 800;
+}
+
+.gsp-form-row input,
+.gsp-form-row select,
+.gsp-form-row textarea {
+    border: 1px solid rgba(86, 121, 152, 0.3);
+    border-radius: 10px;
+    background: rgba(247, 252, 255, 0.88);
+    color: #163f62;
+    padding: 0.58rem 0.68rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.gsp-form-row textarea {
+    resize: vertical;
+    min-height: 88px;
+}
+
+.gsp-form-row input:focus,
+.gsp-form-row select:focus,
+.gsp-form-row textarea:focus {
+    outline: none;
+    border-color: rgba(24, 86, 132, 0.58);
+    box-shadow: 0 0 0 3px rgba(30, 95, 143, 0.12);
+}
+
+.gsp-form-error {
+    margin: 0;
+    color: #8e2430;
+    font-size: 0.8rem;
+}
+
+.gsp-profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.52rem;
+    margin-top: 0.1rem;
+}
+
+.gsp-reward,
+.gsp-final {
+    max-width: 700px;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.gsp-reward-state {
+    margin: 0;
+    color: #1a5e8c;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.gsp-reward h3,
+.gsp-final h3 {
+    margin: 0;
+    color: #143f62;
+}
+
+.gsp-reward-fact,
+.gsp-final p {
+    margin: 0;
+    color: var(--gsp-soft);
+}
+
+.gsp-reward-actions {
+    margin-top: 0.42rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.gsp-final-actions {
+    margin-top: 0.52rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.52rem;
+}
+
+.gsp-final-kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.75rem;
+    color: #1a6190;
+    font-weight: 700;
+}
+
+.gsp-info-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+}
+
+.gsp-info-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 38, 57, 0.46);
+}
+
+.gsp-info-panel {
+    position: relative;
+    width: min(560px, calc(100% - 1.8rem));
+    margin: max(80px, 12vh) auto 0;
+    border: 1px solid rgba(89, 122, 153, 0.36);
+    border-radius: 14px;
+    background: #f6fbff;
+    box-shadow: 0 24px 42px -26px rgba(9, 35, 56, 0.66);
+    padding: 1rem;
+}
+
+.gsp-info-panel h2 {
+    margin: 0 0 0.56rem;
+    color: #163f62;
+    font-size: 1.2rem;
+}
+
+.gsp-info-list {
+    margin: 0;
+    padding-left: 1rem;
+    color: #2b5476;
+    display: grid;
+    gap: 0.4rem;
+}
+
+.gsp-info-copy {
+    margin: 0;
+    color: #315b7d;
+    line-height: 1.45;
+}
+
+.gsp-info-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.48rem;
+    margin-top: 0.8rem;
+}
+
+.gsp-info-close {
+    position: absolute;
+    top: 0.42rem;
+    right: 0.56rem;
+    border: 0;
+    background: transparent;
+    color: #2f5979;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.gs-fade-in {
+    animation: gspFadeIn 0.32s ease;
+}
+
+@keyframes gspFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gspCloudDrift {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(56px);
+    }
+}
+
+@media (max-width: 760px) {
+    .gsp-root {
+        padding-top: 78px;
+        padding-bottom: 2.5rem;
+    }
+
+    .gsp-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gsp-gamebar {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        column-gap: 0.5rem;
+    }
+
+    .gsp-hud-main {
+        grid-template-columns: 1fr;
+    }
+
+    .gsp-score-info {
+        justify-self: start;
+    }
+
+}
+
+@media (max-width: 520px) {
+    .gsp-root {
+        padding-top: 70px;
+        padding-inline: 0.75rem;
+    }
+
+    .gsp-gate,
+    .gsp-hud,
+    .gsp-round,
+    .gsp-reward,
+    .gsp-final {
+        padding: 0.74rem;
+    }
+
+    .gsp-title {
+        font-size: clamp(1.3rem, 8vw, 1.86rem);
+    }
+
+    .gsp-actions,
+    .gsp-reward-actions,
+    .gsp-final-actions {
+        flex-direction: column;
+    }
+
+    .gsp-actions .gs-btn,
+    .gsp-reward-actions .gs-btn,
+    .gsp-final-actions .gs-btn {
+        width: 100%;
+    }
+
+    .gs-tile {
+        width: 38px;
+        height: 38px;
+        font-size: 0.88rem;
+    }
+
+    .gs-key {
+        min-width: 30px;
+        height: 36px;
+        font-size: 0.72rem;
+    }
+
+    .gs-key-special {
+        min-width: 56px;
+        font-size: 0.68rem;
+    }
+
+    .gs-guess-input {
+        width: 100%;
+    }
+}
+
+.gsp-root.gsp-root-wordle {
+    --gsp-wordle-bg: #0f3552;
+    --gsp-wordle-surface: rgba(12, 46, 70, 0.78);
+    --gsp-wordle-border: rgba(203, 223, 240, 0.28);
+    --gsp-wordle-text: #f7fbff;
+    --gsp-wordle-muted: #d8e7f3;
+    --gsp-wordle-key: #d8e2ec;
+    --gsp-wordle-key-text: #163450;
+    --gsp-wordle-absent: #73808b;
+    --gsp-wordle-present: #c6a94b;
+    --gsp-wordle-correct: #5f9d69;
+    --gs-wordle-tile-size: 56px;
+    min-height: 100dvh;
+    height: auto;
+    padding: max(1.15rem, calc(env(safe-area-inset-top) + 0.95rem)) 1rem 1.05rem;
+    overflow: hidden;
+    background: linear-gradient(180deg, #c8e0f2 0%, #90b9d4 42%, #5f8f87 100%);
+}
+
+.gsp-root.gsp-root-wordle .gsp-scenery {
+    opacity: 0.78;
+}
+
+.gsp-root.gsp-root-wordle .gsp-cloud-layer {
+    animation: none;
+}
+
+.gsp-root.gsp-root-wordle .gsp-sun {
+    top: 9%;
+    right: 9%;
+    box-shadow: 0 0 132px 28px rgba(245, 183, 80, 0.34);
+}
+
+.gsp-root.gsp-root-wordle .gsp-shell {
+    width: min(900px, 100%);
+    height: auto;
+    align-content: start;
+    grid-auto-rows: max-content;
+    gap: 0.64rem;
+    color: var(--gsp-wordle-text);
+    border: 1px solid var(--gsp-wordle-border);
+    border-radius: 16px;
+    padding: 0.74rem 0.78rem 0.88rem;
+    background: linear-gradient(180deg, rgba(10, 38, 59, 0.58), rgba(8, 31, 49, 0.7));
+    box-shadow: 0 22px 42px -28px rgba(6, 21, 35, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar {
+    margin-top: 0;
+    border-bottom: 1px solid var(--gsp-wordle-border);
+    padding-top: 0;
+    padding-bottom: 0.45rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-left {
+    flex: 0 0 auto;
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-center {
+    justify-self: center;
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-right {
+    width: auto;
+    justify-content: flex-end;
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-brand span {
+    color: var(--gsp-wordle-muted);
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-score span {
+    color: var(--gsp-wordle-muted);
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-time span {
+    color: var(--gsp-wordle-muted);
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-score strong {
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gsp-gamebar-time strong {
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gsp-exit-btn {
+    border: 1px solid var(--gsp-wordle-border);
+    background: transparent;
+    color: var(--gsp-wordle-muted);
+}
+
+.gsp-root.gsp-root-wordle .gsp-exit-btn:hover {
+    border-color: #565758;
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gsp-back {
+    border: 1px solid var(--gsp-wordle-border);
+    background: transparent;
+    color: var(--gsp-wordle-muted);
+    letter-spacing: 0.1em;
+}
+
+.gsp-root.gsp-root-wordle .gsp-back:hover {
+    border-color: #565758;
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gsp-gate,
+.gsp-root.gsp-root-wordle .gsp-hud,
+.gsp-root.gsp-root-wordle .gsp-round,
+.gsp-root.gsp-root-wordle .gsp-reward,
+.gsp-root.gsp-root-wordle .gsp-final {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+}
+
+.gsp-root.gsp-root-wordle .gsp-gate {
+    max-width: none;
+    display: grid;
+    gap: 0.58rem;
+    justify-items: center;
+    text-align: center;
+    border-bottom: 1px solid var(--gsp-wordle-border);
+    padding-bottom: 0.9rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-title {
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gsp-subtitle,
+.gsp-root.gsp-root-wordle .gsp-gate-note {
+    color: var(--gsp-wordle-muted);
+}
+
+.gsp-root.gsp-root-wordle .gs-btn {
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.62rem 0.95rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-btn-primary {
+    background: var(--gsp-wordle-correct);
+    border-color: var(--gsp-wordle-correct);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gs-btn-secondary {
+    background: var(--gsp-wordle-key);
+    border-color: var(--gsp-wordle-key);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gs-btn-ghost {
+    background: transparent;
+    border-color: #565758;
+    color: #d7dadc;
+}
+
+.gsp-root.gsp-root-wordle .gs-btn-primary:hover,
+.gsp-root.gsp-root-wordle .gs-btn-secondary:hover,
+.gsp-root.gsp-root-wordle .gs-btn-ghost:hover {
+    filter: brightness(1.08);
+}
+
+.gsp-root.gsp-root-wordle .gsp-hud {
+    border-bottom: 1px solid var(--gsp-wordle-border);
+    padding-bottom: 0.7rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-hud-main {
+    grid-template-columns: 1fr auto auto;
+    gap: 0.5rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-hud-stat {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    gap: 0.16rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-hud-stat span {
+    color: #8f9194;
+}
+
+.gsp-root.gsp-root-wordle .gsp-hud-stat strong {
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gsp-score-info {
+    border: 1px solid var(--gsp-wordle-border);
+    background: transparent;
+    color: #d7dadc;
+}
+
+.gsp-root.gsp-root-wordle .gsp-round {
+    gap: 0.92rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-round-head {
+    justify-content: center;
+}
+
+.gsp-root.gsp-root-wordle .gsp-round-head h3 {
+    color: #d7dadc;
+    font-size: 0.9rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.gsp-root.gsp-root-wordle .gsp-round-timer {
+    border: 1px solid var(--gsp-wordle-border);
+    background: transparent;
+    color: #d7dadc;
+}
+
+.gsp-root.gsp-root-wordle .gsp-round-host {
+    min-height: 0;
+}
+
+.gsp-root.gsp-root-wordle .gs-logo-wrap {
+    gap: 0.84rem;
+    justify-items: center;
+}
+
+.gsp-root.gsp-root-wordle .gs-text-soft {
+    color: var(--gsp-wordle-muted);
+    text-align: center;
+    font-size: 0.88rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-wordle-cues {
+    gap: 0.4rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-wordle-cue {
+    border: 1px solid #565758;
+    background: #1f2023;
+    color: #d7dadc;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    padding: 0.22rem 0.52rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-wordle-grid {
+    gap: 0.38rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-wordle-row {
+    gap: 0.36rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-tile {
+    width: var(--gs-wordle-tile-size);
+    height: var(--gs-wordle-tile-size);
+    border-radius: 4px;
+    border: 2px solid var(--gsp-wordle-border);
+    background: transparent;
+    color: #f8f8f8;
+    font-size: 1.95rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.gsp-root.gsp-root-wordle .gs-tile-empty {
+    background: transparent;
+    border-color: var(--gsp-wordle-border);
+}
+
+.gsp-root.gsp-root-wordle .gs-tile-draft {
+    border-color: #565758;
+    background: #121213;
+}
+
+.gsp-root.gsp-root-wordle .gs-tile-correct {
+    background: var(--gsp-wordle-correct);
+    border-color: var(--gsp-wordle-correct);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gs-tile-present {
+    background: var(--gsp-wordle-present);
+    border-color: var(--gsp-wordle-present);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gs-tile-absent {
+    background: var(--gsp-wordle-absent);
+    border-color: var(--gsp-wordle-absent);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gs-wordle-keys {
+    width: min(760px, 100%);
+    gap: 0.38rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-key-row {
+    gap: 0.34rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-key {
+    border: 0;
+    background: var(--gsp-wordle-key);
+    color: var(--gsp-wordle-key-text);
+    border-radius: 4px;
+    min-width: 40px;
+    height: 50px;
+    padding: 0 0.36rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.gsp-root.gsp-root-wordle .gs-key:hover {
+    filter: brightness(1.08);
+}
+
+.gsp-root.gsp-root-wordle .gs-key-special {
+    min-width: 62px;
+    font-size: 0.68rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-key-correct {
+    background: var(--gsp-wordle-correct);
+    border-color: var(--gsp-wordle-correct);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gs-key-present {
+    background: var(--gsp-wordle-present);
+    border-color: var(--gsp-wordle-present);
+    color: #fff;
+}
+
+.gsp-root.gsp-root-wordle .gs-key-absent {
+    background: var(--gsp-wordle-absent);
+    border-color: var(--gsp-wordle-absent);
+    color: #fff;
+}
+
+.gsp-profile-account {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border: 1px solid rgba(84, 120, 149, 0.24);
+    border-radius: 10px;
+    background: rgba(243, 250, 255, 0.72);
+    padding: 0.44rem 0.56rem;
+}
+
+.gsp-profile-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(84, 120, 149, 0.35);
+    background: #dfeaf5;
+}
+
+.gsp-profile-account strong {
+    display: block;
+    color: #153f62;
+    font-size: 0.82rem;
+}
+
+.gsp-profile-account span {
+    display: block;
+    color: #325c7d;
+    font-size: 0.86rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-wordle-tip {
+    color: #86888a;
+    font-size: 0.78rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-actions {
+    display: none;
+}
+
+.gsp-root.gsp-root-wordle .gsp-feedback {
+    min-height: 28px;
+    display: flex;
+    justify-content: center;
+}
+
+.gsp-root.gsp-root-wordle .gs-feedback-good,
+.gsp-root.gsp-root-wordle .gs-feedback-bad,
+.gsp-root.gsp-root-wordle .gs-feedback-note {
+    border-radius: 4px;
+    border: 1px solid transparent;
+    font-size: 0.82rem;
+    padding: 0.45rem 0.58rem;
+}
+
+.gsp-root.gsp-root-wordle .gs-feedback-good {
+    background: rgba(83, 141, 78, 0.22);
+    border-color: rgba(83, 141, 78, 0.6);
+    color: #c8e8c4;
+}
+
+.gsp-root.gsp-root-wordle .gs-feedback-bad {
+    background: rgba(153, 64, 64, 0.26);
+    border-color: rgba(153, 64, 64, 0.68);
+    color: #ffd1d1;
+}
+
+.gsp-root.gsp-root-wordle .gs-feedback-note {
+    background: rgba(129, 131, 132, 0.22);
+    border-color: rgba(129, 131, 132, 0.58);
+    color: #ebebeb;
+}
+
+.gsp-root.gsp-root-wordle .gsp-reward,
+.gsp-root.gsp-root-wordle .gsp-final {
+    border: 1px solid var(--gsp-wordle-border);
+    border-radius: 12px;
+    background: var(--gsp-wordle-surface);
+    padding: 0.9rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-reward.gsp-reward-success {
+    border-color: rgba(117, 191, 130, 0.72);
+    background: linear-gradient(180deg, rgba(101, 169, 110, 0.34), rgba(72, 134, 80, 0.42));
+}
+
+.gsp-root.gsp-root-wordle .gsp-reward.gsp-reward-success .gsp-reward-state,
+.gsp-root.gsp-root-wordle .gsp-reward.gsp-reward-success h3,
+.gsp-root.gsp-root-wordle .gsp-reward.gsp-reward-success .gsp-reward-fact {
+    color: #ecfff0;
+}
+
+.gsp-root.gsp-root-wordle .gsp-final {
+    width: min(660px, 100%);
+    justify-self: center;
+    text-align: center;
+    justify-items: center;
+    gap: 0.48rem;
+    border-color: rgba(162, 184, 204, 0.52);
+    background: linear-gradient(180deg, rgba(204, 218, 231, 0.94), rgba(186, 206, 223, 0.9));
+    box-shadow: 0 18px 34px -24px rgba(10, 30, 46, 0.56);
+    padding: 1.05rem;
+}
+
+.gsp-root.gsp-root-wordle .gsp-final .gsp-final-score {
+    text-align: center;
+    font-weight: 700;
+}
+
+.gsp-root.gsp-root-wordle .gsp-reward-state,
+.gsp-root.gsp-root-wordle .gsp-final-kicker {
+    color: #aab8a8;
+}
+
+.gsp-root.gsp-root-wordle .gsp-reward h3,
+.gsp-root.gsp-root-wordle .gsp-final h3,
+.gsp-root.gsp-root-wordle .gsp-reward-fact,
+.gsp-root.gsp-root-wordle .gsp-final p {
+    color: #d7dadc;
+}
+
+.gsp-root.gsp-root-wordle .gsp-final h3,
+.gsp-root.gsp-root-wordle .gsp-final p,
+.gsp-root.gsp-root-wordle .gsp-final .gsp-final-kicker {
+    color: #143b57;
+}
+
+.gsp-root.gsp-root-wordle .gsp-final .gsp-final-kicker {
+    letter-spacing: 0.1em;
+}
+
+.gsp-root.gsp-root-wordle .gsp-final .gsp-final-actions .gs-btn {
+    min-width: 190px;
+}
+
+.gsp-root.gsp-root-wordle .gsp-final .gsp-final-actions .gs-btn-ghost {
+    background: rgba(18, 64, 95, 0.08);
+    border-color: rgba(18, 64, 95, 0.3);
+    color: #143f62;
+}
+
+.gsp-root.gsp-root-wordle .gsp-info-backdrop {
+    background: rgba(0, 0, 0, 0.72);
+}
+
+.gsp-root.gsp-root-wordle .gsp-info-panel {
+    border: 1px solid var(--gsp-wordle-border);
+    background: #18191b;
+    box-shadow: 0 24px 48px -30px rgba(0, 0, 0, 0.86);
+}
+
+.gsp-root.gsp-root-wordle .gsp-info-panel h2,
+.gsp-root.gsp-root-wordle .gsp-info-list,
+.gsp-root.gsp-root-wordle .gsp-info-close {
+    color: #d7dadc;
+}
+
+@media (max-width: 760px) {
+    .gsp-root.gsp-root-wordle {
+        --gs-wordle-tile-size: 54px;
+        padding-top: max(0.9rem, calc(env(safe-area-inset-top) + 0.72rem));
+        padding-bottom: 0.75rem;
+    }
+
+    .gsp-root.gsp-root-wordle .gsp-shell {
+        width: 100%;
+        align-content: start;
+        grid-auto-rows: max-content;
+        padding: 0.66rem 0.62rem 0.78rem;
+    }
+
+    .gsp-root.gsp-root-wordle .gsp-gamebar {
+        flex-wrap: nowrap;
+    }
+
+    .gsp-root.gsp-root-wordle .gsp-gamebar-right {
+        width: auto;
+    }
+
+    .gsp-root.gsp-root-wordle .gs-key {
+        min-width: 33px;
+        height: 46px;
+        font-size: 0.76rem;
+    }
+
+    .gsp-root.gsp-root-wordle .gs-key-special {
+        min-width: 58px;
+        font-size: 0.62rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .gsp-root.gsp-root-wordle {
+        --gs-wordle-tile-size: 48px;
+        padding-inline: 0.72rem;
+        padding-top: max(0.82rem, calc(env(safe-area-inset-top) + 0.64rem));
+    }
+
+    .gsp-root.gsp-root-wordle .gsp-shell {
+        gap: 0.52rem;
+    }
+
+    .gsp-root.gsp-root-wordle .gsp-title {
+        font-size: 1.34rem;
+        letter-spacing: 0.12em;
+    }
+
+    .gsp-root.gsp-root-wordle .gs-wordle-row {
+        gap: 0.28rem;
+    }
+
+    .gsp-root.gsp-root-wordle .gs-key {
+        min-width: 28px;
+        height: 42px;
+        font-size: 0.69rem;
+        padding: 0 0.2rem;
+    }
+
+    .gsp-root.gsp-root-wordle .gs-key-special {
+        min-width: 48px;
+        font-size: 0.58rem;
+    }
+}

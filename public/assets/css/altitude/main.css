@@ -447,6 +447,102 @@
 }
 .alt3d-overlay canvas:active { cursor: grabbing; }
 
+.alt3d-thinking-bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 64;
+  width: 92px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(20, 40, 56, .14);
+  background: rgba(248, 246, 240, .95);
+  color: #163145;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: scale(.92);
+  transform-origin: left bottom;
+  transition: opacity .22s ease, transform .22s ease;
+  pointer-events: none;
+}
+
+.alt3d-thinking-bubble::after {
+  content: none;
+}
+
+.alt3d-thinking-bubble.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.alt3d-thinking-bubble-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: .5rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(18, 47, 66, .56);
+}
+
+.alt3d-thinking-bubble-title {
+  display: block;
+  margin-bottom: 4px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.02rem;
+  line-height: 1.1;
+  color: #15374f;
+}
+
+.alt3d-thinking-bubble-subtitle {
+  display: block;
+  margin-bottom: 10px;
+  font-size: .76rem;
+  line-height: 1.45;
+  color: rgba(22, 49, 69, .76);
+}
+
+.alt3d-thinking-bubble-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.alt3d-thinking-bubble-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f8af21;
+  animation: alt3dThinkingDot 1s infinite ease-in-out;
+}
+
+.alt3d-thinking-bubble-dots span:nth-child(2) {
+  animation-delay: .16s;
+}
+
+.alt3d-thinking-bubble-dots span:nth-child(3) {
+  animation-delay: .32s;
+}
+
+@keyframes alt3dThinkingDot {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: .45;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
 /* Mini info button + tooltip */
 .alt3d-mini-info-wrap {
   position: fixed;
@@ -701,6 +797,14 @@
   transform: translateY(-50%) translateX(52px);
 }
 .alt3d-info.vis { pointer-events: auto; }
+
+@media (max-width: 768px) {
+  .alt3d-thinking-bubble {
+    width: 86px;
+    min-height: 52px;
+    padding: 8px 9px;
+  }
+}
 
 @media (min-width: 769px) {
   .alt3d-info.alt3d-info-pos-right {
@@ -1017,6 +1121,7 @@
 .alt3d-overlay.is-below-scene .alt3d-dots,
 .alt3d-overlay.is-below-scene .alt3d-hint,
 .alt3d-overlay.is-below-scene .alt3d-mini-info-wrap,
+.alt3d-overlay.is-below-scene .alt3d-thinking-bubble,
 .alt3d-overlay.is-below-scene .alt3d-mentors-btn,
 .alt3d-overlay.is-below-scene .alt3d-program-chip,
 .alt3d-overlay.is-below-scene .alt3d-close {

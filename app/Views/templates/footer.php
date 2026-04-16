@@ -1,6 +1,7 @@
 <!-- ╔══════════════════════════════════════════════════════════════════════╗
      ║  FOOTER — Classic columnar footer in navy / gold theme               ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
+<?php if (empty($hideSiteFooter)): ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/footer.css') ?>">
 
 <footer class="site-footer relative overflow-hidden">
@@ -84,6 +85,7 @@
         </div>
     </div>
 </footer>
+<?php endif; ?>
 
 <!-- Toast notifications -->
 <?= function_exists('renderToast') ? renderToast() : '' ?>

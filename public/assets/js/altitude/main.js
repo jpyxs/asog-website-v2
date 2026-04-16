@@ -54,11 +54,15 @@ let R, scene, cam, oc, G;
 const pinHits = [], flags = [];
 let isClosingOverlay = false;
 let hArmL = null, hArmR = null;
+let hHeadRef = null;
+let awarenessBubble = null;
+let awarenessBubbleTimer = null;
 
 /* Hero state — module scope so zoomToFlag / overviewCamera can access */
 let hero, heroStage = -1, heroAnimState = 'idle', heroAnimTime = 0;
 let stageCams = [];
 let hStick, hMapMesh, heroFlagGroup;
+let heroTrailheadMarks = null;
 let confettiGroup = null, confettiParts = [];
 let trailCurve = null;
 let cloudMatRef = null;
@@ -192,6 +196,7 @@ function closeOverlay() {
   isClosingOverlay = true;
   hideMiniInfo();
   closeStepModal();
+  hideAwarenessBubble();
   if (overlay) {
     overlay.classList.remove('is-below-scene');
     overlay.scrollTop = 0;
@@ -225,6 +230,73 @@ function showMiniInfo() {
 function closeStepModal() {
   if (!stepModal) return;
   stepModal.hidden = true;
+}
+
+function ensureAwarenessBubble() {
+  if (awarenessBubble || !overlay) return awarenessBubble;
+  awarenessBubble = document.createElement('div');
+  awarenessBubble.id = 'alt3dThinkingBubble';
+  awarenessBubble.className = 'alt3d-thinking-bubble';
+  awarenessBubble.setAttribute('aria-hidden', 'true');
+  awarenessBubble.innerHTML = `
+    <span class="alt3d-thinking-bubble-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+  `;
+  overlay.appendChild(awarenessBubble);
+  return awarenessBubble;
+}
+
+function positionAwarenessBubble() {
+  if (!awarenessBubble || !cam || !hHeadRef) return;
+
+  const headWorld = new THREE.Vector3();
+  hHeadRef.getWorldPosition(headWorld);
+  const headScreen = headWorld.project(cam);
+  if (headScreen.z >= 1) return;
+
+  const px = (headScreen.x * 0.5 + 0.5) * window.innerWidth;
+  const py = (-headScreen.y * 0.5 + 0.5) * window.innerHeight;
+
+  const bubbleW = awarenessBubble.offsetWidth || 92;
+  const bubbleH = awarenessBubble.offsetHeight || 56;
+  const pad = 10;
+
+  const left = Math.min(
+    Math.max(px + 28, pad),
+    window.innerWidth - bubbleW - pad
+  );
+  const top = Math.min(
+    Math.max(py - bubbleH * 0.5, pad),
+    window.innerHeight - bubbleH - pad
+  );
+
+  awarenessBubble.style.left = `${Math.round(left)}px`;
+  awarenessBubble.style.top = `${Math.round(top)}px`;
+}
+
+function hideAwarenessBubble() {
+  if (awarenessBubbleTimer) {
+    clearTimeout(awarenessBubbleTimer);
+    awarenessBubbleTimer = null;
+  }
+  if (!awarenessBubble) return;
+  awarenessBubble.classList.remove('is-visible');
+  awarenessBubble.setAttribute('aria-hidden', 'true');
+}
+
+function showAwarenessBubble() {
+  const bubble = ensureAwarenessBubble();
+  if (!bubble) return;
+  if (awarenessBubbleTimer) {
+    clearTimeout(awarenessBubbleTimer);
+    awarenessBubbleTimer = null;
+  }
+  bubble.setAttribute('aria-hidden', 'false');
+  bubble.classList.add('is-visible');
+  positionAwarenessBubble();
+  requestAnimationFrame(positionAwarenessBubble);
+  awarenessBubbleTimer = setTimeout(() => {
+    hideAwarenessBubble();
+  }, 2400);
 }
 
 function syncOverlayScrollState() {
@@ -506,6 +578,118 @@ function initScene() {
   const mBackpack = new THREE.MeshStandardMaterial({ color: 0xc06030, roughness: 0.75 });
   const mRed      = new THREE.MeshStandardMaterial({ color: 0xe85040, roughness: 0.45, side: THREE.DoubleSide });
   const mGold     = new THREE.MeshStandardMaterial({ color: 0xF8AF21, roughness: 0.35, metalness: 0.25, side: THREE.DoubleSide });
+
+  function makeMarkMaterial(color, emissive) {
+    return new THREE.MeshStandardMaterial({
+      color,
+      emissive,
+      emissiveIntensity: 0.24,
+      roughness: 0.38,
+      metalness: 0.12
+    });
+  }
+
+  function makeTrailheadMark(kind, color, emissive) {
+    const g = new THREE.Group();
+    if (kind === 'lightbulb') {
+      const glassMat = new THREE.MeshStandardMaterial({
+        color,
+        emissive,
+        emissiveIntensity: 0.34,
+        roughness: 0.18,
+        metalness: 0.04,
+        transparent: true,
+        opacity: 0.9
+      });
+      const glowMat = new THREE.MeshStandardMaterial({
+        color: 0xfff3c2,
+        emissive: 0xa67a12,
+        emissiveIntensity: 0.28,
+        roughness: 0.35,
+        metalness: 0.02,
+        transparent: true,
+        opacity: 0.68
+      });
+      const metalMat = new THREE.MeshStandardMaterial({
+        color: 0xc3cad3,
+        emissive: 0x202833,
+        emissiveIntensity: 0.1,
+        roughness: 0.34,
+        metalness: 0.78
+      });
+      const contactMat = new THREE.MeshStandardMaterial({
+        color: 0x7b4d1f,
+        emissive: 0x281507,
+        emissiveIntensity: 0.08,
+        roughness: 0.55,
+        metalness: 0.22
+      });
+      const filamentMat = new THREE.MeshStandardMaterial({
+        color: 0xf2b94b,
+        emissive: 0x7f5a12,
+        emissiveIntensity: 0.2,
+        roughness: 0.48,
+        metalness: 0.28
+      });
+
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.152, 26, 22), glassMat);
+      bulb.scale.set(1.0, 1.22, 1.0);
+      bulb.position.y = 0.16;
+      g.add(bulb);
+
+      const bulbCore = new THREE.Mesh(new THREE.SphereGeometry(0.094, 20, 16), glowMat);
+      bulbCore.scale.set(0.92, 1.08, 0.92);
+      bulbCore.position.y = 0.155;
+      g.add(bulbCore);
+
+      const glassNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.066, 0.07, 20), glassMat);
+      glassNeck.position.y = 0.018;
+      g.add(glassNeck);
+
+      const baseBody = new THREE.Mesh(new THREE.CylinderGeometry(0.064, 0.072, 0.112, 20), metalMat);
+      baseBody.position.y = -0.08;
+      g.add(baseBody);
+
+      [-0.038, -0.062, -0.086, -0.11].forEach(y => {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.064, 0.008, 10, 26), metalMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = y;
+        g.add(ring);
+      });
+
+      const contact = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.018, 0.022, 12), contactMat);
+      contact.position.y = -0.145;
+      g.add(contact);
+
+      const supportL = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.06, 8), filamentMat);
+      supportL.position.set(-0.022, 0.07, 0);
+      supportL.rotation.z = -0.14;
+      g.add(supportL);
+
+      const supportR = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.06, 8), filamentMat);
+      supportR.position.set(0.022, 0.07, 0);
+      supportR.rotation.z = 0.14;
+      g.add(supportR);
+
+      const filamentCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.03, 0.102, 0),
+        new THREE.Vector3(-0.01, 0.084, 0),
+        new THREE.Vector3(0.0, 0.096, 0),
+        new THREE.Vector3(0.01, 0.084, 0),
+        new THREE.Vector3(0.03, 0.102, 0),
+      ]);
+      const filament = new THREE.Mesh(new THREE.TubeGeometry(filamentCurve, 18, 0.0065, 8, false), filamentMat);
+      g.add(filament);
+    }
+
+    g.traverse(node => {
+      if (node.isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+      }
+    });
+    return g;
+  }
 
   /* Master group */
   G = new THREE.Group();
@@ -1140,6 +1324,7 @@ function initScene() {
   /* Head */
   const hHead = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 10), mSkin);
   hHead.position.y = 0.78; hHead.castShadow = true; hero.add(hHead);
+  hHeadRef = hHead;
   /* Hair — full styled hair, clearly visible */
   const hHairMain = new THREE.Mesh(
     new THREE.SphereGeometry(0.16, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.6), mHeroHair);
@@ -1233,6 +1418,21 @@ function initScene() {
   heroFlagGroup.visible = false;
   heroFlagGroup.position.set(-0.25, 0, 0.15);
   hero.add(heroFlagGroup);
+
+  /* Trailhead decision symbols above hero head (Stage 01 only). */
+  heroTrailheadMarks = new THREE.Group();
+  const lightBulb = makeTrailheadMark('lightbulb', 0xF8AF21, 0x6f5212);
+  lightBulb.position.set(-0.02, 1.22, 0.12);
+  lightBulb.userData.baseY = 1.22;
+  lightBulb.userData.phase = 0.0;
+  lightBulb.userData.floatAmp = 0.016;
+  lightBulb.userData.rollAmp = 0.08;
+  lightBulb.userData.baseScale = 1.06;
+  lightBulb.userData.pulseAmp = 0.04;
+  heroTrailheadMarks.add(lightBulb);
+
+  heroTrailheadMarks.visible = false;
+  hero.add(heroTrailheadMarks);
 
   /* Start hero at stage 00 — grounded on trail slab surface */
   const startPoint = trailCurve.getPointAt(stageTValues[AWARENESS_INDEX]);
@@ -1431,6 +1631,25 @@ function initScene() {
       hBody.scale.x = 1.0 + Math.sin(et * 2.5) * 0.015;
     }
 
+    if (heroTrailheadMarks && heroTrailheadMarks.visible) {
+      hero.updateWorldMatrix(true, false);
+      heroTrailheadMarks.children.forEach(mark => {
+        const phase = mark.userData.phase || 0;
+        const floatAmp = mark.userData.floatAmp || 0.014;
+        const rollAmp = mark.userData.rollAmp || 0.06;
+        const baseScale = mark.userData.baseScale || 1;
+        const pulseAmp = mark.userData.pulseAmp || 0;
+
+        mark.position.y = mark.userData.baseY + Math.sin(et * 2.4 + phase) * floatAmp;
+        mark.lookAt(cam.position);
+        mark.rotateZ(Math.sin(et * 1.6 + phase) * rollAmp);
+        if (pulseAmp > 0) {
+          const s = baseScale * (1 + Math.sin(et * 2.1 + phase) * pulseAmp);
+          mark.scale.setScalar(s);
+        }
+      });
+    }
+
     /* Cloud drift */
     clouds.forEach((c, i) => {
       c.position.x += Math.sin(et * 0.15 + i * 1.5) * 0.002;
@@ -1457,6 +1676,9 @@ function initScene() {
     oc.update();
     if (cam.position.y < 0.85) cam.position.y = 0.85;
     updateLabels();
+    if (awarenessBubble && awarenessBubble.classList.contains('is-visible')) {
+      positionAwarenessBubble();
+    }
     R.render(scene, cam);
   })();
 }
@@ -1557,6 +1779,7 @@ function zoomToFlag(i) {
   heroAnimTime = 0;
   hMapMesh.visible = false;
   heroFlagGroup.visible = false;
+  if (heroTrailheadMarks) heroTrailheadMarks.visible = false;
   hStick.visible = false;
   clearConfetti();
 
@@ -1621,6 +1844,7 @@ function zoomToFlag(i) {
         hero.rotation.x = 0;
         hStick.visible = false;
         heroFlagGroup.visible = false;
+        if (heroTrailheadMarks) heroTrailheadMarks.visible = true;
         if (hArmR && hArmL) {
           hArmR.rotation.x = 0;
           hArmR.rotation.z = -0.25;
@@ -1630,6 +1854,7 @@ function zoomToFlag(i) {
       } else if (i === BASECAMP_INDEX) {
         heroAnimState = 'looking'; // reading business plan at basecamp
         hero.rotation.x = 0;
+        hero.rotation.y = Math.atan2(cam.position.x - finalX, cam.position.z - finalZ);
         hStick.visible = false;
         heroFlagGroup.visible = false;
         if (hArmR) {
@@ -1677,6 +1902,11 @@ function zoomToFlag(i) {
   });
 
   document.querySelectorAll('.alt3d-dot').forEach((d, j) => d.classList.toggle('active', j === i));
+  if (i === AWARENESS_INDEX) {
+    showAwarenessBubble();
+  } else {
+    hideAwarenessBubble();
+  }
   showInfoCard(i);
 }
 
@@ -1694,8 +1924,10 @@ function overviewCamera() {
   heroAnimState = 'idle';
   hMapMesh.visible = false;
   heroFlagGroup.visible = false;
+  if (heroTrailheadMarks) heroTrailheadMarks.visible = false;
   hStick.visible = false;
   hero.rotation.x = 0;
+  hideAwarenessBubble();
   clearConfetti();
   const startPoint = trailCurve ? trailCurve.getPointAt(stageTValues[AWARENESS_INDEX]) : S[AWARENESS_INDEX].pos.clone();
   gsap.to(hero.position, { x: startPoint.x, y: startPoint.y + 0.20, z: startPoint.z, duration: 1.0, ease: 'power2.inOut' });
@@ -1781,7 +2013,6 @@ function updateLabels() {
     s.el.style.opacity = zoomed ? '0' : '1';
   });
 }
-
 /* =============================================================
    RESIZE
    ============================================================= */

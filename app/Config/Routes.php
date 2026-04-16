@@ -15,7 +15,7 @@ use CodeIgniter\Router\RouteCollection;
 
 $routes->get('/', 'Landing::index');
 $routes->get('/landing', 'Landing::index');
-$routes->match(['get', 'head'], '/sitemap.xml', 'Sitemap::index');
+$routes->match(['GET', 'HEAD'], '/sitemap.xml', 'Sitemap::index');
 $routes->get('/about', 'About::index');
 $routes->get('/about/logo', 'About::logo');
 
@@ -45,10 +45,21 @@ $routes->get('/news/(:segment)', 'News::show/$1');
 $routes->get('/organization', 'Organization::index');
 $routes->get('/contact', 'Contact::index');
 $routes->post('/contact/send', 'Contact::send');
+$routes->get('/games/guess-the-startup', 'Games::guessStartup');
+$routes->get('/games/guess-the-startup/play', 'Games::guessStartupPlay');
+$routes->get('/games/guess-the-startup/leaderboard', 'Games::guessStartupLeaderboard');
+$routes->get('/games/guess-the-startup/google', 'Games::google');
+$routes->get('/games/guess-the-startup/google/callback', 'Games::googleCallback');
+$routes->match(['GET', 'POST'], '/games/guess-the-startup/profile', 'Games::guessStartupProfile', ['filter' => 'csrf']);
+$routes->get('/games/guess-the-startup/sign-out', 'Games::signOut');
 
 // Lightweight API endpoints used by frontend components
 $routes->get('/api/sdgs', 'Api\Sdgs::index');
 $routes->get('/api/incubatees', 'Api\Incubatees::index');
+$routes->get('/api/games/guess-startup/leaderboard', 'Api\Games::leaderboard');
+$routes->post('/api/games/guess-startup/start', 'Api\Games::start');
+$routes->post('/api/games/guess-startup/submit', 'Api\Games::submit');
+$routes->post('/api/games/guess-startup/abandon', 'Api\Games::abandon');
 
 /*
  * ────────────────────────────────────────────────────────────────────────────

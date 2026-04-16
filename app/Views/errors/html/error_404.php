@@ -33,21 +33,22 @@
 
     html,
     body {
-        height: 100%;
+        min-height: 100%;
     }
 
     body {
         font-family: 'DM Sans', system-ui, sans-serif;
         color: var(--asog-ink);
         background: #cdd5dc;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
     /* ── Full-bleed wrapper ─────────────────────────────── */
     .wrap {
         position: relative;
         width: 100%;
-        height: 100%;
+        min-height: 100vh;
         overflow: hidden;
         background:
             radial-gradient(ellipse 900px 500px at 15% -5%, #d8e6f0 0%, transparent 60%),
@@ -285,46 +286,153 @@
 
     /* ── Responsive ─────────────────────────────────────── */
     @media (max-width: 860px) {
+        .wrap {
+            min-height: 100svh;
+        }
+
         .glass-panel {
             display: none;
         }
 
+        .scene {
+            position: relative;
+            inset: auto;
+            min-height: 60svh;
+        }
+
+        .scene-art {
+            min-height: 60svh;
+            height: 60svh;
+        }
+
         .text-block {
-            justify-content: flex-start;
+            position: relative;
+            inset: auto;
             max-width: 100%;
-            padding-top: 2.6rem;
+            padding: 2rem 1.25rem 1.2rem;
+            justify-content: flex-start;
+        }
+
+        h1 {
+            font-size: clamp(4rem, 18vw, 5.5rem);
+        }
+
+        h2 {
+            margin-top: .85rem;
+            font-size: clamp(1.05rem, 4.6vw, 1.4rem);
+        }
+
+        .message {
+            max-width: 34ch;
+        }
+
+        .actions {
+            margin-top: 1.25rem;
         }
 
         /* Keep map visible on portrait/tablet where SVG slice crops the right side. */
         .map-layout {
-            transform: translate(620px, 410px) rotate(-1.2deg) scale(.9);
+            transform: translate(528px, 354px) rotate(-1.2deg) scale(.95);
         }
 
         .map-shadow {
-            transform: translateX(-210px) scaleX(.82);
+            transform: translateX(-220px) scaleX(.82);
             transform-origin: center;
         }
 
         .q-wrap {
-            transform: translate(-210px, 88px);
+            transform: translate(-215px, 64px);
         }
     }
 
     @media (max-width: 540px) {
+        .scene {
+            min-height: 54svh;
+        }
+
+        .scene-art {
+            min-height: 54svh;
+            height: 54svh;
+        }
+
+        .text-block {
+            padding: 1.5rem 1rem 1rem;
+        }
+
+        h1 {
+            font-size: clamp(3.4rem, 21vw, 4.6rem);
+        }
+
+        h2 {
+            margin-top: .7rem;
+            font-size: 1.03rem;
+            line-height: 1.24;
+        }
+
+        .message {
+            font-size: .95rem;
+            line-height: 1.58;
+        }
+
+        .actions {
+            gap: .5rem;
+        }
+
         .btn {
             padding: .65rem 1rem;
+            font-size: .8rem;
         }
 
         .map-layout {
-            transform: translate(520px, 440px) rotate(-1deg) scale(.82);
+            transform: translate(480px, 404px) rotate(-1deg) scale(.88);
         }
 
         .map-shadow {
-            transform: translateX(-270px) scaleX(.72);
+            transform: translateX(-270px) scaleX(.76);
         }
 
         .q-wrap {
-            transform: translate(-270px, 120px) scale(.9);
+            transform: translate(-265px, 108px) scale(.9);
+        }
+    }
+
+    @media (max-width: 420px) {
+        .scene {
+            min-height: 48svh;
+        }
+
+        .scene-art {
+            min-height: 48svh;
+            height: 48svh;
+        }
+
+        .text-block {
+            padding: 1.25rem .9rem .9rem;
+        }
+
+        .message {
+            max-width: none;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .actions {
+            width: 100%;
+        }
+
+        .map-layout {
+            transform: translate(452px, 420px) rotate(-.8deg) scale(.82);
+        }
+
+        .map-shadow {
+            transform: translateX(-300px) scaleX(.72);
+        }
+
+        .q-wrap {
+            transform: translate(-295px, 118px) scale(.86);
         }
     }
     </style>

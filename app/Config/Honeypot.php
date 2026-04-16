@@ -14,7 +14,7 @@ class Honeypot extends BaseConfig
     /**
      * Honeypot Label Content
      */
-    public string $label = 'Website URL';
+    public string $label = 'Leave this field empty';
 
     /**
      * Honeypot Field Name
@@ -31,7 +31,7 @@ class Honeypot extends BaseConfig
     /**
      * Honeypot container — CSP-safe (no inline style, hidden via CSS)
      */
-    public string $container = '<div id="{id}">{template}</div>';
+    public string $container = '<div id="{id}" style="display:none !important; visibility:hidden; position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;" aria-hidden="true">{template}</div>';
 
     /**
      * The id attribute for Honeypot container tag
