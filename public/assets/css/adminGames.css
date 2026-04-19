@@ -1,0 +1,130 @@
+.games-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    padding: 1.2rem;
+    box-shadow: 0 12px 32px -24px rgba(15, 23, 42, 0.45);
+}
+
+.games-head {
+    display: grid;
+    gap: 0.45rem;
+    margin-bottom: 1rem;
+}
+
+.games-kicker {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.games-head h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+}
+
+.games-copy {
+    margin: 0;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.games-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.games-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    padding: 0.9rem;
+}
+
+.games-toggle-copy {
+    display: grid;
+    gap: 0.16rem;
+}
+
+.games-toggle-copy strong {
+    color: #0f172a;
+    font-size: 0.92rem;
+}
+
+.games-toggle-copy span {
+    color: #475569;
+    font-size: 0.8rem;
+}
+
+.games-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.games-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.games-slider {
+    position: relative;
+    width: 52px;
+    height: 30px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    transition: background 0.2s ease;
+}
+
+.games-slider::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.25);
+    transition: transform 0.2s ease;
+}
+
+.games-switch input[type="checkbox"]:checked + .games-slider {
+    background: #0b5d99;
+}
+
+.games-switch input[type="checkbox"]:checked + .games-slider::after {
+    transform: translateX(22px);
+}
+
+.games-switch-label {
+    min-width: 2.2rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #0f172a;
+}
+
+.games-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+    .games-toggle-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

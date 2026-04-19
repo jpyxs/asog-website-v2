@@ -1,5 +1,31 @@
 <link rel="stylesheet" href="<?= base_url('assets/games/guess-startup/css/landing.css') ?>">
 
+<style>
+    .gsl-board-head {
+        display: grid;
+        justify-items: center;
+        gap: 0.08rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .gsl-board-head .gsl-block-title {
+        margin: 0;
+        color: #0f4f7c;
+        font-size: clamp(1.45rem, 3vw, 2.4rem);
+        line-height: 1;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .gsl-board-head .gsl-board-date {
+        margin: 0;
+        color: #5c7f9b;
+        font-size: 0.84rem;
+        letter-spacing: 0.12em;
+    }
+</style>
+
 <?php
 $leaderboardRows = is_array($leaderboardRows ?? null) ? $leaderboardRows : [];
 $leaderboardDate = (string) ($leaderboardDate ?? date('Y-m-d'));
@@ -11,6 +37,18 @@ $playerId = (int) ($player['id'] ?? 0);
 $isTodayBoard = ($leaderboardDate === $todayDate);
 $playerRankValue = is_array($playerRank) ? (int) ($playerRank['rank'] ?? 0) : 0;
 $playerInTopTen = $playerRankValue > 0 && $playerRankValue <= 10;
+$formatRankLabel = static function (array $row): string {
+    $status = (string) ($row['status'] ?? '');
+    if ($status === 'forfeited') {
+        return 'Forfeited';
+    }
+
+    if (($row['rank'] ?? null) === null) {
+        return 'Unranked';
+    }
+
+    return '#' . (int) ($row['rank'] ?? 0);
+};
 
 $formatElapsed = static function (int $elapsedMs): string {
     $seconds = max(0, (int) floor($elapsedMs / 1000));
@@ -52,8 +90,10 @@ $formatElapsed = static function (int $elapsedMs): string {
 
             <section class="gsl-info-grid" aria-label="Leaderboard details">
                 <article class="gsl-panel gsl-panel-leaderboard">
-                    <h2 class="gsl-block-title">Top 10</h2>
-                    <p class="gsl-board-date"><?= esc($leaderboardDate) ?></p>
+                    <div class="gsl-board-head">
+                        <h2 class="gsl-block-title">Top 10</h2>
+                        <p class="gsl-board-date"><?= esc($leaderboardDate) ?></p>
+                    </div>
                     <?php if ($leaderboardRows === []): ?>
                         <p class="gsl-empty">No completed plays for this day yet.</p>
                     <?php else: ?>
@@ -73,7 +113,9 @@ $formatElapsed = static function (int $elapsedMs): string {
                                     <?php foreach ($leaderboardRows as $row): ?>
                                         <?php
                                         $rank = (int) ($row['rank'] ?? 0);
+                                        $status = (string) ($row['status'] ?? '');
                                         $isSelfRow = $playerId > 0 && (int) ($row['playerId'] ?? 0) === $playerId;
+                                        $rankLabel = $formatRankLabel($row);
                                         $tierClass = '';
                                         if ($rank === 1) {
                                             $tierClass = ' gsl-row-top-1';
@@ -83,8 +125,16 @@ $formatElapsed = static function (int $elapsedMs): string {
                                             $tierClass = ' gsl-row-top-3';
                                         }
                                         ?>
-                                        <tr class="gsl-row<?= $tierClass ?><?= $isSelfRow ? ' gsl-row-self' : '' ?>">
-                                            <td class="gsl-cell-rank">#<?= $rank ?></td>
+                                        <tr class="gsl-row<?= $tierClass ?><?= $status === 'forfeited' ? ' gsl-row-forfeited' : '' ?><?= $isSelfRow ? ' gsl-row-self' : '' ?>">
+                                            <td class="gsl-cell-rank">
+                                                <?php if ($rankLabel === 'Forfeited'): ?>
+                                                    <span class="gsl-rank-forfeited">Forfeited</span>
+                                                <?php elseif ($rankLabel === 'Unranked'): ?>
+                                                    <span class="gsl-rank-unranked">Unranked</span>
+                                                <?php else: ?>
+                                                    <?= esc($rankLabel) ?>
+                                                <?php endif; ?>
+                                            </td>
                                             <td class="gsl-cell-name">
                                                 <strong><?= esc((string) ($row['fullName'] ?? 'Player')) ?></strong>
                                                 <?php if ($isSelfRow): ?>
@@ -105,7 +155,9 @@ $formatElapsed = static function (int $elapsedMs): string {
                     <?php if ($player !== null && is_array($playerRank) && ! $playerInTopTen): ?>
                         <div class="gsl-rank-below" aria-label="Your rank outside top 10">
                             <p class="gsl-rank-below-label">Your Rank (Outside Top 10)</p>
-                            <p class="gsl-rank-below-value">#<?= (int) ($playerRank['rank'] ?? 0) ?> - <?= esc((string) ($playerRank['fullName'] ?? 'Player')) ?></p>
+                            <p class="gsl-rank-below-value">
+                                <?= esc($formatRankLabel($playerRank)) ?> - <?= esc((string) ($playerRank['fullName'] ?? 'Player')) ?>
+                            </p>
                         </div>
                     <?php endif; ?>
                 </article>

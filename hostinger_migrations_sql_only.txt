@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS landing_settings (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  settingKey VARCHAR(190) NOT NULL,
+  settingValue TEXT NULL,
+  createdAt DATETIME NULL,
+  updatedAt DATETIME NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY idx_landing_settings_key_unique (settingKey)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO landing_settings (settingKey, settingValue, createdAt, updatedAt)
+VALUES ('guessStartupEnabled', '1', NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+  settingValue = VALUES(settingValue),
+  updatedAt = VALUES(updatedAt);
+
+ALTER TABLE game_players DROP INDEX IF EXISTS idx_game_players_email_unique;
+ALTER TABLE game_players DROP INDEX IF EXISTS idx_game_players_google_sub_unique;
+
+ALTER TABLE game_players DROP COLUMN IF EXISTS program;
+ALTER TABLE game_players DROP COLUMN IF EXISTS email;
+ALTER TABLE game_players DROP COLUMN IF EXISTS googleSub;
+ALTER TABLE game_players DROP COLUMN IF EXISTS avatarUrl;

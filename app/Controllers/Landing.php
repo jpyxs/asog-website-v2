@@ -31,6 +31,10 @@ class Landing extends BaseController
             'title'              => 'ASOG Technology Business Incubator (ASOG-TBI) | CSPC',
             'metaDescription'    => 'ASOG-TBI helps startups grow through incubation, mentorship, facilities, and innovation programs in Camarines Sur.',
             'isLanding'          => true,
+            'isGuessStartupEnabled' => trim((string) $landingSettingModel->getValue(
+                LandingSettingModel::KEY_GUESS_STARTUP_ENABLED,
+                '1'
+            )) !== '0',
             'heroSlides'         => $postModel->getFeaturedSlides(5),
             'featuredPost'       => $postModel->getFeatured(),
             'latestPosts'        => $postModel->getPublished(5),
@@ -47,6 +51,7 @@ class Landing extends BaseController
             . view('landing/news', $data)
             . view('landing/organization', $data)
             . view('landing/cta', $data)
+            . view('landing/games', $data)
             . view('landing/contact', $data)
             . view('templates/footer');
     }

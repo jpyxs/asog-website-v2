@@ -50,18 +50,6 @@ class RemoveAddressFromGamePlayers extends Migration
         }
 
         $fields = $this->db->getFieldNames('game_players');
-        if (! in_array('program', $fields, true)) {
-            $this->forge->addColumn('game_players', [
-                'program' => [
-                    'type' => 'VARCHAR',
-                    'constraint' => 120,
-                    'null' => true,
-                    'after' => 'lastName',
-                ],
-            ]);
-        }
-
-        $fields = $this->db->getFieldNames('game_players');
         if (in_array('address', $fields, true)) {
             $builder = $this->db->table('game_players');
             $query = $builder->select('id, address')->get();
@@ -103,6 +91,13 @@ class RemoveAddressFromGamePlayers extends Migration
 
             $this->forge->dropColumn('game_players', 'address');
         }
+
+        $fields = $this->db->getFieldNames('game_players');
+        foreach (['program', 'email', 'googleSub', 'avatarUrl'] as $field) {
+            if (in_array($field, $fields, true)) {
+                $this->forge->dropColumn('game_players', $field);
+            }
+        }
     }
 
     public function down(): void
@@ -120,6 +115,20 @@ class RemoveAddressFromGamePlayers extends Migration
                     'after' => 'school',
                 ],
             ]);
+        }
+
+        foreach (['program', 'email', 'googleSub', 'avatarUrl'] as $field) {
+            $fields = $this->db->getFieldNames('game_players');
+            if (! in_array($field, $fields, true)) {
+                $this->forge->addColumn('game_players', [
+                    $field => [
+                        'type'       => 'VARCHAR',
+                        'constraint' => $field === 'avatarUrl' ? 500 : ($field === 'googleSub' ? 255 : ($field === 'email' ? 255 : 120)),
+                        'null'       => true,
+                        'after'      => 'school',
+                    ],
+                ]);
+            }
         }
     }
 }

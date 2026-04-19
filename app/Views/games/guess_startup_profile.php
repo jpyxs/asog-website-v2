@@ -1,7 +1,9 @@
 <link rel="stylesheet" href="<?= base_url('assets/games/guess-startup/css/play.css') ?>">
 
+<?php $player = is_array($player ?? null) ? $player : []; ?>
+
 <main id="main">
-    <section class="gsp-root" data-navhint="light">
+    <section class="gsp-root gsp-root-profile" data-navhint="light">
         <canvas id="gsThreeCanvas" class="gsp-canvas" aria-hidden="true"></canvas>
 
         <div class="gsp-scenery" aria-hidden="true">
@@ -22,22 +24,9 @@
 
             <section class="gsp-gate gsp-profile-card">
                 <h1 class="gsp-title">Complete Your Player Profile</h1>
-                <p class="gsp-subtitle">Your profile is required before joining today&apos;s Startup Hunt round.</p>
-                <?php $playerEmail = trim((string) ($player['email'] ?? '')); ?>
-                <?php $playerAvatar = trim((string) ($player['avatarUrl'] ?? '')); ?>
-                <?php if ($playerEmail !== '' || $playerAvatar !== ''): ?>
-                    <div class="gsp-profile-account">
-                        <?php if ($playerAvatar !== ''): ?>
-                            <img src="<?= esc($playerAvatar) ?>" alt="Google user photo" class="gsp-profile-avatar">
-                        <?php endif; ?>
-                        <div>
-                            <strong>Google Account</strong>
-                            <span><?= esc($playerEmail) ?></span>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                <p class="gsp-subtitle">First, middle, and last name plus school are required before joining today&apos;s Startup Hunt round.</p>
                 <div class="gsp-profile-info-row">
-                    <p class="gsp-gate-note">Your data is validated and sanitized before save. First name + last name + school must be unique to protect leaderboard fairness.</p>
+                    <p class="gsp-gate-note">Your data is validated and sanitized before save. Name + school must be unique to protect leaderboard fairness.</p>
                 </div>
 
                 <?php $error = session('gs_error'); ?>
@@ -82,12 +71,12 @@
                                 type="text"
                                 maxlength="60"
                                 value="<?= esc(old('first_name', (string) ($profileMeta['first_name'] ?? ''))) ?>"
-                                placeholder="Given name">
+                                placeholder="First name">
                             <p class="gsp-form-error" data-error-for="first_name"><?= esc((string) ($errors['first_name'] ?? '')) ?></p>
                         </div>
 
                         <div class="gsp-form-row">
-                            <label for="middle_name">Middle Name (Optional)</label>
+                            <label for="middle_name">Middle Name</label>
                             <input
                                 id="middle_name"
                                 name="middle_name"
@@ -106,7 +95,7 @@
                                 type="text"
                                 maxlength="60"
                                 value="<?= esc(old('last_name', (string) ($profileMeta['last_name'] ?? ''))) ?>"
-                                placeholder="Surname">
+                                placeholder="Last name">
                             <p class="gsp-form-error" data-error-for="last_name"><?= esc((string) ($errors['last_name'] ?? '')) ?></p>
                         </div>
                     </div>
@@ -139,7 +128,6 @@
 
                     <div class="gsp-profile-actions">
                         <button type="submit" class="gs-btn gs-btn-primary">Save Profile</button>
-                        <a href="<?= site_url('games/guess-the-startup/sign-out') ?>" class="gs-btn gs-btn-ghost">Sign Out</a>
                     </div>
                 </form>
             </section>
@@ -161,6 +149,8 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: 'last_name', label: 'Last name' },
         { name: 'school', label: 'School' }
     ];
+
+    const namePattern = /^[\p{L}\p{M}][\p{L}\p{M}\s'.-]*$/u;
 
     const getInput = function (name) {
         return form.querySelector('[name="' + name + '"]');
@@ -194,6 +184,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         setError(field.name, '');
+        return true;
+    };
+
+    const validateNamePartFormat = function (fieldName, label, showOnFocus, required) {
+        const input = getInput(fieldName);
+        if (!input) {
+            return true;
+        }
+
+        const value = String(input.value || '').trim();
+        if (value === '') {
+            if (!required) {
+                setError(fieldName, '');
+                return true;
+            }
+
+            if (showOnFocus || document.activeElement !== input) {
+                setError(fieldName, label + ' is required.');
+            }
+            return false;
+        }
+
+        if (!namePattern.test(value)) {
+            if (showOnFocus || document.activeElement !== input) {
+                setError(fieldName, 'Enter a valid ' + label.toLowerCase() + ' (letters, spaces, apostrophe, dot, and dash only).');
+            }
+            return false;
+        }
+
+        setError(fieldName, '');
         return true;
     };
 
@@ -250,12 +270,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
         input.addEventListener('input', function () {
             validateRequiredField(field, false);
+            if (field.name === 'first_name' || field.name === 'last_name') {
+                validateNamePartFormat(field.name, field.label, false, true);
+            }
         });
 
         input.addEventListener('blur', function () {
             validateRequiredField(field, true);
+            if (field.name === 'first_name' || field.name === 'last_name') {
+                validateNamePartFormat(field.name, field.label, true, true);
+            }
         });
     });
+
+    const middleNameInput = getInput('middle_name');
+    if (middleNameInput) {
+        middleNameInput.addEventListener('input', function () {
+            validateNamePartFormat('middle_name', 'Middle name', false, false);
+        });
+
+        middleNameInput.addEventListener('blur', function () {
+            validateNamePartFormat('middle_name', 'Middle name', true, false);
+        });
+    }
 
     if (schoolInput) {
         schoolInput.addEventListener('change', function () {
@@ -289,7 +326,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!valid && !firstInvalid) {
                 firstInvalid = getInput(field.name);
             }
+
+            if ((field.name === 'first_name' || field.name === 'last_name') && firstInvalid === null) {
+                const nameValid = validateNamePartFormat(field.name, field.label, true, true);
+                if (!nameValid && !firstInvalid) {
+                    firstInvalid = getInput(field.name);
+                }
+            }
         });
+
+        const middleNameValid = validateNamePartFormat('middle_name', 'Middle name', true, false);
+        if (!middleNameValid && !firstInvalid) {
+            firstInvalid = getInput('middle_name');
+        }
 
         const schoolOtherValid = validateSchoolOther(true);
         if (!schoolOtherValid && !firstInvalid) {

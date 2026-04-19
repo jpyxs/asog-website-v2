@@ -163,6 +163,7 @@
             class="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-12 lg:py-14 order-2 lg:order-1 facility-copy">
             <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">Partner Facility</span>
             <h3 class="font-display text-[1.8rem] md:text-[2.2rem] leading-[1.15] text-dark mb-5">Fabrication Laboratory
+                - Shared Service Facility (SSF)
             </h3>
             <p class="text-[.92rem] font-normal leading-[1.85] text-black mb-6">Equipped with digital fabrication tools
                 including 3D printers, CNC machines, laser cutters, and electronics workbenches for rapid prototyping.
@@ -200,7 +201,7 @@
     </div>
 </section>
 
-<!-- 5 · Shared Service Facility -->
+<!-- 5 · Rinconada Food Processing Hub - Shared Service Facility (SSF) -->
 <section id="ssf" class="scroll-mt-28 bg-white">
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[420px] facility-row">
         <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
@@ -208,15 +209,15 @@
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
                 <img src="<?= base_url('assets/img/facilities/ssf/IMG_0984.JPG') ?>"
-                    alt="Shared Service Facility view 1"
+                    alt="Rinconada Food Processing Hub - Shared Service Facility (SSF) view 1"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
                 <img src="<?= base_url('assets/img/facilities/ssf/IMG_0987.JPG') ?>"
-                    alt="Shared Service Facility view 2"
+                    alt="Rinconada Food Processing Hub - Shared Service Facility (SSF) view 2"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
                 <img src="<?= base_url('assets/img/facilities/ssf/IMG_0990.JPG') ?>"
-                    alt="Shared Service Facility view 3"
+                    alt="Rinconada Food Processing Hub - Shared Service Facility (SSF) view 3"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
             </div>
@@ -231,8 +232,8 @@
         </div>
         <div class="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-12 lg:py-14 facility-copy">
             <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">Partner Facility</span>
-            <h3 class="font-display text-[1.8rem] md:text-[2.2rem] leading-[1.15] text-dark mb-5">Shared Service
-                Facility</h3>
+            <h3 class="font-display text-[1.8rem] md:text-[2.2rem] leading-[1.15] text-dark mb-5">Rinconada Food
+                Processing Hub - Shared Service Facility (SSF)</h3>
             <p class="text-[.92rem] font-normal leading-[1.85] text-black mb-6">Rinconada Food Processing Hub — a food
                 processing laboratory for testing, scaling, and validating food-based innovations and products.</p>
             <ul class="space-y-2.5 text-[.82rem] text-dark font-light">

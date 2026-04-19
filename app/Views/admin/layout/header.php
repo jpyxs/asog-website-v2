@@ -38,6 +38,10 @@
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 Incubatees
             </a>
+            <a href="<?= site_url('admin/games') ?>" class="<?= ($activePage ?? '') === 'games' ? 'on' : '' ?>">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.868v4.264a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 1.76-.39 3.43-1.09 4.93a2 2 0 01-1.58 1.11 48.2 48.2 0 01-12.66 0 2 2 0 01-1.58-1.11A11.96 11.96 0 013 12c0-1.76.39-3.43 1.09-4.93a2 2 0 011.58-1.11 48.2 48.2 0 0112.66 0 2 2 0 011.58 1.11c.7 1.5 1.09 3.17 1.09 4.93z"/></svg>
+                Games
+            </a>
             <?php $unreadMsgCount = (new \App\Models\ContactMessageModel())->countUnread(); ?>
             <a href="<?= site_url('admin/messages') ?>" class="<?= ($activePage ?? '') === 'messages' ? 'on' : '' ?>" style="position:relative">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>

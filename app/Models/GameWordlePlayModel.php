@@ -67,14 +67,7 @@ class GameWordlePlayModel extends Model
             ->orderBy('game_wordle_plays.finishedAt', 'ASC')
             ->findAll($limit);
 
-        $rank = 1;
-        foreach ($rows as &$row) {
-            $row['rank'] = $rank;
-            $rank++;
-        }
-        unset($row);
-
-        return $rows;
+        return $this->decorateLeaderboardRows($rows);
     }
 
     public function getRankByDateAndPlay(int $playerId, string $playDate): ?array
@@ -105,19 +98,110 @@ class GameWordlePlayModel extends Model
             ->orderBy('game_wordle_plays.id', 'ASC')
             ->findAll();
 
+        $rows = $this->decorateLeaderboardRows($rows);
         $targetId = (int) ($current['id'] ?? 0);
-        $rank = 1;
 
         foreach ($rows as $row) {
             if ((int) ($row['id'] ?? 0) === $targetId) {
-                $row['rank'] = $rank;
                 return $row;
             }
-
-            $rank++;
         }
 
         return null;
+    }
+
+    public function hasNameAlreadyWonTopThreeForDate(string $fullName, string $playDate): bool
+    {
+        $normalizedName = strtolower(trim($fullName));
+                $playDate = trim($playDate);
+
+                if ($normalizedName === '' || $playDate === '') {
+            return false;
+        }
+
+        $sql = <<<'SQL'
+SELECT 1
+FROM (
+    SELECT
+        gwp.playerId,
+        ROW_NUMBER() OVER (
+            PARTITION BY gwp.playDate
+            ORDER BY gwp.attemptsUsed DESC, gwp.score DESC, gwp.elapsedMs ASC, gwp.finishedAt ASC, gwp.id ASC
+        ) AS row_num
+    FROM game_wordle_plays gwp
+    WHERE gwp.status = ?
+      AND gwp.playDate = ?
+      AND gwp.score > 0
+) ranked
+INNER JOIN game_players gp ON gp.id = ranked.playerId
+WHERE ranked.row_num <= 3
+  AND LOWER(TRIM(gp.fullName)) = ?
+LIMIT 1
+SQL;
+
+        $result = $this->db->query($sql, [self::STATUS_SOLVED, $playDate, $normalizedName])->getRowArray();
+        return is_array($result);
+    }
+
+    public function hasNameRegistrationForDate(string $fullName, string $playDate): bool
+    {
+        $normalizedName = strtolower(trim($fullName));
+        $playDate = trim($playDate);
+
+        if ($normalizedName === '' || $playDate === '') {
+            return false;
+        }
+
+        $sql = <<<'SQL'
+SELECT 1
+FROM game_wordle_plays gwp
+INNER JOIN game_players gp ON gp.id = gwp.playerId
+WHERE gwp.playDate = ?
+  AND LOWER(TRIM(gp.fullName)) = ?
+LIMIT 1
+SQL;
+
+        $result = $this->db->query($sql, [$playDate, $normalizedName])->getRowArray();
+        return is_array($result);
+    }
+
+    private function decorateLeaderboardRows(array $rows): array
+    {
+        $decorated = [];
+        $lastRank = 0;
+        $zeroScoreRank = null;
+
+        foreach ($rows as $row) {
+            $status = (string) ($row['status'] ?? '');
+            if ($status === self::STATUS_FORFEITED) {
+                $row['rank'] = null;
+                $row['rankLabel'] = 'Unranked';
+                $decorated[] = $row;
+                continue;
+            }
+
+            $score = (int) ($row['score'] ?? 0);
+
+            // Keep non-zero plays fully ordered (time-aware), but tie all zero-score completions.
+            if ($score > 0) {
+                $lastRank++;
+                $row['rank'] = $lastRank;
+                $row['rankLabel'] = '#' . $lastRank;
+                $decorated[] = $row;
+                continue;
+            }
+
+            if ($zeroScoreRank === null) {
+                $lastRank++;
+                $zeroScoreRank = $lastRank;
+            }
+
+            $row['rank'] = $zeroScoreRank;
+            $row['rankLabel'] = '#' . $zeroScoreRank;
+            $decorated[] = $row;
+        }
+
+        return $decorated;
     }
 
     public function markAsSolved(int $playId, int $attemptsUsed, int $elapsedMs, int $score): bool

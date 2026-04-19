@@ -682,6 +682,33 @@
     font-weight: 800;
 }
 
+.gsl-rank-unranked {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(84, 120, 149, 0.24);
+    background: rgba(241, 246, 251, 0.88);
+    color: #5a7289;
+    padding: 0.08rem 0.42rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.gsl-rank-forfeited {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(154, 67, 78, 0.28);
+    background: rgba(250, 242, 243, 0.96);
+    color: #8f2d39;
+    padding: 0.09rem 0.46rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
 .gsl-cell-name {
     min-width: 172px;
 }
@@ -733,6 +760,22 @@
     box-shadow: inset 4px 0 0 #1c5f8d;
 }
 
+.gsl-row.gsl-row-forfeited {
+    background: linear-gradient(90deg, rgba(246, 236, 237, 0.88), rgba(252, 246, 247, 0.74));
+    box-shadow: inset 3px 0 0 rgba(157, 59, 71, 0.72);
+}
+
+.gsl-row.gsl-row-forfeited .gsl-cell-name strong,
+.gsl-row.gsl-row-forfeited .gsl-cell-score,
+.gsl-row.gsl-row-forfeited .gsl-cell-time,
+.gsl-row.gsl-row-forfeited .gsl-cell-rank {
+    color: #7f2a35;
+}
+
+.gsl-row.gsl-row-forfeited .gsl-you-pill {
+    background: #8f3440;
+}
+
 .gsl-your-note {
     margin: 0.56rem 0 0;
     color: #2a5d82;
@@ -778,6 +821,14 @@
 .gsl-root.gsl-root-leaderboard .gsl-info-grid .gsl-panel.gsl-panel-leaderboard {
     grid-column: span 1;
 }
+
+    .gsl-root.gsl-root-leaderboard .gsl-table {
+        min-width: 0;
+    }
+
+    .gsl-root.gsl-root-leaderboard .gsl-cell-rank {
+        width: 66px;
+    }
 
 .gsl-rank-below {
     margin-top: 0.62rem;

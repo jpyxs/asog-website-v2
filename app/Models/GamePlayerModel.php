@@ -18,30 +18,14 @@ class GamePlayerModel extends Model
         'firstName',
         'middleName',
         'lastName',
-        'program',
-        'email',
-        'googleSub',
         'school',
-        'avatarUrl',
         'isActive',
         'lastLoginAt',
     ];
 
     public function findByGoogleAccount(string $email, string $googleSub): ?array
     {
-        $email = strtolower(trim($email));
-        $googleSub = trim($googleSub);
-
-        if ($googleSub === '') {
-            return $this->where('email', $email)->where('isActive', 1)->first();
-        }
-
-        return $this->where('isActive', 1)
-            ->groupStart()
-                ->where('googleSub', $googleSub)
-                ->orWhere('email', $email)
-            ->groupEnd()
-            ->first();
+        return null;
     }
 
     public function findActiveById(int $id): ?array
@@ -76,7 +60,7 @@ class GamePlayerModel extends Model
         }
 
         $sql = "
-            SELECT id, fullName, firstName, lastName, school, email, isActive
+            SELECT id, fullName, firstName, lastName, school, isActive
             FROM game_players
             WHERE isActive = 1
             AND LOWER(firstName) = ?

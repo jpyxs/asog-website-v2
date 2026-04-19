@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\LandingSettingModel;
 use App\Models\GamePlayerModel;
 use App\Models\GameWordlePlayModel;
 use Google\Client as GoogleClient;
@@ -26,15 +27,21 @@ class Games extends BaseController
         $this->playModel = new GameWordlePlayModel();
     }
 
-    public function guessStartup(): string
+    public function guessStartup()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->redirectWhenGameDisabled();
+        }
+
         $player = $this->currentPlayer();
         $today = date('Y-m-d');
         $todayPlay = null;
         $todayRank = null;
+        $isTopThreeWinner = false;
 
         if ($player !== null) {
             $todayPlay = $this->playModel->findByPlayerAndDate((int) $player['id'], $today);
+            $isTopThreeWinner = $this->playModel->hasNameAlreadyWonTopThreeForDate((string) ($player['fullName'] ?? ''), $today);
 
             if (is_array($todayPlay) && in_array((string) ($todayPlay['status'] ?? ''), [$this->playModel->statusSolved(), $this->playModel->statusForfeited()], true)) {
                 $todayRank = $this->playModel->getRankByDateAndPlay((int) $player['id'], $today);
@@ -43,11 +50,12 @@ class Games extends BaseController
 
         $data = [
             'title' => 'Startup Hunt Lobby - ASOG TBI',
-            'metaDescription' => 'Startup Hunt Edition: sign in with Google, play once per day, and compete on the daily startup leaderboard.',
+            'metaDescription' => 'Startup Hunt Edition: complete your name and school profile, play once per day, and compete on the daily startup leaderboard.',
             'player' => $player,
             'isProfileComplete' => $player !== null ? $this->playerModel->isProfileComplete($player) : false,
             'todayPlay' => $todayPlay,
             'todayRank' => $todayRank,
+            'isTopThreeWinner' => $isTopThreeWinner,
             'leaderboardDate' => $today,
             'leaderboardRows' => $this->playModel->getTopByDate($today, 10),
         ];
@@ -57,8 +65,12 @@ class Games extends BaseController
             . view('templates/footer', ['hideSiteFooter' => true]);
     }
 
-    public function guessStartupLeaderboard(): string
+    public function guessStartupLeaderboard()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->redirectWhenGameDisabled();
+        }
+
         $player = $this->currentPlayer();
         $today = date('Y-m-d');
         $rawDate = trim((string) $this->request->getGet('date'));
@@ -92,10 +104,14 @@ class Games extends BaseController
 
     public function guessStartupPlay()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->redirectWhenGameDisabled();
+        }
+
         $player = $this->currentPlayer();
         if ($player === null) {
-            return redirect()->to('/games/guess-the-startup')
-                ->with('gs_error', 'Sign in with Google before playing.');
+            return redirect()->to('/games/guess-the-startup/profile')
+                ->with('gs_notice', 'Enter your profile details before playing.');
         }
 
         if (! $this->playerModel->isProfileComplete($player)) {
@@ -103,7 +119,14 @@ class Games extends BaseController
                 ->with('gs_error', 'Complete your profile first.');
         }
 
-        $todayPlay = $this->playModel->findByPlayerAndDate((int) $player['id'], date('Y-m-d'));
+        $today = date('Y-m-d');
+
+        if ($this->playModel->hasNameAlreadyWonTopThreeForDate((string) ($player['fullName'] ?? ''), $today)) {
+            return redirect()->to('/games/guess-the-startup')
+                ->with('gs_error', 'You already won Top 3 in past games. Top 3 winners are no longer eligible to play.');
+        }
+
+        $todayPlay = $this->playModel->findByPlayerAndDate((int) $player['id'], $today);
 
         $completedStatuses = [$this->playModel->statusSolved(), $this->playModel->statusForfeited()];
         if (is_array($todayPlay) && in_array((string) ($todayPlay['status'] ?? ''), $completedStatuses, true)) {
@@ -119,6 +142,7 @@ class Games extends BaseController
             'hideSiteHeader' => true,
             'csrfHeaderName' => $security->headerName,
             'csrfCookieName' => $security->cookieName,
+            'bodyClass' => 'overflow-hidden',
         ];
 
         return view('templates/header', $data)
@@ -128,14 +152,14 @@ class Games extends BaseController
 
     public function guessStartupProfile()
     {
-        $player = $this->currentPlayer();
-        if ($player === null) {
-            return redirect()->to('/games/guess-the-startup')
-                ->with('gs_error', 'Sign in with Google to complete your profile.');
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->redirectWhenGameDisabled();
         }
 
+        $player = $this->currentPlayer();
+
         $errors = [];
-        $profileMeta = $this->extractProfileMeta($player);
+        $profileMeta = $this->extractProfileMeta($player ?? []);
 
         if (strtolower($this->request->getMethod()) === 'post') {
             $input = [
@@ -152,7 +176,7 @@ class Games extends BaseController
                     'rules' => 'required|min_length[2]|max_length[60]',
                     'errors' => [
                         'required' => 'First name is required.',
-                        'min_length' => 'First name must be at least 2 characters long.',
+                        'min_length' => 'First name must be at least 2 characters.',
                         'max_length' => 'First name must not exceed 60 characters.',
                     ],
                 ],
@@ -168,7 +192,7 @@ class Games extends BaseController
                     'rules' => 'required|min_length[2]|max_length[60]',
                     'errors' => [
                         'required' => 'Last name is required.',
-                        'min_length' => 'Last name must be at least 2 characters long.',
+                        'min_length' => 'Last name must be at least 2 characters.',
                         'max_length' => 'Last name must not exceed 60 characters.',
                     ],
                 ],
@@ -229,20 +253,39 @@ class Games extends BaseController
                 }
 
                 if ($errors === []) {
-                    $playerId = (int) $player['id'];
-                    
-                    // Check for exact duplicate
-                    $duplicatePlayer = $this->playerModel->findActiveByIdentity($firstName, $lastName, $school, $playerId);
+                    $fullName = $this->buildFullName($firstName, $middleName, $lastName);
+                    $playerId = is_array($player) ? (int) ($player['id'] ?? 0) : 0;
+                    $excludePlayerId = $playerId > 0 ? $playerId : 0;
+
+                    $duplicatePlayer = $this->playerModel->findActiveByIdentity($firstName, $lastName, $school, $excludePlayerId);
 
                     if (is_array($duplicatePlayer)) {
-                        $errors['school'] = 'This first name, last name, and school combination is already registered. Sign in with your original Google account.';
-                    } else {
-                        // Extra validation: Check for suspicious name variations (same school, similar names)
-                        $suspiciousMatch = $this->detectSuspiciousNameVariation($firstName, $lastName, $school, $playerId);
-                        if ($suspiciousMatch !== null) {
-                            $errors['first_name'] = 'This name variation appears to match an existing registration at your school. Please use your official full name.';
+                        $duplicateName = (string) ($duplicatePlayer['fullName'] ?? '');
+                        
+                        if ($this->playModel->hasNameAlreadyWonTopThreeForDate($duplicateName, date('Y-m-d'))) {
+                            $errors['school'] = 'You already won Top 3 in past games. Top 3 winners are no longer eligible to play.';
                         } else {
-                            $fullName = $this->buildFullName($firstName, $middleName, $lastName);
+                            $alreadyRegisteredToday = $this->playModel->hasNameRegistrationForDate($duplicateName, date('Y-m-d'));
+
+                            if ($alreadyRegisteredToday) {
+                                $errors['school'] = 'This name and school combination is already registered for today.';
+                            } else {
+                                $existingPlayer = $this->playerModel->findActiveById((int) ($duplicatePlayer['id'] ?? 0));
+                                if (is_array($existingPlayer)) {
+                                    $this->setPlayerSession($existingPlayer);
+
+                                    return redirect()->to('/games/guess-the-startup')
+                                        ->with('gs_success', 'Profile recognized. You can play for today.');
+                                }
+
+                                $errors['school'] = 'Unable to load your existing profile right now. Please try again.';
+                            }
+                        }
+                    } else {
+                        $suspiciousMatch = $this->detectSuspiciousNameVariation($firstName, $lastName, $school, $excludePlayerId, date('Y-m-d'));
+                        if ($suspiciousMatch !== null) {
+                            $errors['first_name'] = 'This name variation appears to match an existing registration at your school. Please use your official name.';
+                        } else {
                             $profileMeta = [
                                 'first_name' => $firstName,
                                 'middle_name' => $middleName,
@@ -251,49 +294,72 @@ class Games extends BaseController
                                 'school_other' => $schoolChoice === 'Others' ? $schoolOther : '',
                             ];
 
-                            $saved = $this->playerModel->update($playerId, [
-                                'fullName' => $fullName,
-                                'firstName' => $firstName,
-                                'middleName' => $middleName !== '' ? $middleName : null,
-                                'lastName' => $lastName,
-                                'school' => $school,
-                            ]);
-
-                            $reloaded = $this->playerModel->findActiveById($playerId);
-                            $persisted = is_array($reloaded)
-                                && trim((string) ($reloaded['fullName'] ?? '')) === $fullName
-                                && trim((string) ($reloaded['school'] ?? '')) === $school;
-
-                            if (! $persisted) {
-                                $this->logPlayerPersistenceFailure('profile_update', [
-                                    'playerId' => $playerId,
-                                    'email' => (string) ($player['email'] ?? ''),
-                                    'expectedFullName' => $fullName,
-                                    'expectedSchool' => $school,
-                                    'updateReturned' => $saved ? 'true' : 'false',
-                                ]);
-                                $errors['school'] = 'Unable to save your profile right now. Please try again.';
+                            if ($this->playModel->hasNameAlreadyWonTopThreeForDate($fullName, date('Y-m-d'))) {
+                                $errors['school'] = 'You already won Top 3 in past games. Top 3 winners are no longer eligible to play.';
                             } else {
-                                session()->set('gsp_player_name', $fullName);
+                                $identity = $this->buildLocalIdentity();
+                                $saveData = [
+                                    'fullName' => $fullName,
+                                    'firstName' => $firstName,
+                                    'middleName' => $middleName !== '' ? $middleName : null,
+                                    'lastName' => $lastName,
+                                    'school' => $school,
+                                    'isActive' => 1,
+                                    'lastLoginAt' => date('Y-m-d H:i:s'),
+                                ];
 
-                                return redirect()->to('/games/guess-the-startup')
-                                    ->with('gs_success', 'Profile saved. You can now play today\'s Startup Hunt round.');
+                                if ($playerId > 0) {
+                                    $saved = $this->playerModel->update($playerId, $saveData);
+                                } else {
+                                    $saveData['email'] = $identity['email'];
+                                    $saveData['googleSub'] = $identity['googleSub'];
+                                    $saveData['avatarUrl'] = null;
+                                    $newIdRaw = $this->playerModel->insert($saveData, true);
+                                    $playerId = is_numeric($newIdRaw) ? (int) $newIdRaw : 0;
+                                    $saved = $playerId > 0;
+                                }
+
+                                $reloaded = $playerId > 0 ? $this->playerModel->findActiveById($playerId) : null;
+                                $persisted = is_array($reloaded)
+                                    && trim((string) ($reloaded['fullName'] ?? '')) === $fullName
+                                    && trim((string) ($reloaded['school'] ?? '')) === $school;
+
+                                if (! $persisted) {
+                                    $this->logPlayerPersistenceFailure('profile_save', [
+                                        'playerId' => $playerId,
+                                        'expectedFullName' => $fullName,
+                                        'expectedSchool' => $school,
+                                        'saveReturned' => $saved ? 'true' : 'false',
+                                    ]);
+                                    $errors['school'] = 'Unable to save your profile right now. Please try again.';
+                                } elseif (is_array($reloaded)) {
+                                    $this->setPlayerSession($reloaded);
+
+                                    return redirect()->to('/games/guess-the-startup')
+                                        ->with('gs_success', 'Profile saved. Tap Play when you are ready.');
+                                } else {
+                                    $errors['school'] = 'Unable to load your profile right now. Please try again.';
+                                }
                             }
                         }
                     }
                 }
             }
 
-            $player = $this->playerModel->findActiveById((int) $player['id']) ?? $player;
-            $profileMeta = $this->extractProfileMeta($player);
+            if (is_array($player) && isset($player['id'])) {
+                $player = $this->playerModel->findActiveById((int) $player['id']) ?? $player;
+            }
+            $profileMeta = $this->extractProfileMeta($player ?? []);
         }
 
         $data = [
-            'title' => 'Complete Player Profile - ASOG TBI',
-            'metaDescription' => 'Complete your Startup Hunt player profile to access the daily Startup Hunt round.',
+            'title' => 'Player Profile - ASOG TBI',
+            'metaDescription' => 'Complete your Startup Hunt player profile using your name and school to access the daily round.',
             'player' => $player,
             'profileMeta' => $profileMeta,
             'errors' => $errors,
+            'hideSiteHeader' => true,
+            'bodyClass' => 'overflow-hidden',
         ];
 
         return view('templates/header', $data)
@@ -303,6 +369,10 @@ class Games extends BaseController
 
     public function google()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->redirectWhenGameDisabled();
+        }
+
         if ($this->currentPlayer() !== null) {
             return redirect()->to('/games/guess-the-startup');
         }
@@ -320,8 +390,13 @@ class Games extends BaseController
         return redirect()->to($client->createAuthUrl());
     }
 
+
     public function googleCallback()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->redirectWhenGameDisabled();
+        }
+
         $requestState = (string) $this->request->getGet('state');
         $sessionState = (string) session()->get('gsp_google_state');
         session()->remove('gsp_google_state');
@@ -444,13 +519,76 @@ class Games extends BaseController
             ->with('gs_notice', 'You have signed out.');
     }
 
+    private function isGuessStartupEnabled(): bool
+    {
+        $settingModel = new LandingSettingModel();
+        $value = trim((string) $settingModel->getValue(LandingSettingModel::KEY_GUESS_STARTUP_ENABLED, '1'));
+
+        return $value !== '0';
+    }
+
+    private function redirectWhenGameDisabled()
+    {
+        return redirect()->to('/')
+            ->with('gs_notice', 'Guess The Startup is currently unavailable. Please check back during the scheduled period.');
+    }
+
     private function extractProfileMeta(array $player): array
     {
+        $firstName = trim((string) ($player['firstName'] ?? ''));
+        $middleName = trim((string) ($player['middleName'] ?? ''));
+        $lastName = trim((string) ($player['lastName'] ?? ''));
+
+        if (($firstName === '' || $lastName === '') && trim((string) ($player['fullName'] ?? '')) !== '') {
+            $parts = $this->splitProfileName((string) $player['fullName']);
+            if (is_array($parts)) {
+                $firstName = $firstName !== '' ? $firstName : trim((string) ($parts['first_name'] ?? ''));
+                $middleName = $middleName !== '' ? $middleName : trim((string) ($parts['middle_name'] ?? ''));
+                $lastName = $lastName !== '' ? $lastName : trim((string) ($parts['last_name'] ?? ''));
+            }
+        }
+
         return [
-            'first_name' => trim((string) ($player['firstName'] ?? '')),
-            'middle_name' => trim((string) ($player['middleName'] ?? '')),
-            'last_name' => trim((string) ($player['lastName'] ?? '')),
+            'first_name' => $firstName,
+            'middle_name' => $middleName,
+            'last_name' => $lastName,
             'school' => trim((string) ($player['school'] ?? '')),
+        ];
+    }
+
+    private function splitProfileName(string $fullName): ?array
+    {
+        $parts = preg_split('/\s+/u', trim($fullName), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        $firstName = array_shift($parts);
+        $lastName = array_pop($parts);
+        $middleName = trim(implode(' ', $parts));
+
+        if (! is_string($firstName) || ! is_string($lastName) || trim($firstName) === '' || trim($lastName) === '') {
+            return null;
+        }
+
+        return [
+            'first_name' => trim($firstName),
+            'middle_name' => $middleName,
+            'last_name' => trim($lastName),
+        ];
+    }
+
+    private function buildLocalIdentity(): array
+    {
+        try {
+            $token = bin2hex(random_bytes(12));
+        } catch (\Throwable $e) {
+            $token = str_replace('.', '', uniqid('local', true));
+        }
+
+        return [
+            'email' => 'local+' . $token . '@startuphunt.local',
+            'googleSub' => 'local_' . $token,
         ];
     }
 
@@ -483,14 +621,17 @@ class Games extends BaseController
      *   - Reordered name parts
      *   - Added/removed middle names to bypass duplication checks
      */
-    private function detectSuspiciousNameVariation(string $firstName, string $lastName, string $school, int $excludePlayerId): ?array
+    private function detectSuspiciousNameVariation(string $firstName, string $lastName, string $school, int $excludePlayerId, string $playDate): ?array
     {
-        // Get all active players at the same school
+        // Get players at the same school that already have a record for the given day.
         $query = $this->playerModel->builder()
-            ->select('id, firstName, lastName, fullName')
-            ->where('isActive', 1)
-            ->where('id !=', $excludePlayerId)
-            ->where('school', $school)
+            ->select('game_players.id, game_players.firstName, game_players.lastName, game_players.fullName')
+            ->join('game_wordle_plays', 'game_wordle_plays.playerId = game_players.id', 'inner')
+            ->where('game_players.isActive', 1)
+            ->where('game_players.id !=', $excludePlayerId)
+            ->where('game_players.school', $school)
+            ->where('game_wordle_plays.playDate', $playDate)
+            ->groupBy('game_players.id, game_players.firstName, game_players.lastName, game_players.fullName')
             ->get()
             ->getResultArray();
 

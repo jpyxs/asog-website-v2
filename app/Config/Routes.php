@@ -125,6 +125,10 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
     $routes->post('cohorts/(:num)/delete', 'Admin\IncubateesAdmin::deleteCohort/$1');
 
+    // Games Management
+    $routes->get('games', 'Admin\GamesAdmin::index');
+    $routes->post('games/guess-startup/availability', 'Admin\GamesAdmin::updateGuessStartupAvailability');
+
     // Admin Account Management
     $routes->get('admins', 'Admin\AdminsManagement::index');
     $routes->get('admins/create', 'Admin\AdminsManagement::create');

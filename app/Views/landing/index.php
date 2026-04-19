@@ -9,6 +9,7 @@
 <?= $this->include('landing/news') ?>
 <?= $this->include('landing/organization') ?>
 <?= $this->include('landing/cta') ?>
+<?= $this->include('landing/games') ?>
 <?= $this->include('landing/contact') ?>
 <?= $this->include('templates/map') ?>
 <?= $this->endSection() ?>

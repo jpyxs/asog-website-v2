@@ -33,28 +33,9 @@ class CreateGamePlayersTable extends Migration
                 'constraint' => 60,
                 'null'       => true,
             ],
-            'program' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 120,
-                'null'       => true,
-            ],
-            'email' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 255,
-            ],
-            'googleSub' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 255,
-                'null'       => false,
-            ],
             'school' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 190,
-                'null'       => true,
-            ],
-            'avatarUrl' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 500,
                 'null'       => true,
             ],
             'isActive' => [
@@ -77,8 +58,7 @@ class CreateGamePlayersTable extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addUniqueKey('email', 'idx_game_players_email_unique');
-        $this->forge->addUniqueKey('googleSub', 'idx_game_players_google_sub_unique');
+    $this->forge->addUniqueKey(['firstName', 'lastName', 'school'], 'idx_game_players_first_last_school_unique');
         $this->forge->addKey('isActive');
 
         $this->forge->createTable('game_players', true);

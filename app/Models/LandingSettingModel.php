@@ -10,6 +10,7 @@ use CodeIgniter\Model;
 class LandingSettingModel extends Model
 {
     public const KEY_INCUBATEES_FILTER = 'landingIncubateesCohortFilter';
+    public const KEY_GUESS_STARTUP_ENABLED = 'guessStartupEnabled';
 
     protected $table            = 'landing_settings';
     protected $primaryKey       = 'id';

@@ -41,10 +41,12 @@
     <link rel="apple-touch-icon" href="<?= base_url('icon.png') ?>">
 </head>
 
-<body class="font-body bg-dark text-off overflow-x-hidden">
+<?php $bodyClass = trim('font-body bg-dark text-off overflow-x-hidden ' . (string) ($bodyClass ?? '')); ?>
+<body class="<?= esc($bodyClass) ?>">
     <?php
     /* ── Nav URLs: always link to dedicated pages ── */
     $navAbout      = site_url('about');
+    $navOurStory   = $navAbout . '#about-panel-1';
     $navAboutLogo  = site_url('about/logo');
     $navPrograms   = site_url('programs');
     $navAltitude   = $navPrograms . '#altitude-3d';
@@ -71,6 +73,7 @@
     $isNewsDetail    = preg_match('#(?:^|/)news/[^/]+$#', $uriPath) === 1;
     $isContact       = $seg1 === 'contact';
     $isOrg           = $seg1 === 'organization';
+    $isAboutGroup    = $isAbout || $isOrg;
     $isProgramsPage  = $seg1 === 'programs';
     $isLandingPage   = ! empty($isLanding);
     $hideSiteHeader  = ! empty($hideSiteHeader);
@@ -100,10 +103,15 @@
 
             <!-- desktop left links -->
             <div class="nav-left absolute left-10 flex items-center gap-1 lg:flex hidden">
-                <!-- About Us -->
-                <a href="<?= $navAbout ?>"
-                    class="nl nav-link text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 no-underline px-4 border-b-2 border-transparent -mb-0.5 whitespace-nowrap transition-all duration-200 hover:text-off hover:border-gold<?= $activeClass($isAbout) ?>">About
-                    Us</a>
+                <!-- About -->
+                <div class="nav-dd group<?= $activeClass($isAboutGroup) ?>">
+                    <span role="button" tabindex="0"
+                        class="nav-link text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 px-4 border-b-2 border-transparent -mb-0.5 whitespace-nowrap transition-all duration-200 hover:text-off hover:border-gold cursor-pointer select-none<?= $activeClass($isAboutGroup) ?>">About</span>
+                    <div class="dd-menu">
+                        <a href="<?= $navOurStory ?>" class="dd-item<?= $activeClass($isAbout) ?>">Our Story</a>
+                        <a href="<?= $navOrg ?>" class="dd-item<?= $activeClass($isOrg) ?>">Organization</a>
+                    </div>
+                </div>
                 <!-- Programs & Services -->
                 <div class="nav-dd group<?= $activeClass($isProgramsGroup) ?>">
                     <span role="button" tabindex="0"
@@ -149,9 +157,14 @@
                     an Incubatee</a>
 
                 <!-- COLLAPSED DUPLICATES (appear on scroll via .lo) -->
-                <a href="<?= $navAbout ?>"
-                    class="nl nav-link lo text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 no-underline items-center border-b-2 border-transparent -mb-0.5 whitespace-nowrap hover:text-off hover:border-gold<?= $activeClass($isAbout) ?>"
-                    data-order="1">About Us</a>
+                <div class="nav-dd group lo<?= $activeClass($isAboutGroup) ?>" data-order="1">
+                    <span role="button" tabindex="0"
+                        class="nl nav-link text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 items-center border-b-2 border-transparent -mb-0.5 whitespace-nowrap hover:text-off hover:border-gold cursor-pointer select-none<?= $activeClass($isAboutGroup) ?>">About</span>
+                    <div class="dd-menu dd-right">
+                        <a href="<?= $navOurStory ?>" class="dd-item<?= $activeClass($isAbout) ?>">Our Story</a>
+                        <a href="<?= $navOrg ?>" class="dd-item<?= $activeClass($isOrg) ?>">Organization</a>
+                    </div>
+                </div>
                 <div class="nav-dd group lo<?= $activeClass($isProgramsGroup) ?>" data-order="2">
                     <span role="button" tabindex="0"
                         class="nl nav-link text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 items-center border-b-2 border-transparent -mb-0.5 whitespace-nowrap hover:text-off hover:border-gold cursor-pointer select-none<?= $activeClass($isProgramsGroup) ?>">Programs
@@ -198,9 +211,21 @@
         <nav class="flex flex-col gap-1">
             <a href="<?= base_url() ?>"
                 class="text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 no-underline py-3 border-b border-white/[.06] transition-colors hover:text-gold<?= $activeClass($uriPath === '') ?>">Home</a>
-            <a href="<?= $navAbout ?>"
-                class="text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 no-underline py-3 border-b border-white/[.06] transition-colors hover:text-gold<?= $activeClass($isAbout) ?>">About
-                Us</a>
+            <button type="button" id="mobAboutToggle"
+                class="w-full flex items-center justify-between text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 py-3 border-b border-white/[.06] bg-transparent cursor-pointer select-none transition-colors hover:text-gold<?= $activeClass($isAboutGroup) ?>">
+                About
+                <svg id="mobAboutChevron" class="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div id="mobAboutSub" class="overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+                <a href="<?= $navOurStory ?>"
+                    class="text-[.72rem] font-normal tracking-[.08em] uppercase text-white/40 no-underline py-2 pl-4 border-b border-white/[.04] transition-colors hover:text-gold block<?= $activeClass($isAbout) ?>">Our
+                    Story</a>
+                <a href="<?= $navOrg ?>"
+                    class="text-[.72rem] font-normal tracking-[.08em] uppercase text-white/40 no-underline py-2 pl-4 border-b border-white/[.04] transition-colors hover:text-gold block<?= $activeClass($isOrg) ?>">Organization</a>
+            </div>
             <button type="button" id="mobPsToggle"
                 class="w-full flex items-center justify-between text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 py-3 border-b border-white/[.06] bg-transparent cursor-pointer select-none transition-colors hover:text-gold">
                 Programs &amp; Services
@@ -224,8 +249,6 @@
             <a href="<?= $navNews ?>"
                 class="text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 no-underline py-3 border-b border-white/[.06] transition-colors hover:text-gold<?= $activeClass($isNews) ?>">News
                 &amp; Insights</a>
-            <a href="<?= $navOrg ?>"
-                class="text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 no-underline py-3 border-b border-white/[.06] transition-colors hover:text-gold<?= $activeClass($isOrg) ?>">Organization</a>
             <a href="<?= $navContact ?>"
                 class="text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 no-underline py-3 border-b border-white/[.06] transition-colors hover:text-gold<?= $activeClass($isContact) ?>">Contact
                 Us</a>

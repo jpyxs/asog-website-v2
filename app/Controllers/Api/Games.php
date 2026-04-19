@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Libraries\GuessStartupGame;
 use App\Models\GamePlayerModel;
 use App\Models\GameWordlePlayModel;
+use App\Models\LandingSettingModel;
 
 class Games extends BaseController
 {
@@ -27,6 +28,12 @@ class Games extends BaseController
 
     public function leaderboard()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->respondJson([
+                'error' => 'Guess The Startup is currently unavailable.',
+            ], 403);
+        }
+
         $rawDate = trim((string) $this->request->getGet('date'));
         $playDate = $this->validatedDateOrToday($rawDate);
 
@@ -40,6 +47,12 @@ class Games extends BaseController
 
     public function start()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->respondJson([
+                'error' => 'Guess The Startup is currently unavailable.',
+            ], 403);
+        }
+
         $player = $this->resolvePlayer();
         if ($player === null) {
             return $this->respondJson([
@@ -146,6 +159,12 @@ class Games extends BaseController
 
     public function abandon()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->respondJson([
+                'error' => 'Guess The Startup is currently unavailable.',
+            ], 403);
+        }
+
         $payload = $this->payload();
 
         $sessionId = trim((string) ($payload['session_id'] ?? ''));
@@ -173,6 +192,12 @@ class Games extends BaseController
 
     public function submit()
     {
+        if (! $this->isGuessStartupEnabled()) {
+            return $this->respondJson([
+                'error' => 'Guess The Startup is currently unavailable.',
+            ], 403);
+        }
+
         $player = $this->resolvePlayer();
         if ($player === null) {
             return $this->respondJson([
@@ -450,6 +475,14 @@ class Games extends BaseController
         }
 
         return $this->playerModel->findActiveById($playerId);
+    }
+
+    private function isGuessStartupEnabled(): bool
+    {
+        $settingModel = new LandingSettingModel();
+        $value = trim((string) $settingModel->getValue(LandingSettingModel::KEY_GUESS_STARTUP_ENABLED, '1'));
+
+        return $value !== '0';
     }
 
     private function elapsedFromState(array $state): int

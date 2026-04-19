@@ -8,6 +8,7 @@ $todayRank = is_array($todayRank ?? null) ? $todayRank : null;
 $playStatus = (string) ($todayPlay['status'] ?? '');
 $playAttemptsUsed = (int) ($todayPlay['attemptsUsed'] ?? 0);
 $hasPlayedToday = in_array($playStatus, ['solved', 'forfeited'], true);
+$isTopThreeWinner = (bool) ($isTopThreeWinner ?? false);
 $leaderboardRows = is_array($leaderboardRows ?? null) ? $leaderboardRows : [];
 $leaderboardDate = (string) ($leaderboardDate ?? date('Y-m-d'));
 
@@ -63,7 +64,7 @@ $formatElapsed = static function (int $elapsedMs): string {
         <div class="gsl-shell">
             <header class="gsl-hero-copy">
                 <h1 class="gsl-title">Startup Hunt</h1>
-                <p class="gsl-subtitle">Sign in, play once, and compete on today&apos;s leaderboard.</p>
+                <p class="gsl-subtitle">Tap Play, complete your profile, then compete on today&apos;s leaderboard.</p>
 
                 <?php if (! empty($flashError)): ?>
                 <p class="gsl-flash gsl-flash-bad"><?= esc($flashError) ?></p>
@@ -76,18 +77,10 @@ $formatElapsed = static function (int $elapsedMs): string {
                 <?php endif; ?>
 
                 <div class="gsl-hero-actions">
-                    <?php if ($player === null): ?>
-                    <a href="<?= site_url('games/guess-the-startup/google') ?>"
-                        class="gsl-btn gsl-btn-primary gsl-nav-link">Sign In With Google</a>
-                    <?php elseif (! $isProfileComplete): ?>
-                    <a href="<?= site_url('games/guess-the-startup/profile') ?>"
-                        class="gsl-btn gsl-btn-primary gsl-nav-link">Complete Profile</a>
-                    <a href="<?= site_url('games/guess-the-startup/leaderboard') ?>"
-                        class="gsl-btn gsl-btn-ghost gsl-nav-link">Leaderboard</a>
-                    <a href="<?= site_url('games/guess-the-startup/sign-out') ?>" class="gsl-btn gsl-btn-ghost">Sign
-                        Out</a>
-                    <?php else: ?>
-                    <?php if ($hasPlayedToday): ?>
+                    <?php if ($isTopThreeWinner): ?>
+                    <button type="button" class="gsl-btn gsl-btn-primary gsl-btn-disabled" disabled
+                        aria-disabled="true">Top 3 Winner - No Longer Eligible</button>
+                    <?php elseif ($hasPlayedToday): ?>
                     <button type="button" class="gsl-btn gsl-btn-primary gsl-btn-disabled" disabled
                         aria-disabled="true">Maxed Out Today</button>
                     <?php else: ?>
@@ -96,8 +89,9 @@ $formatElapsed = static function (int $elapsedMs): string {
                     <?php endif; ?>
                     <a href="<?= site_url('games/guess-the-startup/leaderboard') ?>"
                         class="gsl-btn gsl-btn-ghost gsl-nav-link">Leaderboard</a>
-                    <a href="<?= site_url('games/guess-the-startup/sign-out') ?>" class="gsl-btn gsl-btn-ghost">Sign
-                        Out</a>
+                    <?php if ($player !== null): ?>
+                    <a href="<?= site_url('games/guess-the-startup/sign-out') ?>" class="gsl-btn gsl-btn-ghost">Reset
+                        Profile</a>
                     <?php endif; ?>
                 </div>
             </header>
@@ -111,18 +105,18 @@ $formatElapsed = static function (int $elapsedMs): string {
                             <div>
                                 <strong class="gsl-player-identity">
                                     <?php if ($player && $playerAvatar !== ''): ?>
-                                    <img src="<?= esc($playerAvatar) ?>" alt="Google profile" class="gsl-player-avatar">
+                                    <img src="<?= esc($playerAvatar) ?>" alt="Profile photo" class="gsl-player-avatar">
                                     <?php endif; ?>
                                     <span><?= $player ? esc((string) ($player['fullName'] ?? $player['email'] ?? 'Player')) : 'Guest' ?></span>
                                 </strong>
-                                <span><?= $player ? esc((string) ($player['email'] ?? '')) : 'Sign in with Google to join the daily game.' ?></span>
+                                <span><?= $player ? 'Profile saved and ready for play.' : 'Press Play to set up your name and school.' ?></span>
                             </div>
                         </li>
                         <li class="gsl-mode-item">
                             <span class="gsl-mode-icon"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
                             <div>
                                 <strong>Profile</strong>
-                                <span><?= $player ? ($isProfileComplete ? 'Complete and ready to play.' : 'Incomplete. Fill in first, middle, last name, program, and school.') : 'Not available yet.' ?></span>
+                                <span><?= $player ? ($isProfileComplete ? 'Complete and ready to play.' : 'Incomplete. Fill in your name and school.') : 'Required before the game starts.' ?></span>
                             </div>
                         </li>
                         <li class="gsl-mode-item">
@@ -130,7 +124,7 @@ $formatElapsed = static function (int $elapsedMs): string {
                                     aria-hidden="true"></i></span>
                             <div>
                                 <strong>Today&apos;s Play</strong>
-                                <span>Status: <?= esc($statusLabel) ?></span>
+                                <span>Status: <?= esc($isTopThreeWinner ? 'Top 3 Winner - No Longer Eligible' : $statusLabel) ?></span>
                             </div>
                         </li>
                         <?php if (is_array($todayPlay)): ?>
@@ -150,7 +144,15 @@ $formatElapsed = static function (int $elapsedMs): string {
                             <span class="gsl-mode-icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
                             <div>
                                 <strong>Standing</strong>
-                                <span>#<?= (int) ($todayRank['rank'] ?? 0) ?></span>
+                                <span>
+                                    <?php if ((string) ($todayRank['status'] ?? '') === 'forfeited'): ?>
+                                        Forfeited
+                                    <?php elseif (($todayRank['rank'] ?? null) === null): ?>
+                                        Unranked
+                                    <?php else: ?>
+                                        #<?= (int) ($todayRank['rank'] ?? 0) ?>
+                                    <?php endif; ?>
+                                </span>
                             </div>
                         </li>
                         <?php endif; ?>
@@ -181,8 +183,8 @@ $formatElapsed = static function (int $elapsedMs): string {
                     aria-label="Close info modal">&times;</button>
                 <h2 id="gslInfoTitle">Daily Startup Hunt Flow</h2>
                 <ul class="gsl-info-list">
-                    <li><strong>Sign in:</strong> Use Google account authentication.</li>
-                    <li><strong>Profile gate:</strong> First, middle, last name, program, and school are required once.
+                    <li><strong>Play first:</strong> Select Play from the lobby.</li>
+                    <li><strong>Profile gate:</strong> Your name and school are required once before gameplay.
                     </li>
                     <li><strong>Objective:</strong> Guess five startup-related words as quickly as possible. You have up to five attempts for each word.</li>
                     <li><strong>Color clues:</strong> Green = correct position, Yellow = wrong position, Gray = not in the word.</li>
