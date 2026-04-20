@@ -29,10 +29,6 @@ class Games extends BaseController
 
     public function guessStartup()
     {
-        if (! $this->isGuessStartupEnabled()) {
-            return $this->redirectWhenGameDisabled();
-        }
-
         $player = $this->currentPlayer();
         $today = date('Y-m-d');
         $todayPlay = null;
@@ -52,6 +48,7 @@ class Games extends BaseController
             'title' => 'Startup Hunt Lobby - ASOG TBI',
             'metaDescription' => 'Startup Hunt Edition: complete your name and school profile, play once per day, and compete on the daily startup leaderboard.',
             'player' => $player,
+            'isGuessStartupEnabled' => $this->isGuessStartupEnabled(),
             'isProfileComplete' => $player !== null ? $this->playerModel->isProfileComplete($player) : false,
             'todayPlay' => $todayPlay,
             'todayRank' => $todayRank,
@@ -67,10 +64,6 @@ class Games extends BaseController
 
     public function guessStartupLeaderboard()
     {
-        if (! $this->isGuessStartupEnabled()) {
-            return $this->redirectWhenGameDisabled();
-        }
-
         $player = $this->currentPlayer();
         $today = date('Y-m-d');
         $rawDate = trim((string) $this->request->getGet('date'));
@@ -90,6 +83,7 @@ class Games extends BaseController
             'title' => 'Startup Hunt Leaderboard - ASOG TBI',
             'metaDescription' => 'Top 10 Startup Hunt players by day, with your current rank if you are outside the top 10.',
             'player' => $player,
+            'isGuessStartupEnabled' => $this->isGuessStartupEnabled(),
             'todayDate' => $today,
             'leaderboardDate' => $playDate,
             'leaderboardRows' => $leaderboardRows,
@@ -529,8 +523,8 @@ class Games extends BaseController
 
     private function redirectWhenGameDisabled()
     {
-        return redirect()->to('/')
-            ->with('gs_notice', 'Guess The Startup is currently unavailable. Please check back during the scheduled period.');
+        return redirect()->to('/games/guess-the-startup')
+            ->with('gs_notice', 'Guess The Startup is currently paused. You can still view the lobby and leaderboard, but play is disabled for now.');
     }
 
     private function extractProfileMeta(array $player): array

@@ -147,7 +147,7 @@
         background: #edf3f8;
         border: 1px solid rgba(15, 63, 98, 0.16);
         color: rgba(15, 63, 98, 0.58);
-        cursor: not-allowed;
+        cursor: pointer;
     }
 
     @media (max-width: 640px) {
@@ -188,9 +188,9 @@
                     </div>
 
                     <?php if (! empty($isGuessStartupEnabled)): ?>
-                        <a href="https://asogtbi.com/games/guess-the-startup" class="game-action game-action-play">Start Playing</a>
+                        <a href="<?= site_url('games/guess-the-startup') ?>" class="game-action game-action-play">Start Playing</a>
                     <?php else: ?>
-                        <span class="game-action game-action-disabled">Unavailable</span>
+                        <a href="<?= site_url('games/guess-the-startup') ?>" class="game-action game-action-disabled">View Lobby</a>
                     <?php endif; ?>
                 </div>
             </article>

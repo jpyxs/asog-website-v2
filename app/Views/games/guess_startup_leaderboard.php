@@ -30,6 +30,7 @@
 $leaderboardRows = is_array($leaderboardRows ?? null) ? $leaderboardRows : [];
 $leaderboardDate = (string) ($leaderboardDate ?? date('Y-m-d'));
 $todayDate = (string) ($todayDate ?? date('Y-m-d'));
+$isGuessStartupEnabled = (bool) ($isGuessStartupEnabled ?? true);
 $playerRank = is_array($playerRank ?? null) ? $playerRank : null;
 $playerPlay = is_array($playerPlay ?? null) ? $playerPlay : null;
 $player = is_array($player ?? null) ? $player : null;
@@ -66,9 +67,16 @@ $formatElapsed = static function (int $elapsedMs): string {
             <header class="gsl-hero-copy">
                 <h1 class="gsl-title"><?= $isTodayBoard ? 'Today\'s Leaderboard' : 'Leaderboard for ' . esc($leaderboardDate) ?></h1>
                 <p class="gsl-subtitle">Top 10 players are ranked by speed, accuracy, and finish order for the selected day. If you are outside the top 10, your place appears below.</p>
+                <?php if (! $isGuessStartupEnabled): ?>
+                <p class="gsl-flash gsl-flash-note">Startup Hunt is paused right now, but the leaderboard remains viewable.</p>
+                <?php endif; ?>
                 <div class="gsl-hero-actions">
                     <a href="<?= site_url('games/guess-the-startup') ?>" class="gsl-btn gsl-btn-primary gsl-nav-link">Back to Game</a>
+                    <?php if ($isGuessStartupEnabled): ?>
                     <a href="<?= site_url('games/guess-the-startup/play?autostart=1') ?>" class="gsl-btn gsl-btn-ghost gsl-nav-link">Play</a>
+                    <?php else: ?>
+                    <button type="button" class="gsl-btn gsl-btn-ghost gsl-btn-disabled" disabled aria-disabled="true">Play Paused</button>
+                    <?php endif; ?>
                 </div>
 
                 <form class="gsl-filter-form" method="get" action="<?= site_url('games/guess-the-startup/leaderboard') ?>">

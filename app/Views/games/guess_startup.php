@@ -2,6 +2,7 @@
 
 <?php
 $player = $player ?? null;
+$isGuessStartupEnabled = (bool) ($isGuessStartupEnabled ?? true);
 $isProfileComplete = (bool) ($isProfileComplete ?? false);
 $todayPlay = is_array($todayPlay ?? null) ? $todayPlay : null;
 $todayRank = is_array($todayRank ?? null) ? $todayRank : null;
@@ -65,6 +66,9 @@ $formatElapsed = static function (int $elapsedMs): string {
             <header class="gsl-hero-copy">
                 <h1 class="gsl-title">Startup Hunt</h1>
                 <p class="gsl-subtitle">Tap Play, complete your profile, then compete on today&apos;s leaderboard.</p>
+                <?php if (! $isGuessStartupEnabled): ?>
+                <p class="gsl-flash gsl-flash-note">Startup Hunt is currently paused. You can still browse the lobby and leaderboard, but new play sessions are disabled for now.</p>
+                <?php endif; ?>
 
                 <?php if (! empty($flashError)): ?>
                 <p class="gsl-flash gsl-flash-bad"><?= esc($flashError) ?></p>
@@ -77,7 +81,10 @@ $formatElapsed = static function (int $elapsedMs): string {
                 <?php endif; ?>
 
                 <div class="gsl-hero-actions">
-                    <?php if ($isTopThreeWinner): ?>
+                    <?php if (! $isGuessStartupEnabled): ?>
+                    <button type="button" class="gsl-btn gsl-btn-primary gsl-btn-disabled" disabled
+                        aria-disabled="true">Play Paused</button>
+                    <?php elseif ($isTopThreeWinner): ?>
                     <button type="button" class="gsl-btn gsl-btn-primary gsl-btn-disabled" disabled
                         aria-disabled="true">Top 3 Winner - No Longer Eligible</button>
                     <?php elseif ($hasPlayedToday): ?>

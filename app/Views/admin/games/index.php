@@ -4,7 +4,7 @@
     <div class="games-head">
         <p class="games-kicker">Landing & Gameplay Control</p>
         <h2>Guess The Startup Availability</h2>
-        <p class="games-copy">Use this switch to open or close public access to the game. When disabled, visitors cannot open the game routes or API.</p>
+        <p class="games-copy">Use this switch to pause or resume public gameplay. When disabled, visitors can still view the lobby and leaderboard, but they cannot start a new round or submit answers.</p>
     </div>
 
     <form method="POST" action="<?= site_url('admin/games/guess-startup/availability') ?>" class="games-form">

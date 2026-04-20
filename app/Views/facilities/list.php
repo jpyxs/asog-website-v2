@@ -27,17 +27,17 @@
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
-                <img src="<?= base_url('assets/img/facilities/colab/Screenshot 2026-03-22 132942.png') ?>"
+                <img src="<?= base_url('assets/img/facilities/colab/Screenshot 2026-03-22 132942.webp') ?>"
                     alt="Co-Lab workspace view 1"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image colab-feature-fill"
                     loading="lazy" decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/colab/631024645_122153032628726868_1817243571050694947_n.jpg') ?>"
+                <img src="<?= base_url('assets/img/facilities/colab/631024645_122153032628726868_1817243571050694947_n.webp') ?>"
                     alt="Co-Lab workspace view 2" class="w-full h-full object-contain shrink-0 facility-carousel-image"
                     loading="lazy" decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/colab/629242075_122153033786726868_6564736108685044598_n.jpg') ?>"
+                <img src="<?= base_url('assets/img/facilities/colab/629242075_122153033786726868_6564736108685044598_n.webp') ?>"
                     alt="Co-Lab workspace view 3" class="w-full h-full object-contain shrink-0 facility-carousel-image"
                     loading="lazy" decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/colab/646373070_122154971300726868_3603227365186403952_n (2).jpg') ?>"
+                <img src="<?= base_url('assets/img/facilities/colab/646373070_122154971300726868_3603227365186403952_n (2).webp') ?>"
                     alt="Co-Lab workspace view 4" class="w-full h-full object-contain shrink-0 facility-carousel-image"
                     loading="lazy" decoding="async" fetchpriority="low" />
             </div>
@@ -89,10 +89,10 @@
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
-                <img src="<?= base_url('assets/img/facilities/suite/IMG_0373.JPG') ?>" alt="Innovators' Suite view 1"
+                <img src="<?= base_url('assets/img/facilities/suite/IMG_0373.webp') ?>" alt="Innovators' Suite view 1"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/suite/IMG_0374.JPG') ?>" alt="Innovators' Suite view 2"
+                <img src="<?= base_url('assets/img/facilities/suite/IMG_0374.webp') ?>" alt="Innovators' Suite view 2"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
             </div>
@@ -113,15 +113,15 @@
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
-                <img src="<?= base_url('assets/img/facilities/aircode/IMG_0728 (1).JPG') ?>"
+                <img src="<?= base_url('assets/img/facilities/aircode/IMG_0728 (1).webp') ?>"
                     alt="AIRCoDe laboratory facility view 1"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image aircode-fill" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/aircode/IMG_0727.JPG') ?>"
+                <img src="<?= base_url('assets/img/facilities/aircode/IMG_0727.webp') ?>"
                     alt="AIRCoDe laboratory facility view 2"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image aircode-fill" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/aircode/IMG_0723.JPG') ?>"
+                <img src="<?= base_url('assets/img/facilities/aircode/IMG_0723.webp') ?>"
                     alt="AIRCoDe laboratory facility view 3"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image aircode-fill" loading="lazy"
                     decoding="async" fetchpriority="low" />
@@ -179,13 +179,13 @@
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
-                <img src="<?= base_url('assets/img/facilities/fablab/IMG_0968.JPG') ?>" alt="FabLab facility view 1"
+                <img src="<?= base_url('assets/img/facilities/fablab/IMG_0968.webp') ?>" alt="FabLab facility view 1"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/fablab/IMG_0970.JPG') ?>" alt="FabLab facility view 2"
+                <img src="<?= base_url('assets/img/facilities/fablab/IMG_0970.webp') ?>" alt="FabLab facility view 2"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/fablab/IMG_0973.JPG') ?>" alt="FabLab facility view 3"
+                <img src="<?= base_url('assets/img/facilities/fablab/IMG_0973.webp') ?>" alt="FabLab facility view 3"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
             </div>
@@ -208,15 +208,15 @@
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
-                <img src="<?= base_url('assets/img/facilities/ssf/IMG_0984.JPG') ?>"
+                <img src="<?= base_url('assets/img/facilities/ssf/IMG_0984.webp') ?>"
                     alt="Rinconada Food Processing Hub - Shared Service Facility (SSF) view 1"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/ssf/IMG_0987.JPG') ?>"
+                <img src="<?= base_url('assets/img/facilities/ssf/IMG_0987.webp') ?>"
                     alt="Rinconada Food Processing Hub - Shared Service Facility (SSF) view 2"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/ssf/IMG_0990.JPG') ?>"
+                <img src="<?= base_url('assets/img/facilities/ssf/IMG_0990.webp') ?>"
                     alt="Rinconada Food Processing Hub - Shared Service Facility (SSF) view 3"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
@@ -269,10 +269,10 @@
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
-                <img src="<?= base_url('assets/img/facilities/ipmd/IMG_0975.JPG') ?>" alt="IPMD facility view 1"
+                <img src="<?= base_url('assets/img/facilities/ipmd/IMG_0975.webp') ?>" alt="IPMD facility view 1"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
-                <img src="<?= base_url('assets/img/facilities/ipmd/IMG_0977.JPG') ?>" alt="IPMD facility view 2"
+                <img src="<?= base_url('assets/img/facilities/ipmd/IMG_0977.webp') ?>" alt="IPMD facility view 2"
                     class="w-full h-full object-contain shrink-0 facility-carousel-image" loading="lazy"
                     decoding="async" fetchpriority="low" />
             </div>
