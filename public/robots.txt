@@ -7,4 +7,4 @@ Allow: /
 User-agent: *
 Disallow:
 
-Sitemap: /sitemap.xml
+Sitemap: https://asogtbi.com/sitemap.xml

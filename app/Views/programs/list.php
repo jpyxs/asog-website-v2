@@ -187,4 +187,4 @@
 
 <!-- Three.js + Altitude 3D Module -->
 <script type="module" src="<?= base_url('assets/js/altitude/main.js') ?>"></script>
-<script src="<?= base_url('assets/js/programsAltitudePage.js') ?>" defer></script>
+    <script src="<?= base_url('assets/js/features/programs/programsAltitudePage.js') ?>" defer></script>

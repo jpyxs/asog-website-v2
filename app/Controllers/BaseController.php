@@ -18,6 +18,7 @@ use App\Models\CohortModel;
 
 // yung libraries
 use App\Libraries\ImageUpload;
+use App\Libraries\GuessStartupGame;
 
 /**
  * BaseController provides a convenient place for loading components
@@ -41,6 +42,9 @@ abstract class BaseController extends Controller
     protected $cohortModel;
     protected $db;
 
+    // Libraries
+    protected $guessStartupGame;
+
     /**
      * @return void
      */
@@ -56,6 +60,9 @@ abstract class BaseController extends Controller
         $this->adminModel       = new AdminModel();
         $this->cohortModel      = new CohortModel();
         $this->db               = Database::connect();
+
+        // Instantiate libraries
+        $this->guessStartupGame = new GuessStartupGame();
 
         // Share cohort list globally so header nav can render dynamic dropdowns
         $renderer = \Config\Services::renderer();

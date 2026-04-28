@@ -440,7 +440,7 @@
     </div>
 </div>
 
-<script src="<?= base_url('assets/js/applyForm.js') ?>"></script>
+<script src="<?= base_url('assets/js/features/forms/applyForm.js') ?>"></script>
 
 <!-- ═══ (validation + modal logic lives in public/js/apply_form.js) ═══ -->
 <!--

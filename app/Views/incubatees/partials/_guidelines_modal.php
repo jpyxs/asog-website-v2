@@ -224,4 +224,4 @@
     </div>
 </div>
 
-<script src="<?= base_url('assets/js/guidelinesModal.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/modals/guidelinesModal.js') ?>" defer></script>

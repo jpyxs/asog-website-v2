@@ -136,22 +136,16 @@
             </div>
         </div>
         <div class="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-12 lg:py-14 facility-copy">
-            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">Partner Facility</span>
+            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">AI Research Center</span>
             <h3 class="font-display text-[1.8rem] md:text-[2.2rem] leading-[1.15] text-dark mb-5">AIRCoDe</h3>
-            <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-4">AIRCoDe is a research center intended
-                for research studies implementing Artificial Intelligence Technology. The establishment of AIRCoDe is
-                funded by the Department of Science and Technology – Philippine Council for Industry, Energy, and
-                Emerging Technology Research and Development (DOST-PCIEERD) under the Infrastructure Development
-                Program in 2021.</p>
-            <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-6">Aligned with the research thrust of
-                the Camarines Sur Polytechnic Colleges, it shall promote and explore scholarly works responsive to the
-                needs of the community using Artificial Intelligence.</p>
-            <ul class="space-y-2.5 text-[.82rem] text-dark font-light">
-                <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> GPU servers and workstations
-                </li>
-                <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> AI software suites</li>
-                <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> Dataset repositories</li>
+            <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-4">AI Research Center for Community Development (AIRCoDe) empowers communities through artificial intelligence. Funded by DOST-PCIEERD under the Infrastructure Development Program in 2021, AIRCoDe conducts AI research projects addressing critical community needs across disaster risk management, agricultural innovation, and environmental preservation.</p>
+            <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-6">Incubatees gain access to cutting-edge HPC infrastructure, AI research expertise, and collaborative opportunities to develop AI-driven solutions responsive to the Bicol Region's unique challenges and opportunities.</p>
+            <ul class="space-y-2.5 text-[.82rem] text-dark font-light mb-6">
+                <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> HPC servers and GPU workstations</li>
+                <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> Collaborative AI research labs</li>
+                <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> Community-focused research thrusts</li>
             </ul>
+            <a href="https://ai.cspc.edu.ph/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-[.75rem] font-semibold tracking-[.1em] uppercase text-navy no-underline border-b-2 border-navy pb-1 transition-colors duration-200 hover:text-gold hover:border-gold">Visit AIRCoDe <span aria-hidden="true">→</span></a>
         </div>
     </div>
 </section>
@@ -289,4 +283,4 @@
 <div class="bg-white h-10 md:h-14 lg:h-16" aria-hidden="true"></div>
 
 <!-- ── Usage Policy ── -->
-<script src="<?= base_url('assets/js/facilitiesCarousel.js') ?>" defer></script>
+    <script src="<?= base_url('assets/js/features/carousel/facilitiesCarousel.js') ?>" defer></script>

@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <?php
-    $defaultTitle = 'ASOG Technology Business Incubator | Camarines Sur Polytechnic Colleges';
-    $defaultDescription = 'ASOG Technology Business Incubator (ASOG-TBI) supports startup incubation, mentorship, programs, and innovation development in Camarines Sur.';
+    $defaultTitle = 'ASOG Technology Business Incubator';
+    $defaultDescription = 'ASOG Technology Business Incubator (ASOG-TBI) - Programs, Mentorship, Facilities, News, and Support for Startups in Camarines Sur.';
     $defaultSocialImage = base_url('assets/img/incubatees.jpg');
 
     $pageTitle = isset($title) && $title !== '' ? $title : $defaultTitle;
@@ -36,11 +36,47 @@
     <meta name="twitter:title" content="<?= esc($pageTitle) ?>">
     <meta name="twitter:description" content="<?= esc($pageDescription) ?>">
     <title><?= esc($pageTitle) ?></title>
+    <!-- ================== STRUCTURED DATA  ===================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ASOG Technology Business Incubator",
+      "alternateName": "ASOG-TBI",
+      "url": "<?= base_url() ?>",
+      "logo": "<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>",
+      "description": "Supports startup incubation, mentorship, programs, and innovation development in Camarines Sur.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Camarines Sur",
+        "addressCountry": "PH"
+      },
+      "sameAs": [
+        "https://www.facebook.com/CSPCASOGTBI"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "<?= base_url() ?>",
+      "name": "ASOG Technology Business Incubator",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "<?= base_url('search?q={search_term_string}') ?>"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <!-- ================== CSS/JS  ===================== -->
     <link href="<?= base_url('style.css') ?>" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <?php if (empty($hideSiteHeader)): ?>
-    <script src="<?= base_url('assets/js/header.js') ?>" defer></script>
+    <script src="<?= base_url('assets/js/features/layout/header.js') ?>" defer></script>
     <?php endif; ?>
 
     <!-- ================== GOOGLE FONTS  ===================== -->
@@ -54,6 +90,11 @@
     <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('icon.png') ?>">
+    <!-- Preload critical WebP logo -->
+    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>" type="image/webp">
+    <?php if (! empty($heroPreloadImage)): ?>
+    <link rel="preload" as="image" href="<?= esc($heroPreloadImage) ?>" fetchpriority="high">
+    <?php endif; ?>
 </head>
 
 <?php $bodyClass = trim('font-body bg-dark text-off overflow-x-hidden ' . (string) ($bodyClass ?? '')); ?>
@@ -148,10 +189,14 @@
 
             <!-- CENTER LOGO -->
             <a href="<?= base_url() ?>" id="navLogo" class="flex no-underline">
-                <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI" id="navImg"
-                    class="h-auto" />
-                <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI"
-                    id="navImgLandscape" class="object-contain" />
+                <picture>
+                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>" type="image/webp">
+                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI" id="navImg" class="h-auto" />
+                </picture>
+                <picture>
+                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>" type="image/webp">
+                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI" id="navImgLandscape" class="object-contain" />
+                </picture>
             </a>
 
             <!-- desktop right links -->

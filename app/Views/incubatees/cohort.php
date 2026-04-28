@@ -140,8 +140,8 @@ $sealUrl       = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
         </div>
     </div>
 
-    <script src="<?= base_url('assets/js/incubateesLoader.js') ?>" defer
+    <script src="<?= base_url('assets/js/features/incubatees/incubateesLoader.js') ?>" defer
         data-api-url="<?= site_url('api/incubatees') ?>"
         data-cohort="<?= esc($cohortLabel, 'attr') ?>"
-        data-app-script="<?= base_url('assets/js/incubatees.js') ?>"></script>
+        data-app-script="<?= base_url('assets/js/features/incubatees/incubatees.js') ?>"></script>
 <?php endif; ?>

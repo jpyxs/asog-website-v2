@@ -177,8 +177,8 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
     </div>
 </div>
 
-<script src="<?= base_url('assets/js/incubateesLoader.js') ?>" defer
+<script src="<?= base_url('assets/js/features/incubatees/incubateesLoader.js') ?>" defer
     data-api-url="<?= site_url('api/incubatees') ?>"
-    data-app-script="<?= base_url('assets/js/incubatees.js') ?>"></script>
-<script src="<?= base_url('assets/js/incubateesCohortTabs.js') ?>" defer></script>
+    data-app-script="<?= base_url('assets/js/features/incubatees/incubatees.js') ?>"></script>
+    <script src="<?= base_url('assets/js/features/incubatees/incubateesCohortTabs.js') ?>" defer></script>
 <?php endif; ?>

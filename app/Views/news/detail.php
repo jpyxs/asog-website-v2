@@ -140,6 +140,6 @@
 </section>
 
 <?php if ($showStoryShare): ?>
-<script src="<?= base_url('assets/js/newsDetailShare.js') ?>" defer></script>
+    <script src="<?= base_url('assets/js/features/news/newsDetailShare.js') ?>" defer></script>
 <?php endif; ?>
 

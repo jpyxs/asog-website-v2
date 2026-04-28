@@ -36,12 +36,17 @@ class Landing extends BaseController
                 '1'
             )) !== '0',
             'heroSlides'         => $postModel->getFeaturedSlides(5),
+            'heroPreloadImage'   => '',
             'featuredPost'       => $postModel->getFeatured(),
             'latestPosts'        => $postModel->getPublished(5),
             'featuredIncubatee'  => $this->incubateeModel->getFeatured(),
             'incubatees'         => $landingIncubatees,
             'landingIncubateesFilter' => $cohortFilter,
         ];
+
+        if (! empty($data['heroSlides'][0]['imagePath'])) {
+            $data['heroPreloadImage'] = base_url($data['heroSlides'][0]['imagePath']);
+        }
 
         return view('templates/header', $data)
             . view('landing/hero', $data)

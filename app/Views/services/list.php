@@ -141,4 +141,4 @@ $services = [
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="<?= base_url('assets/js/services.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/services/services.js') ?>" defer></script>

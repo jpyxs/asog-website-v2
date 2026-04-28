@@ -1,4 +1,4 @@
-/* ═══ HERO SLIDESHOW ═══ */
+﻿/* ═══ HERO SLIDESHOW ═══ */
 (function () {
     function toArray(list) {
         return Array.isArray(list) ? list : Array.from(list || []);
@@ -24,6 +24,16 @@
             if (!el) return;
             el.classList.toggle('active', i === idx);
         });
+    }
+
+    function ensureSlideBackground(idx) {
+        var slide = slides[idx];
+        if (!slide || slide.style.backgroundImage) return;
+
+        var bg = slide.getAttribute('data-bg');
+        if (bg) {
+            slide.style.backgroundImage = 'url("' + bg.replace(/"/g, '\\"') + '")';
+        }
     }
 
     function syncStackHeights() {
@@ -111,6 +121,8 @@
         setActiveFor(links, cur);
         setActiveFor(dots, cur);
 
+        ensureSlideBackground(cur);
+
         syncStackHeights();
     }
 
@@ -118,17 +130,27 @@
     function startTimer() { timer = setInterval(next, DELAY); }
     function resetTimer() { clearInterval(timer); startTimer(); }
 
+    function preloadNextSlide() {
+        var nextIdx = (cur + 1) % slides.length;
+        ensureSlideBackground(nextIdx);
+    }
+
     /* Expose goTo globally for inline onclick handlers in hero.php */
     window.goTo = function (n) {
         go(n);
         resetTimer();
+        preloadNextSlide();
     };
 
     /* Boot */
+    slides.forEach(function (slide, idx) {
+        if (idx === 0) ensureSlideBackground(idx);
+    });
     go(0);
     syncHeroViewportHeight();
     syncStackHeights();
     startTimer();
+    preloadNextSlide();
 
     window.addEventListener('resize', syncHeroViewportHeight);
     window.addEventListener('resize', syncStackHeights);

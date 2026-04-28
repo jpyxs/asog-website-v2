@@ -12,8 +12,10 @@
 
             <!-- COL 1: Brand -->
             <div class="ft-col ft-col-brand">
-                <img src="<?= base_url('assets/img/ASOG TBI/PNG/asog logo variations_full-colored_landscape-light.png') ?>"
-                     alt="ASOG TBI" class="ft-logo" />
+                <picture>
+                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/asog logo variations_full-colored_landscape-light.webp') ?>" type="image/webp">
+                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/asog logo variations_full-colored_landscape-light.png') ?>" alt="ASOG TBI" class="ft-logo" />
+                </picture>
                 <p class="ft-tagline">
                     Empowering startups &amp; MSMEs in Bicol through engineering, AI, and food value chain innovation.
                 </p>
@@ -92,17 +94,17 @@
 
 <!-- Hero slideshow (landing page only) -->
 <?php if (! empty($isLanding)): ?>
-<script src="<?= base_url('assets/js/hero.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/layout/hero.js') ?>" defer></script>
 <?php endif; ?>
 
 <!-- Scroll-reveal animation observer -->
-<script src="<?= base_url('assets/js/scroll-reveal.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/layout/scroll-reveal.js') ?>" defer></script>
 
 <!-- TOC scroll-spy (loaded only if sidebar exists on page) -->
-<script src="<?= base_url('assets/js/toc.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/layout/toc.js') ?>" defer></script>
 
 <!-- Footer GSAP animations -->
-<script src="<?= base_url('assets/js/footer.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/layout/footer.js') ?>" defer></script>
 
 </body>
 </html>

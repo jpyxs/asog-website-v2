@@ -34,13 +34,24 @@
 
 /* ── Brand column ────────────────────────── */
 .ft-logo {
-    height: 42px;
+    height:100px;
+    /* display: block; */
+    width: auto;
+    height: 56px;
+    max-width: 220px;
     object-fit: contain;
     margin-bottom: 1rem;
     opacity: .9;
     transition: opacity .3s;
 }
 .ft-logo:hover { opacity: 1; }
+
+@media (min-width: 1024px) {
+    .ft-logo {
+        height: 64px;
+        max-width: 260px;
+    }
+}
 
 .ft-tagline {
     font-size: .8rem;

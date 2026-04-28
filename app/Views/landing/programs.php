@@ -82,5 +82,5 @@
         </div>
     </div>
 
-    <script src="<?= base_url('assets/js/programSlider.js') ?>" defer></script>
+    <script src="<?= base_url('assets/js/features/carousel/programSlider.js') ?>" defer></script>
 </section>

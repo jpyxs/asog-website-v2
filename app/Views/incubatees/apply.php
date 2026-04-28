@@ -299,4 +299,4 @@
 </section>
 
 <!-- Evaluation bar animation -->
-<script src="<?= base_url('assets/js/incubateesApplyPage.js') ?>" defer></script>
+    <script src="<?= base_url('assets/js/features/incubatees/incubateesApplyPage.js') ?>" defer></script>
