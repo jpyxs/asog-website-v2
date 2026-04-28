@@ -7,19 +7,34 @@
     <?php
     $defaultTitle = 'ASOG Technology Business Incubator | Camarines Sur Polytechnic Colleges';
     $defaultDescription = 'ASOG Technology Business Incubator (ASOG-TBI) supports startup incubation, mentorship, programs, and innovation development in Camarines Sur.';
+    $defaultSocialImage = base_url('assets/img/incubatees.jpg');
 
     $pageTitle = isset($title) && $title !== '' ? $title : $defaultTitle;
     $pageDescription = isset($metaDescription) && $metaDescription !== '' ? $metaDescription : $defaultDescription;
+    $pageImage = isset($metaImage) && (string) $metaImage !== '' ? (string) $metaImage : $defaultSocialImage;
+    $pageImageAlt = isset($metaImageAlt) && $metaImageAlt !== '' ? (string) $metaImageAlt : $pageTitle;
+    $pageType = isset($metaType) && $metaType !== '' ? (string) $metaType : 'website';
     $canonicalUrl = isset($canonical) && $canonical !== '' ? $canonical : current_url();
     $canonicalUrl = preg_replace('#^http://#i', 'https://', $canonicalUrl ?? '');
     $canonicalUrl = preg_replace('#^https://www\.#i', 'https://', $canonicalUrl ?? '');
+    $pageImage = preg_replace('#^http://#i', 'https://', $pageImage ?? '');
+    $pageImage = preg_replace('#^https://www\.#i', 'https://', $pageImage ?? '');
     ?>
     <meta name="description" content="<?= esc($pageDescription) ?>">
     <link rel="canonical" href="<?= esc($canonicalUrl) ?>">
     <meta property="og:title" content="<?= esc($pageTitle) ?>">
     <meta property="og:description" content="<?= esc($pageDescription) ?>">
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<?= esc($pageType) ?>">
+    <meta property="og:site_name" content="ASOG Technology Business Incubator">
     <meta property="og:url" content="<?= esc($canonicalUrl) ?>">
+    <meta property="og:image" content="<?= esc($pageImage) ?>">
+    <meta property="og:image:secure_url" content="<?= esc($pageImage) ?>">
+    <meta property="og:image:alt" content="<?= esc($pageImageAlt) ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="<?= esc($pageImage) ?>">
+    <meta name="twitter:image:alt" content="<?= esc($pageImageAlt) ?>">
+    <meta name="twitter:title" content="<?= esc($pageTitle) ?>">
+    <meta name="twitter:description" content="<?= esc($pageDescription) ?>">
     <title><?= esc($pageTitle) ?></title>
     <!-- ================== CSS/JS  ===================== -->
     <link href="<?= base_url('style.css') ?>" rel="stylesheet">

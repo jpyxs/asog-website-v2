@@ -26,9 +26,7 @@
                 </thead>
                 <tbody id="cmBody">
                     <?php foreach ($cohorts ?? [] as $c): ?>
-                    <?php
-                        $cnt = count(model('IncubateeModel')->where('cohort', $c['name'])->where('isPublished', 1)->findAll());
-                    ?>
+                    <?php $cnt = (int) (($cohortStartupCounts[$c['name']] ?? 0)); ?>
                     <tr data-id="<?= $c['id'] ?>">
                         <td class="cm-name"><?= esc($c['name']) ?></td>
                         <td class="cm-cnt"><?= $cnt ?> startup<?= $cnt !== 1 ? 's' : '' ?></td>
@@ -62,7 +60,7 @@
     </div>
 </div>
 
-<script src="<?= base_url('assets/js/adminIncubatees.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/incubatees/index.js') ?>"></script>
 
 <div class="toolbar">
     <span class="count"><?= count($incubatees ?? []) ?> incubatees</span>

@@ -1,4 +1,10 @@
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
 User-agent: *
-Disallow: 
+Disallow:
 
 Sitemap: /sitemap.xml

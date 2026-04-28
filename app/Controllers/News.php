@@ -47,10 +47,24 @@ class News extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Post not found.');
         }
 
+        $rawContent = trim((string) ($post['content'] ?? ''));
+        $plainContent = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode($rawContent, ENT_QUOTES, 'UTF-8'))));
+        $metaDescription = $plainContent !== ''
+            ? (mb_strlen($plainContent) > 160 ? mb_substr($plainContent, 0, 160) . '…' : $plainContent)
+            : 'Latest news, feature stories, and updates from ASOG-TBI.';
+
+        $metaImage = ! empty($post['imagePath']) ? base_url($post['imagePath']) : '';
+        $metaImageAlt = trim((string) ($post['title'] ?? 'ASOG-TBI story'));
+
         $data = [
-            'title'       => esc($post['title']) . ' - ASOG-TBI',
+            'title'       => trim((string) ($post['title'] ?? '')) . ' - ASOG-TBI',
             'post'        => $post,
             'latestPosts' => $this->postModel->getPublished(10),
+            'metaDescription' => $metaDescription,
+            'metaImage'       => $metaImage,
+            'metaImageAlt'    => $metaImageAlt,
+            'metaType'        => 'article',
+            'canonical'       => current_url(),
         ];
 
         return view('templates/header', $data)

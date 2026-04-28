@@ -836,10 +836,11 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
         <div class="cfm-body">
             <ul class="cfm-list" id="cfmList">
                 <?php
-                    $allCohorts = model('CohortModel')->getAllSorted();
+                    $allCohorts = $allCohorts ?? [];
+                    $cohortStartupCounts = $cohortStartupCounts ?? [];
                 ?>
                 <?php foreach ($allCohorts as $ch): ?>
-                <?php $cnt = count(model('IncubateeModel')->where('cohort', $ch['name'])->where('isPublished', 1)->findAll()); ?>
+                <?php $cnt = (int) (($cohortStartupCounts[$ch['name']] ?? 0)); ?>
                 <li class="cfm-item" data-id="<?= $ch['id'] ?>" data-name="<?= esc($ch['name']) ?>">
                     <div style="display:flex;align-items:center">
                         <span class="cfm-item-name"><?= esc($ch['name']) ?></span>
@@ -989,4 +990,4 @@ function cfmDelete(id, name) {
     .catch(function() { alert('Network error'); });
 }
 </script>
-<script src="<?= base_url('assets/js/adminIncubateeForm.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/incubatees/form.js') ?>"></script>

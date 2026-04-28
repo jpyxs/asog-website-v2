@@ -141,4 +141,4 @@
 </div>
 
 <?= jsBaseUrl() ?>
-<script src="<?= site_url('assets/js/adminApplications.js') ?>"></script>
+<script src="<?= site_url('assets/js/admin/applications/index.js') ?>"></script>

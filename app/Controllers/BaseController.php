@@ -59,8 +59,15 @@ abstract class BaseController extends Controller
 
         // Share cohort list globally so header nav can render dynamic dropdowns
         $renderer = \Config\Services::renderer();
-        $renderer->setData([
+        $sharedData = [
             'navCohorts' => $this->cohortModel->getActiveNames(),
-        ]);
+        ];
+
+        $seg1 = strtolower((string) service('uri')->getSegment(1, ''));
+        if ($seg1 === 'admin') {
+            $sharedData['adminUnreadMessageCount'] = $this->contactModel->countUnread();
+        }
+
+        $renderer->setData($sharedData);
     }
 }

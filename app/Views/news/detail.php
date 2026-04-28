@@ -47,16 +47,20 @@
 
         <?php
             $postCategory = strtolower((string) ($post['category'] ?? ''));
-            $showStoryShare = $postCategory !== 'features';
+            $showStoryShare = true;
             $shareUrl = current_url();
             $shareTitle = trim((string) ($post['title'] ?? '')) . ' | ASOG-TBI';
+            $shareDescription = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) ($post['content'] ?? ''), ENT_QUOTES, 'UTF-8'))));
+            $shareImage = ! empty($post['imagePath']) ? site_url($post['imagePath']) : '';
             $encodedUrl = rawurlencode($shareUrl);
             $encodedTitle = rawurlencode($shareTitle);
         ?>
         <?php if ($showStoryShare): ?>
-        <div id="storyShareBox" class="mt-10 rounded-lg border border-dark/[.08] bg-white p-4 md:p-5"
+        <div id="storyShareBox" class="mt-10 rounded-xl border border-dark/[.08] bg-white p-4 md:p-5 shadow-sm shadow-dark/[.04]"
             data-share-url="<?= esc($shareUrl, 'attr') ?>"
-            data-share-title="<?= esc($shareTitle, 'attr') ?>">
+            data-share-title="<?= esc($shareTitle, 'attr') ?>"
+            data-share-description="<?= esc($shareDescription, 'attr') ?>"
+            data-share-image="<?= esc($shareImage, 'attr') ?>">
             <div class="text-[.56rem] font-semibold tracking-[.16em] uppercase text-dark/45 mb-3">Share This Story</div>
             <div class="flex flex-wrap items-center gap-2.5">
                 <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $encodedUrl ?>" target="_blank" rel="noopener noreferrer"

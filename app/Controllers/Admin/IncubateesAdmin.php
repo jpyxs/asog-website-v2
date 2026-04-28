@@ -14,6 +14,33 @@ use App\Models\LandingSettingModel;
 class IncubateesAdmin extends BaseController
 {
 
+    /**
+     * Build a map of published incubatee counts keyed by cohort name.
+     *
+     * @return array<string, int>
+     */
+    private function getPublishedCountsByCohort(): array
+    {
+        $counts = [];
+
+        $rows = $this->incubateeModel
+            ->select('cohort, COUNT(*) as total')
+            ->where('isPublished', 1)
+            ->groupBy('cohort')
+            ->findAll();
+
+        foreach ($rows as $row) {
+            $name = trim((string) ($row['cohort'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+
+            $counts[$name] = (int) ($row['total'] ?? 0);
+        }
+
+        return $counts;
+    }
+
 
     /**
      * List all incubatees in the admin panel.
@@ -23,6 +50,8 @@ class IncubateesAdmin extends BaseController
     public function index()
     {
         $landingSettingModel = new LandingSettingModel();
+        $cohorts = $this->cohortModel->getAllSorted();
+        $cohortStartupCounts = $this->getPublishedCountsByCohort();
         $selectedLandingFilter = trim((string) $landingSettingModel->getValue(
             LandingSettingModel::KEY_INCUBATEES_FILTER,
             'all'
@@ -37,7 +66,8 @@ class IncubateesAdmin extends BaseController
             'pageTitle'   => 'Incubatees',
             'activePage'  => 'incubatees',
             'incubatees'  => $this->incubateeModel->orderBy('sortOrder', 'ASC')->orderBy('createdAt', 'DESC')->findAll(),
-            'cohorts'     => $this->cohortModel->getAllSorted(),
+            'cohorts'     => $cohorts,
+            'cohortStartupCounts' => $cohortStartupCounts,
             'landingFilterOptions' => $activeCohortNames,
             'selectedLandingFilter' => $selectedLandingFilter,
         ];
@@ -116,10 +146,13 @@ class IncubateesAdmin extends BaseController
 
     public function create()
     {
+        $cohorts = $this->cohortModel->getAllSorted();
         $data = [
             'pageTitle'       => 'New Incubatee',
             'activePage'      => 'incubatees',
             'existingCohorts' => $this->cohortModel->getActiveNames(),
+            'allCohorts'      => $cohorts,
+            'cohortStartupCounts' => $this->getPublishedCountsByCohort(),
         ];
 
         return view('admin/layout/header', $data)
@@ -261,11 +294,14 @@ class IncubateesAdmin extends BaseController
             return redirect()->to(site_url('admin/incubatees'));
         }
 
+        $cohorts = $this->cohortModel->getAllSorted();
         $data = [
             'pageTitle'       => 'Edit Incubatee',
             'activePage'      => 'incubatees',
             'incubatee'       => $incubatee,
             'existingCohorts' => $this->cohortModel->getActiveNames(),
+            'allCohorts'      => $cohorts,
+            'cohortStartupCounts' => $this->getPublishedCountsByCohort(),
         ];
 
         return view('admin/layout/header', $data)

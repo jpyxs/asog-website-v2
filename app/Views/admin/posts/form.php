@@ -126,4 +126,4 @@ $formUrl = $isEdit
     </div>
 </form>
 
-<script src="<?= base_url('assets/js/adminPostForm.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/posts/form.js') ?>"></script>

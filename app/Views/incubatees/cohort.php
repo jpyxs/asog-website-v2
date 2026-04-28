@@ -32,13 +32,9 @@ $sealUrl       = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
             <div class="text-center py-16">
                 <!-- 3D illustration — journey / take-off symbolism -->
                 <div class="mb-8">
-                    <img src="https://illustrations.popsy.co/amber/man-riding-a-rocket.svg" 
-                         alt="Ready for takeoff" 
-                         class="w-52 h-52 mx-auto opacity-80"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <div style="display:none" class="inline-block">
-                        <img src="<?= site_url('assets/img/icons8-rocket-launch-94.png') ?>" alt="Coming Soon" class="w-32 h-32 mx-auto opacity-40" />
-                    </div>
+                    <img src="<?= base_url('assets/img/illustrations/rocket-takeoff.svg') ?>"
+                         alt="Ready for takeoff"
+                         class="w-52 h-52 mx-auto opacity-80" />
                 </div>
                 <h3 class="font-display text-2xl text-dark mb-3"><?= esc($cohortLabel) ?> Coming Soon</h3>
                 <p class="text-dark/55 text-[.88rem] max-w-lg mx-auto leading-relaxed mb-2">
