@@ -28,8 +28,8 @@ class Landing extends BaseController
             : $this->incubateeModel->getPublishedByCohort($cohortFilter);
 
         $data = [
-            'title'              => 'ASOG Technology Business Incubator (ASOG-TBI) | CSPC',
-            'metaDescription'    => 'ASOG-TBI helps startups grow through incubation, mentorship, facilities, and innovation programs in Camarines Sur.',
+            'title'              => 'ASOG Technology Business Incubator (ASOG TBI) | CSPC',
+            'metaDescription'    => 'ASOG TBI helps startups grow through incubation, mentorship, facilities, and innovation programs in Camarines Sur.',
             'isLanding'          => true,
             'isGuessStartupEnabled' => trim((string) $landingSettingModel->getValue(
                 LandingSettingModel::KEY_GUESS_STARTUP_ENABLED,

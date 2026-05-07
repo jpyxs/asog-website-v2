@@ -49,48 +49,46 @@
             $postCategory = strtolower((string) ($post['category'] ?? ''));
             $showStoryShare = true;
             $shareUrl = current_url();
-            $shareTitle = trim((string) ($post['title'] ?? '')) . ' | ASOG-TBI';
+            $shareTitle = trim((string) ($post['title'] ?? '')) . ' | ASOG TBI';
             $shareDescription = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) ($post['content'] ?? ''), ENT_QUOTES, 'UTF-8'))));
             $shareImage = ! empty($post['imagePath']) ? site_url($post['imagePath']) : '';
             $encodedUrl = rawurlencode($shareUrl);
             $encodedTitle = rawurlencode($shareTitle);
         ?>
         <?php if ($showStoryShare): ?>
-        <div id="storyShareBox" class="mt-10 rounded-xl border border-dark/[.08] bg-white p-4 md:p-5 shadow-sm shadow-dark/[.04]"
-            data-share-url="<?= esc($shareUrl, 'attr') ?>"
-            data-share-title="<?= esc($shareTitle, 'attr') ?>"
+        <div id="storyShareBox"
+            class="mt-10 rounded-xl border border-dark/[.08] bg-white p-4 md:p-5 shadow-sm shadow-dark/[.04]"
+            data-share-url="<?= esc($shareUrl, 'attr') ?>" data-share-title="<?= esc($shareTitle, 'attr') ?>"
             data-share-description="<?= esc($shareDescription, 'attr') ?>"
             data-share-image="<?= esc($shareImage, 'attr') ?>">
             <div class="text-[.56rem] font-semibold tracking-[.16em] uppercase text-dark/45 mb-3">Share This Story</div>
             <div class="flex flex-wrap items-center gap-2.5">
-                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $encodedUrl ?>" target="_blank" rel="noopener noreferrer"
-                    aria-label="Share on Facebook" title="Share on Facebook"
+                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $encodedUrl ?>" target="_blank"
+                    rel="noopener noreferrer" aria-label="Share on Facebook" title="Share on Facebook"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-dark/[.16] text-[.9rem] no-underline text-dark/70 transition-colors hover:text-dark hover:border-dark/35">
                     <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
                 </a>
-                <a href="https://wa.me/?text=<?= $encodedTitle . '%20' . $encodedUrl ?>" target="_blank" rel="noopener noreferrer"
-                    aria-label="Share on WhatsApp" title="Share on WhatsApp"
+                <a href="https://wa.me/?text=<?= $encodedTitle . '%20' . $encodedUrl ?>" target="_blank"
+                    rel="noopener noreferrer" aria-label="Share on WhatsApp" title="Share on WhatsApp"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-dark/[.16] text-[.9rem] no-underline text-dark/70 transition-colors hover:text-dark hover:border-dark/35">
                     <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                 </a>
-                <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= $encodedUrl ?>" target="_blank" rel="noopener noreferrer"
-                    aria-label="Share on LinkedIn" title="Share on LinkedIn"
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= $encodedUrl ?>" target="_blank"
+                    rel="noopener noreferrer" aria-label="Share on LinkedIn" title="Share on LinkedIn"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-dark/[.16] text-[.9rem] no-underline text-dark/70 transition-colors hover:text-dark hover:border-dark/35">
                     <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
                 </a>
-                <a href="https://x.com/intent/tweet?url=<?= $encodedUrl ?>&text=<?= $encodedTitle ?>" target="_blank" rel="noopener noreferrer"
-                    aria-label="Share on X" title="Share on X"
+                <a href="https://x.com/intent/tweet?url=<?= $encodedUrl ?>&text=<?= $encodedTitle ?>" target="_blank"
+                    rel="noopener noreferrer" aria-label="Share on X" title="Share on X"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-dark/[.16] text-[.9rem] no-underline text-dark/70 transition-colors hover:text-dark hover:border-dark/35">
                     <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
                 </a>
-                <button type="button" id="copyStoryLink"
-                    aria-label="Copy story link" title="Copy story link"
+                <button type="button" id="copyStoryLink" aria-label="Copy story link" title="Copy story link"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-dark/[.16] text-[.9rem] text-dark/70 transition-colors hover:text-dark hover:border-dark/35">
                     <i class="fa-solid fa-link" aria-hidden="true"></i>
                     <span class="sr-only">Copy Link</span>
                 </button>
-                <button type="button" id="nativeStoryShare"
-                    aria-label="Share using device" title="Share using device"
+                <button type="button" id="nativeStoryShare" aria-label="Share using device" title="Share using device"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-dark/[.16] text-[.9rem] text-dark/70 transition-colors hover:text-dark hover:border-dark/35 hidden">
                     <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
                     <span class="sr-only">Share</span>
@@ -140,6 +138,5 @@
 </section>
 
 <?php if ($showStoryShare): ?>
-    <script src="<?= base_url('assets/js/features/news/newsDetailShare.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/news/newsDetailShare.js') ?>" defer></script>
 <?php endif; ?>
-

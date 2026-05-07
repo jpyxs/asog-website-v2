@@ -2,7 +2,7 @@
 
      ╔══════════════════════════════════════════════════════════════════════╗
      ║  SECTION: ABOUT US                                                   ║
-     ║  Light bg (#F8F6F2) · Who We Are · Description ng ASOG-TBI           ║
+     ║  Light bg (#F8F6F2) · Who We Are · Description ng ASOG TBI           ║
      ╚══════════════════════════════════════════════════════════════════════╝ 
      
 -->

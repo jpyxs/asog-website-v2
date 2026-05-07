@@ -214,7 +214,7 @@
                     3</span>
                 <h4 class="font-display text-[1.05rem] lg:text-[1.2rem] text-off mb-1.5">Pitch Day &amp; Interview</h4>
                 <p class="text-[.82rem] lg:text-[.93rem] font-light leading-[1.8] text-white/50 m-0 max-w-[480px]">
-                    Shortlisted applicants present their startup to the ASOG-TBI evaluation team.</p>
+                    Shortlisted applicants present their startup to the ASOG TBI evaluation team.</p>
             </div>
             <div class="reveal relative">
                 <span
@@ -288,7 +288,7 @@
                 <h3 class="font-display text-[1.3rem] md:text-[1.5rem] lg:text-[1.7rem] text-dark leading-[1.2] mb-4">
                     Ready to get started?</h3>
                 <p class="text-[.88rem] lg:text-[.98rem] font-normal leading-[1.65] text-black mb-6">Fill out our
-                    application form and the ASOG-TBI team will reach out to schedule your screening and next steps.</p>
+                    application form and the ASOG TBI team will reach out to schedule your screening and next steps.</p>
                 <a href="<?= site_url('apply/form') ?>"
                     class="inline-block self-start font-body text-[.62rem] lg:text-[.7rem] font-bold tracking-[.14em] uppercase text-dark bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors duration-200 hover:bg-gold-dk">
                     Apply Now →
@@ -299,4 +299,4 @@
 </section>
 
 <!-- Evaluation bar animation -->
-    <script src="<?= base_url('assets/js/features/incubatees/incubateesApplyPage.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/features/incubatees/incubateesApplyPage.js') ?>" defer></script>

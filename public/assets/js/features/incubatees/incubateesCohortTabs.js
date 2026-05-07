@@ -31,7 +31,7 @@
         if (stack) stack.style.display = 'none';
         if (coming) coming.style.display = '';
         if (csLabel) csLabel.textContent = cohort;
-        if (countLabel) countLabel.textContent = 'Interested in joining ASOG-TBI?';
+        if (countLabel) countLabel.textContent = 'Interested in joining ASOG TBI?';
         return;
       }
 

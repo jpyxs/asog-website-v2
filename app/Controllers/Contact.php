@@ -7,10 +7,10 @@ class Contact extends BaseController
     public function index(): string
     {
         $data = [
-            'title'        => 'Contact - ASOG-TBI',
+            'title'        => 'Contact - ASOG TBI',
             'heroSubtitle' => 'Reach Out',
             'heroTitle'    => 'Contact Us',
-            'heroDesc'     => 'Have questions or want to collaborate? Get in touch with the ASOG-TBI team.',
+            'heroDesc'     => 'Have questions or want to collaborate? Get in touch with the ASOG TBI team.',
         ];
 
         return view('templates/header', $data)
@@ -76,7 +76,7 @@ class Contact extends BaseController
         $emailService->setFrom($config->fromEmail, $config->fromName);
         $emailService->setTo($config->SMTPUser);          // send to the admin's own inbox
         $emailService->setReplyTo($data['email'], $data['name']);
-        $emailService->setSubject('ASOG-TBI — New Contact Message from ' . $data['name']);
+        $emailService->setSubject('ASOG TBI — New Contact Message from ' . $data['name']);
         $emailService->setMessage($body);
         $emailService->setMailType('html');
 

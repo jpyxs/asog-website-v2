@@ -9,10 +9,10 @@ class Organization extends BaseController
     public function index(): string
     {
         $data = [
-            'title'        => 'Organization - ASOG-TBI',
+            'title'        => 'Organization - ASOG TBI',
             'heroSubtitle' => 'Our People',
             'heroTitle'    => 'Organization',
-            'heroDesc'     => 'The team behind ASOG-TBI — leadership, staff, and mentors driving innovation forward.',
+            'heroDesc'     => 'The team behind ASOG TBI — leadership, staff, and mentors driving innovation forward.',
         ];
 
         return view('templates/header', $data)

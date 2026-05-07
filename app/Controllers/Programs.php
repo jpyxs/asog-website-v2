@@ -9,10 +9,10 @@ class Programs extends BaseController
     public function index(): string
     {
         $data = [
-            'title'        => 'Programs & Services - ASOG-TBI',
+            'title'        => 'Programs & Services - ASOG TBI',
             'heroSubtitle' => 'What We Offer',
             'heroTitle'    => 'Programs & Services',
-            'heroDesc'     => 'Explore the programs, services, and facilities that power innovation at ASOG-TBI.',
+            'heroDesc'     => 'Explore the programs, services, and facilities that power innovation at ASOG TBI.',
         ];
 
         return view('templates/header', $data)
@@ -24,7 +24,7 @@ class Programs extends BaseController
     public function services(): string
     {
         $data = [
-            'title'        => 'Services Offered - ASOG-TBI',
+            'title'        => 'Services Offered - ASOGTBI',
             'heroSubtitle' => 'Comprehensive Support',
             'heroTitle'    => 'Services Offered',
             'heroDesc'     => 'A comprehensive range of capacity-building services designed to support startups and MSMEs at every stage.',

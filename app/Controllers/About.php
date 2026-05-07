@@ -10,9 +10,9 @@ class About extends BaseController
     public function index(): string
     {
         $data = [
-            'title'        => 'About ASOG-TBI',
+            'title'        => 'About ASOG TBI',
             'heroSubtitle' => 'Get to Know Us',
-            'heroTitle'    => 'About ASOG-TBI',
+            'heroTitle'    => 'About ASOG TBI',
             'heroDesc'     => 'Bicol Region\'s Premier AI & Engineering Technology Business Incubator at Camarines Sur Polytechnic Colleges.',
         ];
 

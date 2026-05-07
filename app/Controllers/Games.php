@@ -614,6 +614,7 @@ class Games extends BaseController
      *   - "Jan Andrew Barte" vs "Andrew Barte" (same last name + school)
      *   - Reordered name parts
      *   - Added/removed middle names to bypass duplication checks
+     *   - debugged completely different names but sharing all significant parts (e.g. "Barte Jan Andrew" vs "Andrew Jan Barte")
      */
     private function detectSuspiciousNameVariation(string $firstName, string $lastName, string $school, int $excludePlayerId, string $playDate): ?array
     {

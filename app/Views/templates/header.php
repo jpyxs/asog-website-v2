@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <?php
     $defaultTitle = 'ASOG Technology Business Incubator';
-    $defaultDescription = 'ASOG Technology Business Incubator (ASOG-TBI) - Programs, Mentorship, Facilities, News, and Support for Startups in Camarines Sur.';
+    $defaultDescription = 'ASOG Technology Business Incubator (ASOG TBI) - Programs, Mentorship, Facilities, News, and Support for Startups in Camarines Sur.';
     $defaultSocialImage = base_url('assets/img/incubatees.jpg');
 
     $pageTitle = isset($title) && $title !== '' ? $title : $defaultTitle;
@@ -39,37 +39,37 @@
     <!-- ================== STRUCTURED DATA  ===================== -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "ASOG Technology Business Incubator",
-      "alternateName": "ASOG-TBI",
-      "url": "<?= base_url() ?>",
-      "logo": "<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>",
-      "description": "Supports startup incubation, mentorship, programs, and innovation development in Camarines Sur.",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Camarines Sur",
-        "addressCountry": "PH"
-      },
-      "sameAs": [
-        "https://www.facebook.com/CSPCASOGTBI"
-      ]
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "ASOG Technology Business Incubator",
+        "alternateName": "ASOG-TBI",
+        "url": "<?= base_url() ?>",
+        "logo": "<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>",
+        "description": "Supports startup incubation, mentorship, programs, and innovation development in Camarines Sur.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Camarines Sur",
+            "addressCountry": "PH"
+        },
+        "sameAs": [
+            "https://www.facebook.com/CSPCASOGTBI"
+        ]
     }
     </script>
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "url": "<?= base_url() ?>",
-      "name": "ASOG Technology Business Incubator",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "<?= base_url('search?q={search_term_string}') ?>"
-        },
-        "query-input": "required name=search_term_string"
-      }
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "url": "<?= base_url() ?>",
+        "name": "ASOG Technology Business Incubator",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "<?= base_url('search?q={search_term_string}') ?>"
+            },
+            "query-input": "required name=search_term_string"
+        }
     }
     </script>
     <!-- ================== CSS/JS  ===================== -->
@@ -91,13 +91,15 @@
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('icon.png') ?>">
     <!-- Preload critical WebP logo -->
-    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>" type="image/webp">
+    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>"
+        type="image/webp">
     <?php if (! empty($heroPreloadImage)): ?>
     <link rel="preload" as="image" href="<?= esc($heroPreloadImage) ?>" fetchpriority="high">
     <?php endif; ?>
 </head>
 
 <?php $bodyClass = trim('font-body bg-dark text-off overflow-x-hidden ' . (string) ($bodyClass ?? '')); ?>
+
 <body class="<?= esc($bodyClass) ?>">
     <?php
     /* ── Nav URLs: always link to dedicated pages ── */
@@ -190,12 +192,16 @@
             <!-- CENTER LOGO -->
             <a href="<?= base_url() ?>" id="navLogo" class="flex no-underline">
                 <picture>
-                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>" type="image/webp">
-                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI" id="navImg" class="h-auto" />
+                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>"
+                        type="image/webp">
+                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI"
+                        id="navImg" class="h-auto" />
                 </picture>
                 <picture>
-                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>" type="image/webp">
-                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI" id="navImgLandscape" class="object-contain" />
+                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>"
+                        type="image/webp">
+                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI"
+                        id="navImgLandscape" class="object-contain" />
                 </picture>
             </a>
 
@@ -274,8 +280,8 @@
             <button type="button" id="mobAboutToggle"
                 class="w-full flex items-center justify-between text-[.8rem] font-medium tracking-[.1em] uppercase text-white/60 py-3 border-b border-white/[.06] bg-transparent cursor-pointer select-none transition-colors hover:text-gold<?= $activeClass($isAboutGroup) ?>">
                 About
-                <svg id="mobAboutChevron" class="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" stroke-width="2">
+                <svg id="mobAboutChevron" class="w-4 h-4 transition-transform duration-200" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>

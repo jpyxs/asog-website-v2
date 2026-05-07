@@ -17,7 +17,7 @@ class Incubatees extends BaseController
         unset($cohort);
 
         $data = [
-            'title'          => 'Incubatees - ASOG-TBI',
+            'title'          => 'Incubatees - ASOG TBI',
             'heroSubtitle'   => 'Our Startups',
             'heroTitle'      => 'Incubatees',
             'heroDesc'       => 'Meet the startups and MSMEs building the future of food value chain management through engineering and AI.',
@@ -35,10 +35,10 @@ class Incubatees extends BaseController
     public function apply(): string
     {
         $data = [
-            'title'        => 'Be an Incubatee - ASOG-TBI',
+            'title'        => 'Be an Incubatee - ASOG TBI',
             'heroSubtitle' => 'Join the Program',
             'heroTitle'    => 'Be an Incubatee',
-            'heroDesc'     => 'Apply to the ASOG-TBI incubation program and turn your innovation into a market-ready solution.',
+            'heroDesc'     => 'Apply to the ASOG TBI incubation program and turn your innovation into a market-ready solution.',
         ];
 
         return view('templates/header', $data)
@@ -57,10 +57,10 @@ class Incubatees extends BaseController
             : $this->incubateeModel->getPublishedByCohort($cohortLabel);
 
         $data = [
-            'title'        => $cohortLabel . ' - ASOG-TBI',
+            'title'        => $cohortLabel . ' - ASOG TBI',
             'heroSubtitle' => 'Incubation Program',
             'heroTitle'    => $cohortLabel,
-            'heroDesc'     => 'The startups and MSMEs in ' . $cohortLabel . ' of the ASOG-TBI incubation program.',
+            'heroDesc'     => 'The startups and MSMEs in ' . $cohortLabel . ' of the ASOG TBI incubation program.',
             'incubatees'   => $incubatees,
             'cohortLabel'  => $cohortLabel,
             'cohortNum'    => $num,
@@ -75,10 +75,10 @@ class Incubatees extends BaseController
     public function applyForm(): string
     {
         $data = [
-            'title'        => 'Application Form - ASOG-TBI',
+            'title'        => 'Application Form - ASOG TBI',
             'heroSubtitle' => 'Incubation Program',
             'heroTitle'    => 'Application Form',
-            'heroDesc'     => 'Fill out the form below to apply for incubation at ASOG-TBI.',
+            'heroDesc'     => 'Fill out the form below to apply for incubation at ASOG TBI.',
         ];
 
         return view('templates/header', $data)
@@ -110,7 +110,7 @@ class Incubatees extends BaseController
                 ->with('errors', $applicationModel->errors());
         }
 
-        // Handle file upload (CV)
+        // Handle file upload (Curriculum Vitae for team members)
         if ($this->request->getFileMultiple('teamCv')) {
             $files = $this->request->getFileMultiple('teamCv');
             $uploadedPaths = [];
@@ -212,7 +212,7 @@ class Incubatees extends BaseController
 
         $email->setFrom($config->fromEmail, $config->fromName);
         $email->setTo($data['applicantEmail']);
-        $email->setSubject('ASOG-TBI — Application Received');
+        $email->setSubject('ASOG TBI — Application Received');
         $email->setMessage($body);
         $email->setMailType('html');
 
@@ -243,7 +243,7 @@ class Incubatees extends BaseController
     public function applyFormThankYou(): string
     {
         $data = [
-            'title' => 'Application Submitted - ASOG-TBI',
+            'title' => 'Application Submitted - ASOG TBI',
         ];
 
         return view('templates/header', $data)

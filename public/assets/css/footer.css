@@ -34,8 +34,6 @@
 
 /* ── Brand column ────────────────────────── */
 .ft-logo {
-    height:100px;
-    /* display: block; */
     width: auto;
     height: 56px;
     max-width: 220px;
@@ -45,6 +43,13 @@
     transition: opacity .3s;
 }
 .ft-logo:hover { opacity: 1; }
+
+@media (max-width: 639px) {
+    .ft-logo {
+        height: 42px;
+        max-width: 170px;
+    }
+}
 
 @media (min-width: 1024px) {
     .ft-logo {

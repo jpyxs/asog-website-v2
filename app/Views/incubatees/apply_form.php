@@ -24,13 +24,18 @@
                     <span class="block w-[18px] h-[2px] bg-gold"></span>
                     <span class="text-[.52rem] font-bold tracking-[.2em] uppercase text-gold">ASOG TBI</span>
                 </div>
-                <h2 class="font-display text-[1.4rem] md:text-[1.7rem] text-dark leading-snug mb-2">Startup Application Form</h2>
+                <h2 class="font-display text-[1.4rem] md:text-[1.7rem] text-dark leading-snug mb-2">Startup Application
+                    Form</h2>
                 <p class="text-[.92rem] font-medium text-dark/85 mb-3">Welcome, Future Innovator!</p>
                 <p class="text-[.84rem] font-normal leading-[1.65] text-black max-w-[640px] mb-2 text-justify">
-                    Thank you for your interest in joining the ASOG Technology Business Incubator (TBI). We're excited to support passionate startups like yours in turning bold ideas into real-world solutions — especially those rooted in AI, engineering, and food value chain innovation.
+                    Thank you for your interest in joining the ASOG Technology Business Incubator (TBI). We're excited
+                    to support passionate startups like yours in turning bold ideas into real-world solutions —
+                    especially those rooted in AI, engineering, and food value chain innovation.
                 </p>
                 <p class="text-[.84rem] font-normal leading-[1.65] text-black max-w-[640px] text-justify">
-                    Please fill out this form carefully so we can get to know your team, your idea, and how we can best support your startup journey. We're looking forward to discovering the next big thing — and it might just be you!
+                    Please fill out this form carefully so we can get to know your team, your idea, and how we can best
+                    support your startup journey. We're looking forward to discovering the next big thing — and it might
+                    just be you!
                 </p>
             </div>
 
@@ -40,26 +45,29 @@
             <div class="mb-10 bg-white border border-navy/10 rounded-md p-5 md:p-7">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="block w-[18px] h-[2px] bg-gold"></span>
-                    <h3 class="text-[.62rem] font-bold tracking-[.2em] uppercase text-navy m-0">Privacy &amp; Data Agreement</h3>
+                    <h3 class="text-[.62rem] font-bold tracking-[.2em] uppercase text-navy m-0">Privacy &amp; Data
+                        Agreement</h3>
                 </div>
                 <p class="text-[.82rem] font-normal leading-[1.65] text-dark mb-3">
-                    By submitting this application, you agree that ASOG Technology Business Incubator (ASOG-TBI) 
-                    may collect, process, and store the personal information you provide for the purpose of evaluating 
-                    your application to the incubation program. Your data will be handled in accordance with the 
+                    By submitting this application, you agree that ASOG Technology Business Incubator (ASOG TBI)
+                    may collect, process, and store the personal information you provide for the purpose of evaluating
+                    your application to the incubation program. Your data will be handled in accordance with the
                     Data Privacy Act of 2012 (RA 10173) and will not be shared with third parties without your consent.
                 </p>
                 <label class="flex items-start gap-3 cursor-pointer select-none group">
                     <input type="checkbox" id="privacyAgreement" name="privacyAgreement" value="1" required
                         class="v-field mt-0.5 w-4 h-4 shrink-0 accent-gold cursor-pointer" data-v="required">
                     <span class="text-[.82rem] text-dark leading-[1.6] group-hover:text-dark transition-colors">
-                        I have read and agree to the <strong class="text-[#102033] font-semibold">Privacy Policy</strong> and 
-                        <strong class="text-[#102033] font-semibold">Data Collection Agreement</strong>. I consent to ASOG-TBI 
-                        collecting and processing my personal data for application evaluation purposes. 
+                        I have read and agree to the <strong class="text-[#102033] font-semibold">Privacy
+                            Policy</strong> and
+                        <strong class="text-[#102033] font-semibold">Data Collection Agreement</strong>. I consent to
+                        ASOG TBI
+                        collecting and processing my personal data for application evaluation purposes.
                         <span class="text-red-400">*</span>
                     </span>
                 </label>
-                <span class="v-msg text-[.62rem] text-red-500 block mt-2 hidden"
-                    data-for="privacyAgreement">You must agree to the privacy policy to proceed.</span>
+                <span class="v-msg text-[.62rem] text-red-500 block mt-2 hidden" data-for="privacyAgreement">You must
+                    agree to the privacy policy to proceed.</span>
             </div>
 
             <!-- ═══════════════════════════════════════════════════════
@@ -285,7 +293,11 @@
                     </button>
                     <button type="button" data-open-guidelines
                         class="font-body text-[.6rem] font-bold tracking-[.13em] uppercase text-navy/50 bg-transparent px-4 py-3.5 rounded-sm border border-navy/15 cursor-pointer transition-all duration-200 hover:text-navy hover:border-navy/30">
-                        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" stroke="currentColor"
+                            stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
                         Guidelines
                     </button>
                 </div>
@@ -360,7 +372,8 @@
             <div>
                 <div class="flex items-center gap-2 mb-3">
                     <span class="block w-3 h-[2px] bg-gold"></span>
-                    <span class="text-[.52rem] font-bold tracking-[.2em] uppercase text-[#102033]/85">Startup Details</span>
+                    <span class="text-[.52rem] font-bold tracking-[.2em] uppercase text-[#102033]/85">Startup
+                        Details</span>
                 </div>
                 <div class="space-y-3">
                     <div>

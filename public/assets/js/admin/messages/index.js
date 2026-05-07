@@ -39,7 +39,7 @@ function openMsg(id) {
             document.getElementById('rEmail').innerHTML     = '<a href="mailto:' + d.email + '">' + d.email + '</a>';
             document.getElementById('rDate').textContent    = formatDate(d.createdAt);
             document.getElementById('rBody').textContent    = d.message;
-            document.getElementById('rReply').href          = 'mailto:' + encodeURIComponent(d.email) + '?subject=' + encodeURIComponent('Re: Your message to ASOG-TBI');
+            document.getElementById('rReply').href          = 'mailto:' + encodeURIComponent(d.email) + '?subject=' + encodeURIComponent('Re: Your message to ASOG TBI');
             document.getElementById('toggleLabel').textContent = d.isRead == 1 ? 'Mark unread' : 'Mark read';
 
             if (row) {
