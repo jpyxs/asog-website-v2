@@ -76,8 +76,11 @@ class PostsAdmin extends BaseController
 
     public function store()
     {
+        $slugInput = trim((string) $this->request->getPost('slug'));
+
         $data = [
             'title'            => $this->request->getPost('title'),
+            'slug'             => '',
             'shortDescription' => $this->request->getPost('shortDescription'),
             'content'          => $this->request->getPost('content'),
             'category'         => $this->request->getPost('category'),
@@ -91,8 +94,10 @@ class PostsAdmin extends BaseController
             $data['sortOrder'] = (int) $sortOrderInput;
         }
 
-        // Generate slug
-        $data['slug'] = $this->postModel->generateSlug($data['title']);
+        // Use the editor-provided slug when available, otherwise generate one from the title.
+        $data['slug'] = $slugInput !== ''
+            ? $this->postModel->generateSlug($slugInput)
+            : $this->postModel->generateSlug($data['title']);
 
         // Set publishedAt — use custom date if provided, otherwise default to now
         $customDate = $this->request->getPost('publishedAt');
@@ -181,8 +186,11 @@ class PostsAdmin extends BaseController
             return redirect()->to(site_url('admin/posts'));
         }
 
+        $slugInput = trim((string) $this->request->getPost('slug'));
+
         $data = [
             'title'            => $this->request->getPost('title'),
+            'slug'             => '',
             'shortDescription' => $this->request->getPost('shortDescription'),
             'content'          => $this->request->getPost('content'),
             'category'         => $this->request->getPost('category'),
@@ -196,8 +204,12 @@ class PostsAdmin extends BaseController
             $data['sortOrder'] = (int) $sortOrderInput;
         }
 
-        // Regenerate slug only if title changed
-        if ($data['title'] !== $post['title']) {
+        // Keep the current slug unless the editor provides a new one.
+        if ($slugInput !== '') {
+            $data['slug'] = $this->postModel->generateSlug($slugInput, $id);
+        } elseif (! empty($post['slug'])) {
+            $data['slug'] = $post['slug'];
+        } else {
             $data['slug'] = $this->postModel->generateSlug($data['title'], $id);
         }
 
@@ -247,7 +259,7 @@ class PostsAdmin extends BaseController
             return redirect()->back()->withInput();
         }
 
-        if (! $this->postModel->update($id, $data)) {
+        if (! $this->postModel->updateWithSlugHistory($id, $data, (string) ($post['slug'] ?? ''))) {
             setToast('error', 'Validation failed: ' . implode(', ', $this->postModel->errors()));
             return redirect()->back()->withInput();
         }

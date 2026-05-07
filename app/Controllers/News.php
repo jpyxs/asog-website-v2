@@ -39,11 +39,17 @@ class News extends BaseController
     /**
      * Display a single post by slug.
      */
-    public function show(string $slug): string
+    public function show(string $slug)
     {
         $post = $this->postModel->getBySlug($slug);
 
         if (! $post) {
+            $redirectPost = $this->postModel->resolveSlugRedirect($slug);
+
+            if ($redirectPost) {
+                return redirect()->to(site_url('news/' . $redirectPost['slug']))->setStatusCode(301);
+            }
+
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Post not found.');
         }
 

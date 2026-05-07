@@ -1,9 +1,21 @@
 (function () {
+    function slugify(value) {
+        return String(value || '')
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+
     /* ── Cover image upload ──────────────── */
     var zone = document.getElementById('uploadZone');
     var input = document.getElementById('imageInput');
     var preview = document.getElementById('uploadPreview');
     var label = document.getElementById('uploadLabel');
+    var titleInput = document.getElementById('title');
+    var slugInput = document.getElementById('slug');
 
     if (zone && input) {
         if (preview && preview.querySelector('img')) {
@@ -45,5 +57,22 @@
                 input.dispatchEvent(new Event('change'));
             }
         });
+    }
+
+    if (titleInput && slugInput) {
+        var slugManuallyEdited = slugInput.value.trim() !== '';
+
+        titleInput.addEventListener('input', function () {
+            if (slugManuallyEdited && slugInput.value.trim() !== '') return;
+            slugInput.value = slugify(titleInput.value);
+        });
+
+        slugInput.addEventListener('input', function () {
+            slugManuallyEdited = slugInput.value.trim() !== '';
+        });
+
+        if (slugInput.value.trim() === '' && titleInput.value.trim() !== '') {
+            slugInput.value = slugify(titleInput.value);
+        }
     }
 })();

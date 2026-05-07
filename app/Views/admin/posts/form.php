@@ -31,6 +31,15 @@ $formUrl = $isEdit
                     required placeholder="Post title">
             </div>
 
+            <!-- Slug -->
+            <div class="field">
+                <label for="slug">URL slug</label>
+                <input type="text" id="slug" name="slug"
+                    value="<?= esc(old('slug') !== null ? old('slug') : ($isEdit ? $post['slug'] : '')) ?>"
+                    placeholder="climbing-with-purpose-altitude-framework">
+                <p class="field-help">This is the public URL part after /news/. Keep it short, lowercase, and SEO-friendly.</p>
+            </div>
+
             <!-- Category + Author -->
             <div class="form-row">
                 <div class="field">

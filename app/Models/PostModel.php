@@ -32,6 +32,7 @@ class PostModel extends Model
     protected $returnType = 'array';
 
     protected ?bool $supportsSortOrderCache = null;
+    protected ?bool $supportsSlugHistoryCache = null;
 
     // Validation
     protected $validationRules = [
@@ -158,6 +159,83 @@ class PostModel extends Model
     }
 
     /**
+     * Resolve an old slug to the currently published post slug.
+     */
+    public function resolveSlugRedirect(string $slug): ?array
+    {
+        if (! $this->supportsSlugHistory()) {
+            return null;
+        }
+
+        $row = $this->db->table('post_slug_history')
+            ->select('posts.id, posts.slug, posts.title')
+            ->join('posts', 'posts.id = post_slug_history.postId', 'inner')
+            ->where('post_slug_history.oldSlug', $slug)
+            ->where('posts.isPublished', 1)
+            ->get()
+            ->getFirstRow('array');
+
+        return $row ?: null;
+    }
+
+    /**
+     * Store an old slug so legacy URLs can still redirect.
+     */
+    public function rememberSlugHistory(int $postId, string $slug): bool
+    {
+        $slug = trim($slug);
+
+        if ($slug === '' || ! $this->supportsSlugHistory()) {
+            return false;
+        }
+
+        $existing = $this->db->table('post_slug_history')
+            ->select('id')
+            ->where('oldSlug', $slug)
+            ->countAllResults();
+
+        if ($existing > 0) {
+            return false;
+        }
+
+        return (bool) $this->db->table('post_slug_history')->insert([
+            'postId'    => $postId,
+            'oldSlug'   => $slug,
+            'createdAt' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    /**
+     * Update a post while preserving the old slug for redirects when it changes.
+     */
+    public function updateWithSlugHistory(int $id, array $data, ?string $previousSlug = null): bool
+    {
+        $this->db->transBegin();
+
+        try {
+            $newSlug = isset($data['slug']) ? trim((string) $data['slug']) : '';
+            $previousSlug = trim((string) ($previousSlug ?? ''));
+
+            if ($previousSlug !== '' && $newSlug !== '' && $newSlug !== $previousSlug) {
+                $this->rememberSlugHistory($id, $previousSlug);
+            }
+
+            $updated = $this->update($id, $data);
+
+            if (! $updated || $this->db->transStatus() === false) {
+                $this->db->transRollback();
+                return false;
+            }
+
+            $this->db->transCommit();
+            return true;
+        } catch (\Throwable $e) {
+            $this->db->transRollback();
+            throw $e;
+        }
+    }
+
+    /**
      * Clear the featured flag on all posts.
      */
     public function clearFeatured(?int $excludeId = null): void
@@ -176,18 +254,36 @@ class PostModel extends Model
     {
         $slug = url_title($title, '-', true);
 
-        // Use an independent builder so we don't pollute model query state.
-        $builder = $this->db->table($this->table)->where('slug', $slug);
+        if ($this->isSlugTaken($slug, $excludeId)) {
+            $slug .= '-' . time();
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Detect whether a slug is already used by a post or reserved by history.
+     */
+    protected function isSlugTaken(string $slug, ?int $excludeId = null): bool
+    {
+        $builder = $this->db->table($this->table)->select('id')->where('slug', $slug);
 
         if ($excludeId !== null) {
             $builder->where('id !=', $excludeId);
         }
 
         if ($builder->countAllResults() > 0) {
-            $slug .= '-' . time();
+            return true;
         }
 
-        return $slug;
+        if (! $this->supportsSlugHistory()) {
+            return false;
+        }
+
+        return $this->db->table('post_slug_history')
+            ->select('id')
+            ->where('oldSlug', $slug)
+            ->countAllResults() > 0;
     }
 
     /**
@@ -206,5 +302,23 @@ class PostModel extends Model
         }
 
         return $this->supportsSortOrderCache;
+    }
+
+    /**
+     * Detect whether the slug history table exists.
+     */
+    public function supportsSlugHistory(): bool
+    {
+        if ($this->supportsSlugHistoryCache !== null) {
+            return $this->supportsSlugHistoryCache;
+        }
+
+        try {
+            $this->supportsSlugHistoryCache = $this->db->tableExists('post_slug_history');
+        } catch (\Throwable $e) {
+            $this->supportsSlugHistoryCache = false;
+        }
+
+        return $this->supportsSlugHistoryCache;
     }
 }

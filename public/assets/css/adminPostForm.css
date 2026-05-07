@@ -55,6 +55,13 @@
     min-height: 70px
 }
 
+.field-help {
+    margin-top: .35rem;
+    font-size: .62rem;
+    line-height: 1.5;
+    color: #94a3b8
+}
+
 .sdg-select-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
