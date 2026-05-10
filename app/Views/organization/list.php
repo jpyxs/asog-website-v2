@@ -182,16 +182,19 @@
                 <span class="block w-[18px] h-[1.5px] bg-sky"></span>
             </div>
             <h2 class="font-display text-[1.8rem] md:text-[2.4rem] leading-[1.15] text-dark">Interns</h2>
-            <p class="text-[.88rem] font-light leading-[1.8] text-black mt-3 max-w-[520px] mx-auto">The interns supporting
+            <p class="text-[.88rem] font-light leading-[1.8] text-black mt-3 max-w-[520px] mx-auto">The interns
+                supporting
                 ongoing projects and helping the team deliver creative, technical, and operational work.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-[1020px] mx-auto justify-items-center reveal-group">
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-[1020px] mx-auto justify-items-center reveal-group">
             <div class="rc w-full max-w-[300px] text-center mx-auto">
-                <div class="mx-auto aspect-square rounded-lg mb-4 p-[2px]"
-                    style="width:220px;max-width:100%;background:linear-gradient(to top, rgba(3,85,140,.42), rgba(3,85,140,.12));">
-                    <div class="w-full h-full rounded-[7px] border border-dashed border-navy/30 bg-white/70 flex items-center justify-center">
-                        <span class="text-[.65rem] font-semibold tracking-[.16em] uppercase text-navy/55">Photo</span>
+                <div class="mx-auto aspect-square mb-4"
+                    style="width:220px;max-width:100%;box-shadow:none;border:none;">
+                    <div class="w-full h-full rounded-[7px] overflow-hidden">
+                        <img src="<?= base_url('assets/img/team/interns/Arnante.webp') ?>" alt="Duke Zairus Arnante"
+                            class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
                 <h4 class="font-display text-[1.02rem] font-semibold text-dark leading-tight">Duke Zairus Arnante</h4>
@@ -199,10 +202,11 @@
             </div>
 
             <div class="rc w-full max-w-[300px] text-center mx-auto">
-                <div class="mx-auto aspect-square rounded-lg mb-4 p-[2px]"
-                    style="width:220px;max-width:100%;background:linear-gradient(to top, rgba(3,85,140,.42), rgba(3,85,140,.12));">
-                    <div class="w-full h-full rounded-[7px] border border-dashed border-navy/30 bg-white/70 flex items-center justify-center">
-                        <span class="text-[.65rem] font-semibold tracking-[.16em] uppercase text-navy/55">Photo</span>
+                <div class="mx-auto aspect-square mb-4"
+                    style="width:220px;max-width:100%;box-shadow:none;border:none;">
+                    <div class="w-full h-full rounded-[7px] overflow-hidden">
+                        <img src="<?= base_url('assets/img/team/interns/Barte.webp') ?>" alt="Jan Andrew R. Barte"
+                            class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
                 <h4 class="font-display text-[1.02rem] font-semibold text-dark leading-tight">Jan Andrew R. Barte</h4>
@@ -210,10 +214,11 @@
             </div>
 
             <div class="rc w-full max-w-[300px] text-center mx-auto">
-                <div class="mx-auto aspect-square rounded-lg mb-4 p-[2px]"
-                    style="width:220px;max-width:100%;background:linear-gradient(to top, rgba(3,85,140,.42), rgba(3,85,140,.12));">
-                    <div class="w-full h-full rounded-[7px] border border-dashed border-navy/30 bg-white/70 flex items-center justify-center">
-                        <span class="text-[.65rem] font-semibold tracking-[.16em] uppercase text-navy/55">Photo</span>
+                <div class="mx-auto aspect-square mb-4"
+                    style="width:220px;max-width:100%;box-shadow:none;border:none;">
+                    <div class="w-full h-full rounded-[7px] overflow-hidden">
+                        <img src="<?= base_url('assets/img/team/interns/Cleofe.webp') ?>" alt="Liza Mae B. Cleofe"
+                            class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
                 <h4 class="font-display text-[1.02rem] font-semibold text-dark leading-tight">Liza Mae B. Cleofe</h4>
@@ -221,10 +226,11 @@
             </div>
 
             <div class="rc w-full max-w-[300px] text-center mx-auto">
-                <div class="mx-auto aspect-square rounded-lg mb-4 p-[2px]"
-                    style="width:220px;max-width:100%;background:linear-gradient(to top, rgba(3,85,140,.42), rgba(3,85,140,.12));">
-                    <div class="w-full h-full rounded-[7px] border border-dashed border-navy/30 bg-white/70 flex items-center justify-center">
-                        <span class="text-[.65rem] font-semibold tracking-[.16em] uppercase text-navy/55">Photo</span>
+                <div class="mx-auto aspect-square mb-4"
+                    style="width:220px;max-width:100%;box-shadow:none;border:none;">
+                    <div class="w-full h-full rounded-[7px] overflow-hidden">
+                        <img src="<?= base_url('assets/img/team/interns/Garcia.webp') ?>" alt="Asi Neo Garcia"
+                            class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
                 <h4 class="font-display text-[1.02rem] font-semibold text-dark leading-tight">Asi Neo Garcia</h4>
@@ -232,10 +238,11 @@
             </div>
 
             <div class="rc w-full max-w-[300px] text-center mx-auto">
-                <div class="mx-auto aspect-square rounded-lg mb-4 p-[2px]"
-                    style="width:220px;max-width:100%;background:linear-gradient(to top, rgba(3,85,140,.42), rgba(3,85,140,.12));">
-                    <div class="w-full h-full rounded-[7px] border border-dashed border-navy/30 bg-white/70 flex items-center justify-center">
-                        <span class="text-[.65rem] font-semibold tracking-[.16em] uppercase text-navy/55">Photo</span>
+                <div class="mx-auto aspect-square mb-4"
+                    style="width:220px;max-width:100%;box-shadow:none;border:none;">
+                    <div class="w-full h-full rounded-[7px] overflow-hidden">
+                        <img src="<?= base_url('assets/img/team/interns/Julianes.webp') ?>" alt="Lily Rose Julianes"
+                            class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
                 <h4 class="font-display text-[1.02rem] font-semibold text-dark leading-tight">Lily Rose Julianes</h4>
@@ -243,10 +250,11 @@
             </div>
 
             <div class="rc w-full max-w-[300px] text-center mx-auto">
-                <div class="mx-auto aspect-square rounded-lg mb-4 p-[2px]"
-                    style="width:220px;max-width:100%;background:linear-gradient(to top, rgba(3,85,140,.42), rgba(3,85,140,.12));">
-                    <div class="w-full h-full rounded-[7px] border border-dashed border-navy/30 bg-white/70 flex items-center justify-center">
-                        <span class="text-[.65rem] font-semibold tracking-[.16em] uppercase text-navy/55">Photo</span>
+                <div class="mx-auto aspect-square mb-4"
+                    style="width:220px;max-width:100%;box-shadow:none;border:none;">
+                    <div class="w-full h-full rounded-[7px] overflow-hidden">
+                        <img src="<?= base_url('assets/img/team/interns/Manaog.webp') ?>" alt="Johnlerein B. Manaog"
+                            class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
                 <h4 class="font-display text-[1.02rem] font-semibold text-dark leading-tight">Johnlerein B. Manaog</h4>
