@@ -7,15 +7,17 @@
 $heroSlides = $heroSlides ?? [];
 $hasSlides  = ! empty($heroSlides);
 $dotCount   = $hasSlides ? count($heroSlides) : 3;
+$fallbackHeroImage = base_url('assets/img/incubatees.jpg');
 ?>
 <section id="hero" class="hero-rect-mobile relative w-full overflow-hidden" data-navhint="blue">
 
     <!-- ── Background Slides ──────────────────────────────────── -->
     <?php if ($hasSlides): ?>
     <?php foreach ($heroSlides as $i => $s): ?>
+    <?php $heroImage = ! empty($s['imagePath']) && is_file(FCPATH . $s['imagePath']) ? base_url($s['imagePath']) : $fallbackHeroImage; ?>
     <div class="slide slide-post slide-idx-<?= $i ?> <?= $i === 0 ? 'active' : '' ?>"
-        data-bg="<?= esc(base_url($s['imagePath'])) ?>"
-        <?= $i === 0 ? ' style="background-image:url(\'' . esc(base_url($s['imagePath'])) . '\');"' : '' ?>>
+        data-bg="<?= esc($heroImage) ?>"
+        <?= $i === 0 ? ' style="background-image:url(\'' . esc($heroImage) . '\');"' : '' ?>>
     </div>
     <?php endforeach; ?>
     <?php else: ?>
