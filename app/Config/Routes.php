@@ -80,6 +80,10 @@ $routes->post('/asog-admin', 'Auth::authenticate');
 $routes->get('/asog-admin/google', 'Auth::google');
 $routes->get('/asog-admin/google/callback', 'Auth::googleCallback');
 $routes->get('/asog-admin/logout', 'Auth::logout');
+$routes->get('/asog-admin/forgot-password', 'Auth::forgotPassword');
+$routes->post('/asog-admin/forgot-password', 'Auth::sendResetLink');
+$routes->get('/asog-admin/reset-password/(:segment)', 'Auth::resetPassword/$1');
+$routes->post('/asog-admin/reset-password/(:segment)', 'Auth::updateForgottenPassword/$1');
 
 /*
  * ────────────────────────────────────────────────────────────────────────────
@@ -102,10 +106,8 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
 
     // Incubatee Applications
     $routes->get('applications', 'Admin\ApplicationsAdmin::index');
-    $routes->post('applications/bulk', 'Admin\ApplicationsAdmin::bulk');
     $routes->get('applications/(:num)', 'Admin\ApplicationsAdmin::show/$1');
     $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
-    $routes->put('applications/(:num)/toggle-archive', 'Admin\ApplicationsAdmin::toggleArchive/$1');
 
     // Contact Messages
     $routes->get('messages', 'Admin\MessagesAdmin::index');
