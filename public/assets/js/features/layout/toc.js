@@ -45,7 +45,7 @@
         if (panels.length) {
             const byId = Object.fromEntries(panels.map(panel => [panel.id, panel]));
 
-            const setActivePanel = (targetId) => {
+            const setActivePanel = (targetId, updateHash = true) => {
                 if (!byId[targetId]) return;
 
                 panels.forEach(panel => panel.classList.add('hidden'));
@@ -56,7 +56,7 @@
                     link.classList.toggle(ACTIVE, isActive);
                 });
 
-                if (window.location.hash !== `#${targetId}`) {
+                if (updateHash && window.location.hash !== `#${targetId}`) {
                     history.replaceState(null, '', `#${targetId}`);
                 }
             };
@@ -79,7 +79,7 @@
 
             const hashTarget = (window.location.hash || '').replace('#', '');
             const firstId = panels[0].id;
-            setActivePanel(byId[hashTarget] ? hashTarget : firstId);
+            setActivePanel(byId[hashTarget] ? hashTarget : firstId, Boolean(hashTarget));
             return;
         }
     }
