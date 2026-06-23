@@ -103,6 +103,12 @@ class Incubatees extends BaseController
             'applicationStatus'     => 'pending',
         ];
 
+        if ($this->request->getPost('privacyAgreement') !== '1') {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', ['privacyAgreement' => 'Please confirm your privacy consent before continuing.']);
+        }
+
         // Validate
         if (! $applicationModel->validate($data)) {
             return redirect()->back()
@@ -114,9 +120,24 @@ class Incubatees extends BaseController
         if ($this->request->getFileMultiple('teamCv')) {
             $files = $this->request->getFileMultiple('teamCv');
             $uploadedPaths = [];
+            $seenFiles = [];
+
+            if (count($files) > 10) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Only up to 10 CV files can be uploaded.');
+            }
 
             foreach ($files as $file) {
                 if ($file->isValid() && ! $file->hasMoved()) {
+                    $fileKey = $file->getClientName() . '|' . $file->getSize();
+                    if (isset($seenFiles[$fileKey])) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'Duplicate CV files are not allowed.');
+                    }
+                    $seenFiles[$fileKey] = true;
+
                     // Validate file type and size
                     if ($file->getSize() > 104857600) { // 100 MB
                         return redirect()->back()

@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+@layer components {
+  .file-upload-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #03558C;
+    border-radius: 0.125rem;
+    background: #03558C;
+    padding: 0.5rem 1rem;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+  }
+
+  .file-upload-button:hover {
+    background: #fff;
+    border-color: #03558C;
+    color: #03558C;
+  }
+}
+
 @theme {
   --color-navy: #03558C;
   --color-gold: #F8AF21;

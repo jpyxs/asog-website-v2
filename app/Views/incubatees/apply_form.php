@@ -56,7 +56,8 @@
                 </p>
                 <label class="flex items-start gap-3 cursor-pointer select-none group">
                     <input type="checkbox" id="privacyAgreement" name="privacyAgreement" value="1" required
-                        class="v-field mt-0.5 w-4 h-4 shrink-0 accent-gold cursor-pointer" data-v="required">
+                        class="v-field mt-0.5 w-4 h-4 shrink-0 accent-gold cursor-pointer" data-v="required"
+                        data-required-message="Please confirm your privacy consent before continuing.">
                     <span class="text-[.82rem] text-dark leading-[1.6] group-hover:text-dark transition-colors">
                         I have read and agree to the <strong class="text-[#102033] font-semibold">Privacy
                             Policy</strong> and
@@ -66,8 +67,7 @@
                         <span class="text-red-400">*</span>
                     </span>
                 </label>
-                <span class="v-msg text-[.62rem] text-red-500 block mt-2 hidden" data-for="privacyAgreement">You must
-                    agree to the privacy policy to proceed.</span>
+                <span class="v-msg text-[.62rem] text-red-500 block mt-2 hidden" data-for="privacyAgreement"></span>
             </div>
 
             <!-- ═══════════════════════════════════════════════════════
@@ -204,10 +204,16 @@
                             </label>
                             <span class="text-[.58rem] text-navy/30 block mb-3">Upload PDFs · Max 10 files · 100 MB
                                 each</span>
-                            <input type="file" id="teamCv" name="teamCv[]" multiple accept=".pdf"
-                                class="w-full text-[.78rem] text-dark/60 file:mr-3 file:px-3 file:py-1.5 file:rounded-sm file:border file:border-navy/15 file:text-[.6rem] file:font-bold file:tracking-[.1em] file:uppercase file:text-navy file:bg-off file:cursor-pointer hover:file:bg-navy hover:file:text-white transition-colors">
+                            <div id="teamCvChooser" class="inline-flex items-center gap-3">
+                                <button type="button" id="teamCvButton" class="file-upload-button">
+                                    Choose File
+                                </button>
+                                <span id="teamCvStatus" class="text-[.78rem] text-dark/60">No file chosen</span>
+                                <input type="file" id="teamCv" name="teamCv[]" multiple accept=".pdf" class="hidden">
+                            </div>
                             <!-- File preview list -->
                             <ul id="teamCvList" class="mt-3 space-y-2.5 list-none p-0 m-0 hidden"></ul>
+                            <span id="teamCvNotice" class="text-[.62rem] text-red-500 block mt-1.5 hidden"></span>
                         </div>
                         <!-- Video Link -->
                         <div class="p-4 md:p-5">
@@ -271,9 +277,15 @@
                         </label>
                         <span class="text-[.58rem] text-navy/30 block mb-3">Must be in .docx or PDF &middot; 1 file
                             &middot; Max 10 MB</span>
-                        <input type="file" id="leanCanvas" name="leanCanvas"
-                            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            class="w-full text-[.78rem] text-dark/60 file:mr-3 file:px-3 file:py-1.5 file:rounded-sm file:border file:border-navy/15 file:text-[.6rem] file:font-bold file:tracking-[.1em] file:uppercase file:text-navy file:bg-off file:cursor-pointer hover:file:bg-navy hover:file:text-white transition-colors">
+                        <div id="leanCanvasChooser" class="inline-flex items-center gap-3">
+                            <button type="button" id="leanCanvasButton" class="file-upload-button">
+                                Choose File
+                            </button>
+                            <span id="leanCanvasStatus" class="text-[.78rem] text-dark/60">No file chosen</span>
+                            <input type="file" id="leanCanvas" name="leanCanvas"
+                                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                class="hidden">
+                        </div>
                         <!-- File preview -->
                         <div id="leanCanvasPreview" class="mt-3 hidden"></div>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1.5 hidden"
@@ -310,7 +322,7 @@
         <div class="mt-8 text-center">
             <a href="<?= site_url('apply') ?>"
                 class="text-[.6rem] font-semibold tracking-[.13em] uppercase text-dark/35 no-underline hover:text-gold transition-colors duration-200">
-                ← Back to Be an Incubatee
+                ← Back to application overview
             </a>
         </div>
     </div>
@@ -454,7 +466,7 @@
     </div>
 </div>
 
-<script src="<?= base_url('assets/js/features/forms/applyForm.js') ?>"></script>
+<script src="<?= base_url('assets/js/features/forms/applyForm.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/forms/applyForm.js') ?>"></script>
 
 <!-- ═══ (validation + modal logic lives in public/js/apply_form.js) ═══ -->
 <!--
