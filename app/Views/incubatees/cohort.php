@@ -12,7 +12,9 @@ $sealUrl       = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
 <link rel="stylesheet" href="<?= base_url('assets/css/incubatees.css') ?>">
 
 <!-- Section -->
-<section class="ib-s relative min-h-screen py-20 pb-16">
+<section class="ib-s relative min-h-screen py-20 pb-16" 
+         id="ibCohortSection"
+         style="opacity: 0; transition: opacity 0.4s ease;">
     <div class="ib-w mx-auto px-6 md:px-10 lg:px-14">
 
         <!-- Header -->

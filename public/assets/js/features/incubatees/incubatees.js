@@ -340,12 +340,33 @@
     }
 
     /* ── Entrance animation ── */
-    gsap.from('.ib-card', {
-        opacity: 0, y: 35, scale: .92,
-        duration: .45, stagger: .07,
-        ease: 'power2.out', delay: .15
-    });
+    var cards = document.querySelectorAll('.ib-card');
 
+    if (cards.length) {
+        // Ensure they start hidden (CSS already does, but this is a safety net)
+        gsap.set(cards, { opacity: 0, y: 35, scale: 0.92 });
+
+        // Animate them in
+        gsap.to(cards, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.45,
+            stagger: 0.07,
+            ease: 'power2.out',
+            delay: 0.15,
+            onComplete: function() {
+                // Add a class so CSS takes over after the animation
+                cards.forEach(function(card) {
+                    card.classList.add('ib-card-visible');
+                    // Remove inline styles to let CSS transitions work
+                    card.style.opacity = '';
+                    card.style.transform = '';
+                    card.style.scale = '';
+                });
+            }
+        });
+    }
     /* ── Hover tilt ── */
     cards.forEach(function (card) {
         var inner = card.querySelector('.ib-inner');
