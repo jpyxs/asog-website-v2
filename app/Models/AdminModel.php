@@ -24,6 +24,8 @@ class AdminModel extends Model
         'role',
         'isActive',
         'lastLoginAt',
+        'resetToken',
+        'resetTokenExpiresAt',
     ];
 
     protected $returnType = 'array';
@@ -148,5 +150,20 @@ class AdminModel extends Model
         }
 
         return $builder->countAllResults() > 0;
+    }
+
+    public function findByResetToken(string $token): ?array
+    {
+        return $this->where('resetToken', hash('sha256', $token))
+                    ->where('resetTokenExpiresAt >=', date('Y-m-d H:i:s'))
+                    ->first();
+    }
+
+    public function clearResetToken(int $id): void
+    {
+        $this->update($id, [
+            'resetToken'          => null,
+            'resetTokenExpiresAt' => null,
+        ]);
     }
 }

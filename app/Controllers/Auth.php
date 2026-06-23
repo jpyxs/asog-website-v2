@@ -144,6 +144,125 @@ class Auth extends BaseController
         return redirect()->to('/asog-admin')->with('success', 'Logged out successfully.');
     }
 
+    /**
+     * Display the forgot password form.
+     */
+    public function forgotPassword()
+    {
+        return view('admin/auth/forgot_password');
+    }
+
+    /**
+     * Send the password reset link to the provided email.
+     */
+    public function sendResetLink()
+    {
+        $email = strtolower(trim((string) $this->request->getPost('email')));
+
+        if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', 'Please enter a valid email address.');
+        }
+
+        $resetAttempts = session()->get('reset_attempts') ?? [];
+        $resetAttempts = array_values(array_filter($resetAttempts, static fn (int $t): bool => $t > time() - 3600));
+        if (count($resetAttempts) >= 5) {
+            return redirect()->back()->with('error', 'Too many reset requests. Please try again later.');
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $tokenHash = hash('sha256', $token);
+        $expiresAt = date('Y-m-d H:i:s', time() + 3600);
+
+        $adminModel = new AdminModel();
+        $admin = $adminModel->findByEmail($email);
+
+        if ($admin !== null && ! empty($admin['isActive'])) {
+            $adminModel->update($admin['id'], [
+                'resetToken'          => $tokenHash,
+                'resetTokenExpiresAt' => $expiresAt,
+            ]);
+
+            $resetUrl = site_url('asog-admin/reset-password/' . $token);
+
+            $emailService = \Config\Services::email();
+            $config = config('Email');
+            $emailService->setFrom($config->fromEmail, $config->fromName);
+            $emailService->setTo($email);
+            $emailService->setSubject('Password Reset — ASOG TBI Admin');
+            $emailService->setMessage(view('emails/password_reset', [
+                'resetUrl' => $resetUrl,
+                'adminName' => $admin['fullName'],
+            ]));
+            $emailService->send(false);
+        }
+
+        $resetAttempts[] = time();
+        session()->set('reset_attempts', $resetAttempts);
+
+        return redirect()->to('/asog-admin/forgot-password')->with('success', 'If an account with that email exists, a password reset link has been sent.');
+    }
+
+    /**
+     * Display the reset password form.
+     */
+    public function resetPassword(string $token)
+    {
+        $adminModel = new AdminModel();
+        $admin = $adminModel->findByResetToken($token);
+
+        if ($admin === null) {
+            return redirect()->to('/asog-admin')->with('error', 'This password reset link is invalid or has expired.');
+        }
+
+        return view('admin/auth/reset_password', ['token' => $token]);
+    }
+
+    /**
+     * Update the password using the reset token.
+     */
+    public function updateForgottenPassword()
+    {
+        $token = trim((string) $this->request->getPost('token'));
+        $password = (string) $this->request->getPost('password');
+        $passwordConfirm = (string) $this->request->getPost('password_confirm');
+
+        if ($token === '') {
+            return redirect()->to('/asog-admin')->with('error', 'Invalid password reset request.');
+        }
+
+        if ($password === '' || strlen($password) < 8) {
+            return redirect()->back()->with('error', 'Password must be at least 8 characters.')->withInput();
+        }
+
+        if ($password !== $passwordConfirm) {
+            return redirect()->back()->with('error', 'Passwords do not match.')->withInput();
+        }
+
+        $updateAttempts = session()->get('reset_update_attempts') ?? [];
+        $updateAttempts = array_values(array_filter($updateAttempts, static fn (int $t): bool => $t > time() - 600));
+        if (count($updateAttempts) >= 10) {
+            return redirect()->back()->with('error', 'Too many attempts. Please try again later.')->withInput();
+        }
+
+        $adminModel = new AdminModel();
+        $admin = $adminModel->findByResetToken($token);
+
+        if ($admin === null) {
+            $updateAttempts[] = time();
+            session()->set('reset_update_attempts', $updateAttempts);
+            return redirect()->to('/asog-admin')->with('error', 'This password reset link is invalid or has expired.');
+        }
+
+        $adminModel->update($admin['id'], [
+            'password' => $password,
+        ]);
+        $adminModel->clearResetToken($admin['id']);
+
+        session()->remove('reset_update_attempts');
+
+        return redirect()->to('/asog-admin')->with('success', 'Password updated successfully. You can now sign in.');
+    }
+
     private function buildGoogleClient(): ?GoogleClient
     {
         if (! class_exists(GoogleClient::class)) {
