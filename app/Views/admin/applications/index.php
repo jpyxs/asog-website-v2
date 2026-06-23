@@ -1,10 +1,32 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/adminApplications.css') ?>">
 
+<?php
+$currentSort   = $sort      ?? 'createdAt';
+$currentDir    = $direction ?? 'DESC';
+$currentSearch = $search    ?? '';
+$currentStatus = $status    ?? 'active';
+
+function sortUrl(string $col, string $currentSort, string $currentDir, string $search, string $status): string {
+    $dir = ($currentSort === $col && strtolower($currentDir) === 'asc') ? 'desc' : 'asc';
+    return site_url('admin/applications') . '?' . http_build_query([
+        'search'    => $search,
+        'status'    => $status,
+        'sort'      => $col,
+        'direction' => $dir,
+    ]);
+}
+
+function sortClass(string $col, string $currentSort, string $currentDir): string {
+    if ($currentSort !== $col) return '';
+    return 'sorted-' . strtolower($currentDir);
+}
+?>
+
 <!-- Stats -->
 <div class="grid-stats">
     <div class="stat">
         <div class="n"><?= $counts['total'] ?></div>
-        <div class="t">Total</div>
+        <div class="t">Total Active</div>
     </div>
     <div class="stat">
         <div class="n"><?= $counts['pending'] ?></div>
@@ -18,56 +40,226 @@
         <div class="n"><?= $counts['rejected'] ?></div>
         <div class="t">Rejected</div>
     </div>
+    <div class="stat">
+        <div class="n"><?= $counts['archived'] ?></div>
+        <div class="t">Archived</div>
+    </div>
+</div>
+
+<!-- Combined filter + bulk bar -->
+<div class="app-filter-bar">
+    <!-- Checkbox + smart-select caret — always visible -->
+    <div class="filter-chk-area">
+        <div class="smart-chk-wrap" id="smartChkWrap">
+            <input type="checkbox" id="selectAll">
+            <button type="button" class="smart-chk-caret" id="smartCaretBtn" title="Selection options">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div class="smart-chk-menu" id="smartChkMenu">
+                <button type="button" class="scm-item" data-smart="all">All</button>
+                <button type="button" class="scm-item" data-smart="none">None</button>
+                <div class="scm-sep"></div>
+                <button type="button" class="scm-item" data-smart="pending">Under Review</button>
+                <button type="button" class="scm-item" data-smart="accepted">Accepted</button>
+                <button type="button" class="scm-item" data-smart="rejected">Rejected</button>
+                <button type="button" class="scm-item" data-smart="archived">Archived</button>
+            </div>
+        </div>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-slot">
+    <form method="GET" action="<?= site_url('admin/applications') ?>" class="app-filter-form" id="filterForm">
+        <div class="app-search-wrap">
+            <svg class="app-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="search" id="appSearchInput" class="app-input-search"
+                   placeholder="Search by name, startup, email…"
+                   value="<?= esc($currentSearch) ?>">
+        </div>
+        <select name="status" class="app-select-filter" onchange="this.form.submit()">
+            <option value="active"   <?= $currentStatus === 'active'   ? 'selected' : '' ?>>Active</option>
+            <option value="pending"  <?= $currentStatus === 'pending'  ? 'selected' : '' ?>>Under Review</option>
+            <option value="accepted" <?= $currentStatus === 'accepted' ? 'selected' : '' ?>>Accepted</option>
+            <option value="rejected" <?= $currentStatus === 'rejected' ? 'selected' : '' ?>>Rejected</option>
+            <option value="archived" <?= $currentStatus === 'archived' ? 'selected' : '' ?>>Archived</option>
+        </select>
+        <input type="hidden" name="sort"      value="<?= esc($currentSort) ?>">
+        <input type="hidden" name="direction" value="<?= esc($currentDir) ?>">
+        <button type="submit" class="app-btn-search">Search</button>
+        <?php if ($currentSearch !== '' || $currentStatus !== 'active'): ?>
+            <a href="<?= site_url('admin/applications') ?>" class="app-btn-clear">Clear</a>
+        <?php endif; ?>
+    </form>
+
+    <!-- Bulk action buttons — overlaid when rows are selected -->
+    <div class="bulk-actions-bar" id="bulkActionsBar">
+        <span class="bulk-count-label"><span id="bulkCount">0</span> selected</span>
+        <div class="bulk-bar-sep"></div>
+        <button type="button" class="bulk-act-btn bulk-act-pending"   data-action="pending">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Mark as Under Review
+        </button>
+        <button type="button" class="bulk-act-btn bulk-act-accept"    data-action="accepted">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Accept
+        </button>
+        <button type="button" class="bulk-act-btn bulk-act-reject"    data-action="rejected">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Reject
+        </button>
+        <button type="button" class="bulk-act-btn bulk-act-archive"   data-action="archive">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+            </svg>
+            Archive
+        </button>
+        <button type="button" class="bulk-act-btn bulk-act-unarchive" data-action="unarchive">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+            </svg>
+            Unarchive
+        </button>
+    </div>
+    </div>
 </div>
 
 <!-- Table -->
 <?php if (empty($applications)): ?>
 <div class="tbl-wrap">
-    <div class="empty">No applications yet.</div>
+    <div class="empty">No applications found.</div>
 </div>
 <?php else: ?>
 <div class="tbl-wrap">
     <table class="tbl">
         <thead>
             <tr>
-                <th>Applicant</th>
-                <th>Startup</th>
-                <th>Email</th>
-                <th>Date</th>
-                <th>Status</th>
+                <th class="col-check"></th>
+                <th class="sortable <?= sortClass('applicantName', $currentSort, $currentDir) ?>">
+                    <a href="<?= sortUrl('applicantName', $currentSort, $currentDir, $currentSearch, $currentStatus) ?>">
+                        Applicant <span class="sort-icon"></span>
+                    </a>
+                </th>
+                <th class="sortable <?= sortClass('startupName', $currentSort, $currentDir) ?>">
+                    <a href="<?= sortUrl('startupName', $currentSort, $currentDir, $currentSearch, $currentStatus) ?>">
+                        Startup <span class="sort-icon"></span>
+                    </a>
+                </th>
+                <th class="sortable <?= sortClass('applicantEmail', $currentSort, $currentDir) ?>">
+                    <a href="<?= sortUrl('applicantEmail', $currentSort, $currentDir, $currentSearch, $currentStatus) ?>">
+                        Email <span class="sort-icon"></span>
+                    </a>
+                </th>
+                <th class="sortable <?= sortClass('createdAt', $currentSort, $currentDir) ?>">
+                    <a href="<?= sortUrl('createdAt', $currentSort, $currentDir, $currentSearch, $currentStatus) ?>">
+                        Date <span class="sort-icon"></span>
+                    </a>
+                </th>
+                <th class="sortable <?= sortClass('applicationStatus', $currentSort, $currentDir) ?>">
+                    <a href="<?= sortUrl('applicationStatus', $currentSort, $currentDir, $currentSearch, $currentStatus) ?>">
+                        Status <span class="sort-icon"></span>
+                    </a>
+                </th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($applications as $app): ?>
-            <tr data-id="<?= esc($app['id']) ?>">
+            <?php
+            $statusLabels = ['pending' => 'Under Review', 'accepted' => 'Accepted', 'rejected' => 'Rejected', 'reviewed' => 'Reviewed'];
+            foreach ($applications as $app):
+            ?>
+            <tr data-id="<?= esc($app['id']) ?>" data-archived="<?= (int) $app['isArchived'] ?>">
+                <td class="col-check">
+                    <input type="checkbox" class="row-select"
+                           data-id="<?= esc($app['id']) ?>"
+                           data-status="<?= esc($app['applicationStatus']) ?>"
+                           data-is-archived="<?= (int) $app['isArchived'] ?>">
+                </td>
                 <td><?= esc($app['applicantName']) ?></td>
                 <td><?= esc($app['startupName']) ?></td>
                 <td class="mono"><?= esc($app['applicantEmail']) ?></td>
                 <td class="mono"><?= date('M j, Y', strtotime($app['createdAt'])) ?></td>
                 <td>
-                    <?php
-                                $statusLabels = ['pending' => 'Under Review', 'accepted' => 'Accepted', 'rejected' => 'Rejected', 'reviewed' => 'Reviewed'];
-                            ?>
                     <span class="tag tag-<?= esc($app['applicationStatus']) ?>">
                         <?= esc($statusLabels[$app['applicationStatus']] ?? ucfirst($app['applicationStatus'])) ?>
                     </span>
+                    <?php if ($app['isArchived']): ?>
+                        <span class="tag tag-archived">Archived</span>
+                    <?php endif; ?>
                 </td>
                 <td>
-                    <button class="btn-review" data-id="<?= esc($app['id']) ?>">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        Review
-                    </button>
+                    <div class="row-acts">
+                        <button class="btn-review" data-id="<?= esc($app['id']) ?>">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Review
+                        </button>
+                        <button class="btn-arch-row" data-id="<?= esc($app['id']) ?>"
+                                title="<?= $app['isArchived'] ? 'Restore' : 'Archive' ?>">
+                            <?php if ($app['isArchived']): ?>
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                                </svg>
+                            <?php else: ?>
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                </svg>
+                            <?php endif; ?>
+                        </button>
+                    </div>
                 </td>
             </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </div>
+<?php
+$baseUrl = site_url('admin/applications') . '?' . http_build_query([
+    'search'    => $currentSearch,
+    'status'    => $currentStatus,
+    'sort'      => $currentSort,
+    'direction' => $currentDir,
+]) . '&page=';
+?>
+<?php if ($totalPages > 1): ?>
+<div class="tbl-pagination">
+    <span class="pag-info">Showing <?= ($currentPage - 1) * $perPage + 1 ?>&ndash;<?= min($currentPage * $perPage, $total) ?> of <?= $total ?></span>
+    <div class="pag-controls">
+        <?php $prevDisabled = $currentPage <= 1; ?>
+        <a class="pag-btn<?= $prevDisabled ? ' pag-disabled' : '' ?>"
+           href="<?= $prevDisabled ? '#' : $baseUrl . ($currentPage - 1) ?>" aria-label="Previous">&larr;</a>
+        <?php
+        $range = 2;
+        $pages = [];
+        for ($i = 1; $i <= $totalPages; $i++) {
+            if ($i === 1 || $i === $totalPages || ($i >= $currentPage - $range && $i <= $currentPage + $range)) {
+                $pages[] = $i;
+            }
+        }
+        $prev = null;
+        foreach ($pages as $p):
+            if ($prev !== null && $p - $prev > 1): ?>
+                <span class="pag-ellipsis">&hellip;</span>
+        <?php endif; ?>
+        <a class="pag-btn<?= $p === $currentPage ? ' pag-active' : '' ?>" href="<?= $baseUrl . $p ?>"><?= $p ?></a>
+        <?php $prev = $p; endforeach; ?>
+        <?php $nextDisabled = $currentPage >= $totalPages; ?>
+        <a class="pag-btn<?= $nextDisabled ? ' pag-disabled' : '' ?>"
+           href="<?= $nextDisabled ? '#' : $baseUrl . ($currentPage + 1) ?>" aria-label="Next">&rarr;</a>
+    </div>
+</div>
+<?php endif; ?>
 <?php endif; ?>
 
 <!-- Review Modal -->
@@ -77,7 +269,7 @@
             <h2 id="modalTitle">Application Review</h2>
             <button class="modal-close" id="modalClose">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
@@ -87,24 +279,34 @@
             </div>
         </div>
         <div class="modal-foot" id="modalFoot">
-            <!-- Shown for under review -->
+            <button class="btn-arch-modal" id="btnArchModal" style="display:none">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                </svg>
+                Archive
+            </button>
+            <button class="btn-restore-modal" id="btnRestoreModal" style="display:none">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                </svg>
+                Restore
+            </button>
             <button class="btn-reject" id="btnReject" style="display:none">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
                 Reject
             </button>
             <button class="btn-accept" id="btnAccept" style="display:none">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
                 Accept
             </button>
-            <!-- Shown for accepted/rejected -->
             <button class="btn-change" id="btnChange" style="display:none">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
                 Change Status
             </button>
@@ -115,7 +317,7 @@
             </select>
             <button class="btn-accept" id="btnSaveStatus" style="display:none">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
                 Save
             </button>
