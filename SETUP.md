@@ -12,45 +12,117 @@ https://github.com/jpyxs/asog-website-v2
 
 ---
 
-# Project Workflow
+# Development Workflow
 
-The project follows this workflow:
+Before starting, make sure you have completed the local setup by following the instructions in `SETUP.md`.
 
-```text
-Website Audit
-      ↓
-Issue Tracking Workbook
-      ↓
-GitHub Issues
-      ↓
-Development
-      ↓
-Pull Request
-      ↓
-develop
-      ↓
-main
+#### 1. Check Your Assigned Issues
+Go to:
+
+`Repository → Issues`
+
+Review the issue(s) assigned to you and understand the requirements before starting.
+
+#### 2. Update Your Branch
+Before working on an issue, always update your local repository:
+
+```bash
+git checkout develop
+git pull
+
+git checkout <your-branch>
+git merge develop
 ```
 
-Before starting any fix or enhancement:
+Example:
 
-1. Check the Issue Tracking Workbook.
-2. Ensure the issue is documented.
-3. Create or assign the corresponding GitHub Issue.
-4. Implement the fix.
-5. Submit a Pull Request to `develop`.
+```bash
+git checkout develop
+git pull
 
-All implementation work must flow through:
-
-```text
-Personal Branch
-      ↓
-develop
-      ↓
-main
+git checkout juan
+git merge develop
 ```
 
-Do not commit directly to `main`.
+This ensures your branch contains the latest changes from `develop`.
+
+#### 3. Implement the Fix
+Work only on your assigned issue(s) in your personal branch.
+
+Do **not** commit directly to `develop` or `main`.
+
+#### 4. Commit Your Changes
+Use meaningful commit messages and include the issue number whenever possible.
+
+Example:
+
+```bash
+git add .
+git commit -m "Fix #12: add pause control to hero slideshow"
+```
+
+#### 5. Push Your Branch
+
+```bash
+git push
+```
+
+#### 6. Create a Pull Request
+Create a Pull Request:
+
+```text
+your-branch → develop
+```
+
+Examples:
+
+```text
+juan → develop
+maria → develop
+jpyxs → develop
+```
+
+Do **not** create Pull Requests directly to `main`.
+
+#### 7. Link the Issue
+In the Pull Request description, include:
+
+```text
+Fixes #12
+```
+
+Replace `#12` with your actual issue number.
+
+This automatically closes the issue once the Pull Request is merged.
+
+#### Workflow Summary
+
+```text
+Assigned Issue
+↓
+Update develop
+↓
+Merge develop into your branch
+↓
+Implement fix
+↓
+Commit changes
+↓
+Push branch
+↓
+Create PR to develop
+↓
+Review & Merge
+```
+
+#### Important Reminders
+
+- Do not commit directly to `develop`.
+- Do not commit directly to `main`.
+- Work only on your assigned issues unless coordinated otherwise.
+- Always pull and merge the latest `develop` before starting work.
+- Reference the issue number in commits and Pull Requests whenever possible.
+- Move the issue status appropriately in the project board if assigned to you.
 
 ---
 
