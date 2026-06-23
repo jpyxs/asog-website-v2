@@ -102,8 +102,10 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
 
     // Incubatee Applications
     $routes->get('applications', 'Admin\ApplicationsAdmin::index');
+    $routes->post('applications/bulk', 'Admin\ApplicationsAdmin::bulk');
     $routes->get('applications/(:num)', 'Admin\ApplicationsAdmin::show/$1');
     $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
+    $routes->put('applications/(:num)/toggle-archive', 'Admin\ApplicationsAdmin::toggleArchive/$1');
 
     // Contact Messages
     $routes->get('messages', 'Admin\MessagesAdmin::index');
