@@ -67,7 +67,7 @@
 
   function validate(el) {
     var checks = (el.dataset.v || '').split('|').filter(Boolean);
-    var val    = el.value;
+    var val    = el.type === 'checkbox' ? (el.checked ? el.value : '') : el.value;
     var msg    = el.closest('div') && el.closest('div').querySelector('.v-msg');
     if (!msg) return true;
 
