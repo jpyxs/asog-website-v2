@@ -1,4 +1,21 @@
 /* ==========================================================================
+   0. PREVENT FLASH — Cards hidden until GSAP animates them
+   ========================================================================== */
+
+/* Initial hidden state (no !important, so GSAP can override) */
+.ib-card {
+    opacity: 0;
+    transform: translateY(35px) scale(0.92);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Final visible state – added by GSAP after animation completes */
+.ib-card.ib-card-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* ==========================================================================
    INCUBATEES SHOWCASE — Visual Theme
    Structure → Tailwind utility classes in markup
    Visuals  → this file

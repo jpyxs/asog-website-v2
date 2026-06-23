@@ -138,7 +138,7 @@
                         <div class="grid grid-cols-2 gap-2 md:gap-6 mb-8 max-w-[720px] mx-auto place-items-center">
                             <div
                                 class="p-1 md:p-2 flex items-center justify-center min-h-[140px] md:min-h-[220px] w-full">
-                                <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG TBI_full-colored_stacked.png') ?>"
+                                <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI_full-colored_stacked.png') ?>"
                                     alt="ASOGTBI Full Colored Stacked Logo"
                                     class="w-auto max-w-full h-[120px] sm:h-[140px] md:h-[190px] object-contain block select-none"
                                     loading="lazy" decoding="async" />
