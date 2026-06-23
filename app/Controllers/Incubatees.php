@@ -177,7 +177,8 @@ class Incubatees extends BaseController
             $this->sendConfirmationEmail($data);
 
             return redirect()->to(site_url('apply/form/thank-you'))
-                ->with('success', 'Your application has been submitted successfully!');
+                ->with('success', 'Your application has been submitted successfully!')
+                ->with('application_submitted', true);
         }
 
         return redirect()->back()
@@ -240,8 +241,12 @@ class Incubatees extends BaseController
         return $this->response->setJSON(['exists' => $exists]);
     }
 
-    public function applyFormThankYou(): string
+    public function applyFormThankYou()
     {
+        if (! session()->getFlashdata('application_submitted')) {
+            return redirect()->to(site_url('apply/form'));
+        }
+
         $data = [
             'title' => 'Application Submitted - ASOG TBI',
         ];
