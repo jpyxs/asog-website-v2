@@ -334,7 +334,7 @@
     <div id="previewBackdrop" class="absolute inset-0 bg-dark/60 backdrop-blur-sm"></div>
 
     <!-- Modal body -->
-    <div class="relative w-full max-w-[680px] max-h-[85vh] overflow-y-auto bg-white rounded-lg shadow-2xl border border-navy/10 transform scale-95 transition-transform duration-300"
+    <div class="relative w-full max-w-[680px] max-h-[85vh] overflow-y-auto guidelines-scroll bg-white rounded-lg shadow-2xl border border-navy/10 transform scale-95 transition-transform duration-300"
         id="previewBody">
         <!-- Header -->
         <div class="sticky top-0 bg-white z-10 px-7 py-5 border-b border-navy/10 flex items-center justify-between">
