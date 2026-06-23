@@ -11,6 +11,7 @@
 
             return character_limiter($plain, $limit, '...');
         };
+        $fallbackNewsImage = base_url('assets/img/incubatees.jpg');
         ?>
 
         <!-- Header -->
@@ -37,7 +38,8 @@
                     class="rc group block no-underline">
                     <div class="aspect-[16/10] bg-[#e5e2dc] overflow-hidden">
                         <?php if (! empty($featured['imagePath'])): ?>
-                            <img src="<?= site_url($featured['imagePath']) ?>" alt="<?= esc($featured['title']) ?>"
+                            <?php $featuredImage = is_file(FCPATH . $featured['imagePath']) ? site_url($featured['imagePath']) : $fallbackNewsImage; ?>
+                            <img src="<?= esc($featuredImage) ?>" alt="<?= esc($featured['title']) ?>"
                                  class="w-full h-full object-cover"/>
                         <?php else: ?>
                             <span class="flex items-center justify-center w-full h-full text-[.55rem] font-semibold tracking-[.2em] uppercase text-dark/12">Image</span>
@@ -71,7 +73,8 @@
                                 </div>
                                 <div class="w-[100px] h-[78px] shrink-0 bg-[#e5e2dc] overflow-hidden">
                                     <?php if (! empty($post['imagePath'])): ?>
-                                        <img src="<?= site_url($post['imagePath']) ?>" alt="<?= esc($post['title']) ?>"
+                                        <?php $postImage = is_file(FCPATH . $post['imagePath']) ? site_url($post['imagePath']) : $fallbackNewsImage; ?>
+                                        <img src="<?= esc($postImage) ?>" alt="<?= esc($post['title']) ?>"
                                              class="w-full h-full object-cover"/>
                                     <?php else: ?>
                                         <span class="flex items-center justify-center w-full h-full text-[.45rem] font-semibold tracking-[.15em] uppercase text-dark/10">IMG</span>

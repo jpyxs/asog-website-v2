@@ -15,10 +15,8 @@
     $pageImageAlt = isset($metaImageAlt) && $metaImageAlt !== '' ? (string) $metaImageAlt : $pageTitle;
     $pageType = isset($metaType) && $metaType !== '' ? (string) $metaType : 'website';
     $canonicalUrl = isset($canonical) && $canonical !== '' ? $canonical : current_url();
-    $canonicalUrl = preg_replace('#^http://#i', 'https://', $canonicalUrl ?? '');
-    $canonicalUrl = preg_replace('#^https://www\.#i', 'https://', $canonicalUrl ?? '');
-    $pageImage = preg_replace('#^http://#i', 'https://', $pageImage ?? '');
-    $pageImage = preg_replace('#^https://www\.#i', 'https://', $pageImage ?? '');
+    $canonicalUrl = preg_replace('#^https://www\\.#i', 'https://', $canonicalUrl ?? '');
+    $pageImage = preg_replace('#^https://www\\.#i', 'https://', $pageImage ?? '');
     ?>
     <meta name="description" content="<?= esc($pageDescription) ?>">
     <link rel="canonical" href="<?= esc($canonicalUrl) ?>">
@@ -44,7 +42,7 @@
         "name": "ASOG Technology Business Incubator",
         "alternateName": "ASOG-TBI",
         "url": "<?= base_url() ?>",
-        "logo": "<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>",
+        "logo": "<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>",
         "description": "Supports startup incubation, mentorship, programs, and innovation development in Camarines Sur.",
         "address": {
             "@type": "PostalAddress",
@@ -91,7 +89,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('icon.png') ?>">
     <!-- Preload critical WebP logo -->
-    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>"
+    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>"
         type="image/webp">
     <?php if (! empty($heroPreloadImage)): ?>
     <link rel="preload" as="image" href="<?= esc($heroPreloadImage) ?>" fetchpriority="high">
@@ -192,13 +190,13 @@
             <!-- CENTER LOGO -->
             <a href="<?= base_url() ?>" id="navLogo" class="flex no-underline">
                 <picture>
-                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>"
+                    <source srcset="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>"
                         type="image/webp">
                     <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI"
                         id="navImg" class="h-auto" />
                 </picture>
                 <picture>
-                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>"
+                    <source srcset="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>"
                         type="image/webp">
                     <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI"
                         id="navImgLandscape" class="object-contain" />
