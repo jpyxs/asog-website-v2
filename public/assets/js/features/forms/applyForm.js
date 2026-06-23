@@ -82,7 +82,9 @@
       if (!fn) continue;
       var result = fn(val);
       if (result !== true) {
-        msg.textContent = result;
+        msg.textContent = checks[i] === 'required' && el.dataset.requiredMessage
+          ? el.dataset.requiredMessage
+          : result;
         msg.classList.remove('hidden');
         el.classList.add('!text-red-600');
         return false;
@@ -208,11 +210,53 @@
 
   // ── Team CV (multi-file) ──────────────────
   var cvInput  = document.getElementById('teamCv');
+  var cvChooser = document.getElementById('teamCvChooser');
+  var cvButton = document.getElementById('teamCvButton');
   var cvList   = document.getElementById('teamCvList');
+  var cvStatus = document.getElementById('teamCvStatus');
+  var cvNotice = document.getElementById('teamCvNotice');
+  var maxCvFiles = 10;
+  var selectedCvFiles = [];
+
+  function syncCvInput() {
+    if (!cvInput) return;
+    var dt = new DataTransfer();
+    selectedCvFiles.slice(0, maxCvFiles).forEach(function (file) {
+      dt.items.add(file);
+    });
+    cvInput.files = dt.files;
+  }
+
+  function cvFileKey(file) {
+    return [file.name, file.size, file.lastModified].join('|');
+  }
+
+  function showCvNotice(message) {
+    if (!cvNotice) return;
+    if (!message) {
+      cvNotice.classList.add('hidden');
+      cvNotice.textContent = '';
+      return;
+    }
+    cvNotice.textContent = message;
+    cvNotice.classList.remove('hidden');
+  }
+
+  function updateCvStatus() {
+    if (!cvInput || !cvStatus) return;
+    var count = selectedCvFiles.length;
+    cvStatus.textContent = count === 0
+      ? 'No file chosen'
+      : count === 1 ? selectedCvFiles[0].name : count + ' files selected';
+    if (cvChooser) {
+      cvChooser.style.display = count >= maxCvFiles ? 'none' : '';
+    }
+  }
 
   function renderCvList() {
     if (!cvInput || !cvList) return;
-    var files = cvInput.files;
+    var files = selectedCvFiles;
+    updateCvStatus();
     cvList.innerHTML = '';
     if (files.length === 0) { cvList.classList.add('hidden'); return; }
     cvList.classList.remove('hidden');
@@ -243,30 +287,78 @@
   }
 
   function removeCvFile(index) {
-    var dt = new DataTransfer();
-    Array.from(cvInput.files).forEach(function (f, i) {
-      if (i !== index) dt.items.add(f);
-    });
-    cvInput.files = dt.files;
+    selectedCvFiles.splice(index, 1);
+    syncCvInput();
+    showCvNotice('');
     renderCvList();
   }
 
   if (cvInput) {
-    cvInput.addEventListener('change', renderCvList);
+    cvInput.addEventListener('change', function () {
+      var skippedDuplicates = 0;
+      var skippedLimit = 0;
+      Array.from(cvInput.files).forEach(function (file) {
+        var isDuplicate = selectedCvFiles.some(function (selected) {
+          return cvFileKey(selected) === cvFileKey(file);
+        });
+        if (isDuplicate) {
+          skippedDuplicates++;
+        } else if (selectedCvFiles.length >= maxCvFiles) {
+          skippedLimit++;
+        } else {
+          selectedCvFiles.push(file);
+        }
+      });
+      if (skippedDuplicates > 0 && skippedLimit > 0) {
+        showCvNotice('Duplicate files were skipped, and the 10-file limit has been reached.');
+      } else if (skippedDuplicates > 0) {
+        showCvNotice('Duplicate files were skipped.');
+      } else if (skippedLimit > 0) {
+        showCvNotice('Only up to 10 CV files can be uploaded.');
+      } else {
+        showCvNotice('');
+      }
+      syncCvInput();
+      renderCvList();
+    });
+  }
+  if (cvButton && cvInput) {
+    cvButton.addEventListener('click', function () { cvInput.click(); });
   }
 
   // ── Lean Canvas (single file) ─────────────
   var lcInput   = document.getElementById('leanCanvas');
+  var lcChooser = document.getElementById('leanCanvasChooser');
+  var lcButton  = document.getElementById('leanCanvasButton');
   var lcPreview = document.getElementById('leanCanvasPreview');
+  var lcStatus  = document.getElementById('leanCanvasStatus');
+
+  function updateLcStatus() {
+    if (!lcInput || !lcStatus) return;
+    var hasFile = lcInput.files && lcInput.files.length > 0;
+    lcStatus.textContent = hasFile
+      ? lcInput.files[0].name
+      : 'No file chosen';
+    if (lcChooser) {
+      lcChooser.style.display = hasFile ? 'none' : '';
+    }
+  }
 
   function renderLcPreview() {
     if (!lcInput || !lcPreview) return;
     if (!lcInput.files || lcInput.files.length === 0) {
+      updateLcStatus();
       lcPreview.classList.add('hidden');
       lcPreview.innerHTML = '';
       return;
     }
     var f = lcInput.files[0];
+    updateLcStatus();
+    var lcErr = document.getElementById('leanCanvasErr');
+    if (lcErr) {
+      lcErr.classList.add('hidden');
+      lcErr.textContent = '';
+    }
     lcPreview.classList.remove('hidden');
     lcPreview.innerHTML =
       '<div class="flex items-center gap-2 text-[.75rem] text-dark/70 bg-off/60 border border-navy/8 rounded px-3 py-1.5">' +
@@ -275,7 +367,7 @@
         '</svg>' +
         '<span class="flex-1 truncate">' + escHtml(f.name) + '</span>' +
         '<span class="text-[.65rem] text-navy/40 flex-shrink-0">' + formatBytes(f.size) + '</span>' +
-        '<button type="button" onclick="document.getElementById(\'leanCanvas\').value=\'\';document.getElementById(\'leanCanvasPreview\').classList.add(\'hidden\');document.getElementById(\'leanCanvasPreview\').innerHTML=\'\';" ' +
+        '<button type="button" onclick="document.getElementById(\'leanCanvas\').value=\'\';document.getElementById(\'leanCanvasChooser\').style.display=\'\';document.getElementById(\'leanCanvasStatus\').textContent=\'No file chosen\';document.getElementById(\'leanCanvasPreview\').classList.add(\'hidden\');document.getElementById(\'leanCanvasPreview\').innerHTML=\'\';" ' +
           'class="ml-1 text-dark/30 hover:text-red-500 transition-colors flex-shrink-0" title="Remove">' +
           '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
         '</button>' +
@@ -284,6 +376,9 @@
 
   if (lcInput) {
     lcInput.addEventListener('change', renderLcPreview);
+  }
+  if (lcButton && lcInput) {
+    lcButton.addEventListener('click', function () { lcInput.click(); });
   }
 
   function escHtml(str) {
