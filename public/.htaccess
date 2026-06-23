@@ -22,12 +22,12 @@ Options -Indexes
 	RewriteCond %{REQUEST_URI} (.+)/$
 	RewriteRule ^ %1 [L,R=301]
 
-	# Force a single canonical URL format: HTTPS + non-www.
+	# Canonicalize www to non-www while preserving the current scheme.
 	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-	RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+	RewriteRule ^ %{REQUEST_SCHEME}://%1%{REQUEST_URI} [R=301,L]
 
-	RewriteCond %{HTTPS} !=on
-	RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+	# Keep the app reachable on the scheme configured in .env.
+	# Canonical redirects can be handled at the edge or by the production host.
 
 	# Checks to see if the user is attempting to access a valid file,
 	# such as an image or css document, if this isn't true it sends the
