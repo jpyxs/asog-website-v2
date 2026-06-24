@@ -9,14 +9,18 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet"/>
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet"/>
     <link rel="stylesheet" href="<?= base_url('assets/css/adminLayout.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/adminCustomSelect.css') ?>">
 </head>
 <body>
 <div class="shell">
 
     <aside class="side">
         <div class="side-brand">
-            <h2>ASOG TBI</h2>
-            <span>Content Manager</span>
+            <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI_seal.png') ?>" alt="ASOG TBI" class="side-logo">
+            <div class="side-brand-text">
+                <h2>ASOG TBI</h2>
+                <span>Content Manager</span>
+            </div>
         </div>
         <div class="side-sep"></div>
 
@@ -65,9 +69,16 @@
         </nav>
 
         <div class="side-foot">
-            <div class="user"><strong><?= esc(session()->get('admin_name') ?? 'Admin') ?></strong></div>
-            <div class="user" style="margin-bottom:.4rem"><?= esc(session()->get('admin_email') ?? '') ?></div>
-            <a href="<?= site_url('asog-admin/logout') ?>" class="out">Sign out</a>
+            <div class="side-foot-user">
+                <div class="user"><strong><?= esc(session()->get('admin_name') ?? 'Admin') ?></strong></div>
+                <div class="user"><?= esc(session()->get('admin_email') ?? '') ?></div>
+            </div>
+            <nav class="side-nav">
+                <a href="<?= site_url('asog-admin/logout') ?>" class="out">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Sign out
+                </a>
+            </nav>
         </div>
     </aside>
 
