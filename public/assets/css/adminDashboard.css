@@ -75,6 +75,10 @@
     margin-bottom: 1.2rem;
 }
 
+.card--full {
+    grid-column: 1 / -1;
+}
+
 .card {
     background: #fff;
     border: 1px solid #eceae6;
