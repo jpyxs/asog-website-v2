@@ -89,6 +89,29 @@ class PostModel extends Model
         return $limit > 0 ? $builder->findAll($limit) : $builder->findAll();
     }
 
+    public function getPublishedPage(string $category = '', string $sort = 'newest', int $perPage = 10, int $page = 1): array
+    {
+        $builder = $this->where('isPublished', 1);
+
+        if ($category !== '') {
+            $builder->where('category', $category);
+        }
+
+        $builder->orderBy('publishedAt', $sort === 'oldest' ? 'ASC' : 'DESC');
+
+        $total  = $builder->countAllResults(false);
+        $offset = max(0, ($page - 1) * $perPage);
+        $posts  = $builder->findAll($perPage, $offset);
+
+        return [
+            'posts'   => $posts,
+            'total'   => $total,
+            'perPage' => $perPage,
+            'page'    => $page,
+            'pages'   => max(1, (int) ceil($total / $perPage)),
+        ];
+    }
+
     /**
      * Return the single featured post (lowest sortOrder first, then newest).
      */
