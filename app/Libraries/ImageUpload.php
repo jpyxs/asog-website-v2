@@ -45,11 +45,12 @@ class ImageUpload
     /**
      * Upload an image file to the given subfolder.
      *
-     * @param  UploadedFile|null $file       The uploaded file instance.
-     * @param  string            $subfolder  e.g. "posts", "team"
-     * @return string|null                   Relative path from public/ or null on failure.
+     * @param  UploadedFile|null $file          The uploaded file instance.
+     * @param  string            $subfolder     e.g. "posts", "team"
+     * @param  int|null          $maxSizeBytes  Optional per-upload size cap in bytes.
+     * @return string|null                      Relative path from public/ or null on failure.
      */
-    public function upload(?UploadedFile $file, string $subfolder = 'posts'): ?string
+    public function upload(?UploadedFile $file, string $subfolder = 'posts', ?int $maxSizeBytes = null): ?string
     {
         if ($file === null || ! $file->isValid() || $file->hasMoved()) {
             $this->error = 'No valid file was uploaded.';
@@ -69,8 +70,9 @@ class ImageUpload
 
         // Validate size (compare raw bytes to avoid number_format string bug)
         $fileSizeBytes = $file->getSize();
-        if ($fileSizeBytes > $this->maxSize) {
-            $maxMB = round($this->maxSize / 1048576);
+        $sizeLimitBytes = $maxSizeBytes ?? $this->maxSize;
+        if ($fileSizeBytes > $sizeLimitBytes) {
+            $maxMB = round($sizeLimitBytes / 1048576, 1);
             $fileMB = round($fileSizeBytes / 1048576, 1);
             $this->error = "File ({$fileMB} MB) exceeds the maximum size of {$maxMB} MB.";
             log_message('error', '[ImageUpload] ' . $this->error);
