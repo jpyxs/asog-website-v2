@@ -71,3 +71,15 @@
     mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .inc-logo-item,
+  .inc-logo-item .inc-initials {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .inc-logo-item:hover {
+    transform: none;
+  }
+}

@@ -15,6 +15,8 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 requestAnimationFrame(() => {
     document.querySelectorAll('.reveal, .reveal-group').forEach(el => {
         if (prefersReducedMotion) {
+            el.style.transition = 'none';
+            el.querySelectorAll('.rc').forEach(rc => { rc.style.transition = 'none'; });
             el.classList.add('visible');
         } else {
             io.observe(el);

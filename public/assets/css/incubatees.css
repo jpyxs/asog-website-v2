@@ -1221,3 +1221,33 @@
     background: rgba(3,85,140,.08);
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .ib-card,
+    .ib-card.ib-card-visible,
+    .ib-overlay,
+    .ib-backdrop,
+    .ib-big-card,
+    .ib-modal,
+    .ib-inner,
+    .ib-big-inner,
+    .ib-seal {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .ib-card,
+    .ib-card.ib-card-visible {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .ib-overlay.is-open .ib-backdrop {
+        opacity: 1 !important;
+    }
+
+    .ib-overlay.is-open .ib-big-card {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
