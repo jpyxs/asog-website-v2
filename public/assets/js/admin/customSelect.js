@@ -64,7 +64,8 @@
 
     function buildPanel() {
       panel.innerHTML = '';
-      Array.from(sel.options).forEach(function (opt) {
+
+      function addOpt(opt) {
         var item = document.createElement('div');
         var cls = 'csel-opt';
         if (!opt.value) cls += ' csel-opt--ph';
@@ -82,8 +83,38 @@
           close();
           trigger.focus();
         });
-        panel.appendChild(item);
-      });
+        return item;
+      }
+
+      var hasGroups = Array.from(sel.children).some(function (c) { return c.tagName === 'OPTGROUP'; });
+
+      if (!hasGroups) {
+        Array.from(sel.options).forEach(function (opt) {
+          panel.appendChild(addOpt(opt));
+        });
+      } else {
+        var first = true;
+        Array.from(sel.children).forEach(function (child) {
+          if (child.tagName === 'OPTGROUP') {
+            if (!first) {
+              var sep = document.createElement('div');
+              sep.className = 'csel-grp-sep';
+              panel.appendChild(sep);
+            }
+            var lbl = document.createElement('div');
+            lbl.className = 'csel-grp-label';
+            lbl.textContent = child.label;
+            panel.appendChild(lbl);
+            Array.from(child.children).forEach(function (opt) {
+              panel.appendChild(addOpt(opt));
+            });
+            first = false;
+          } else if (child.tagName === 'OPTION') {
+            panel.appendChild(addOpt(child));
+            first = false;
+          }
+        });
+      }
     }
 
     function updateValue() {
@@ -107,8 +138,20 @@
         if (el !== wrap) el.classList.remove('csel--open');
       });
       buildPanel();
+      // Reset any previous flip
+      panel.style.top = '';
+      panel.style.bottom = '';
       wrap.classList.add('csel--open');
       trigger.setAttribute('aria-expanded', 'true');
+      // Viewport-aware: flip upward if panel overflows below
+      var panelRect  = panel.getBoundingClientRect();
+      var trigRect   = trigger.getBoundingClientRect();
+      var spaceBelow = window.innerHeight - trigRect.bottom;
+      var spaceAbove = trigRect.top;
+      if (panelRect.bottom > window.innerHeight && spaceAbove > spaceBelow) {
+        panel.style.top    = 'auto';
+        panel.style.bottom = 'calc(100% + 3px)';
+      }
       var selOpt = panel.querySelector('.csel-opt--sel');
       if (selOpt) selOpt.scrollIntoView({ block: 'nearest' });
     }
@@ -116,6 +159,8 @@
     function close() {
       wrap.classList.remove('csel--open');
       trigger.setAttribute('aria-expanded', 'false');
+      panel.style.top    = '';
+      panel.style.bottom = '';
     }
 
     trigger.addEventListener('click', function () {
