@@ -80,6 +80,10 @@ $routes->post('/asog-admin', 'Auth::authenticate');
 $routes->get('/asog-admin/google', 'Auth::google');
 $routes->get('/asog-admin/google/callback', 'Auth::googleCallback');
 $routes->get('/asog-admin/logout', 'Auth::logout');
+$routes->get('/asog-admin/forgot-password', 'Auth::forgotPassword');
+$routes->post('/asog-admin/forgot-password', 'Auth::sendResetLink');
+$routes->get('/asog-admin/reset-password/(:segment)', 'Auth::resetPassword/$1');
+$routes->post('/asog-admin/reset-password/(:segment)', 'Auth::updateForgottenPassword/$1');
 
 /*
  * ────────────────────────────────────────────────────────────────────────────

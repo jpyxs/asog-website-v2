@@ -30,6 +30,7 @@ class IncubateeApplicationModel extends Model
         'applicantEmail',
         'contactNumber',
         'applicationStatus',
+        'isArchived',
     ];
 
     protected $validationRules = [
@@ -86,12 +87,73 @@ class IncubateeApplicationModel extends Model
     **/
     public function getCounts(): array
     {
-        $total    = $this->countAllResults();
-        $pending  = $this->where('applicationStatus', 'pending')->countAllResults();
-        $accepted = $this->where('applicationStatus', 'accepted')->countAllResults();
-        $rejected = $this->where('applicationStatus', 'rejected')->countAllResults();
+        $total    = $this->where('isArchived', 0)->countAllResults();
+        $pending  = $this->where('isArchived', 0)->where('applicationStatus', 'pending')->countAllResults();
+        $accepted = $this->where('isArchived', 0)->where('applicationStatus', 'accepted')->countAllResults();
+        $rejected = $this->where('isArchived', 0)->where('applicationStatus', 'rejected')->countAllResults();
+        $archived = $this->where('isArchived', 1)->countAllResults();
 
-        return compact('total', 'pending', 'accepted', 'rejected');
+        return compact('total', 'pending', 'accepted', 'rejected', 'archived');
+    }
+
+    /**  
+     * Return filtered and sorted applications.
+    **/
+    public function getFilteredApplications(string $search = '', string $status = 'active', string $sort = 'createdAt', string $direction = 'DESC', int $limit = 0, int $offset = 0): array
+    {
+        $builder = $this->builder();
+
+        if ($status === 'archived') {
+            $builder->where('isArchived', 1);
+        } else {
+            $builder->where('isArchived', 0);
+            if ($status !== 'active' && $status !== 'all') {
+                $builder->where('applicationStatus', $status);
+            }
+        }
+
+        if (! empty($search)) {
+            $builder->groupStart()
+                    ->like('applicantName', $search)
+                    ->orLike('startupName', $search)
+                    ->orLike('applicantEmail', $search)
+                    ->groupEnd();
+        }
+
+        $allowed   = ['applicantName', 'startupName', 'applicantEmail', 'createdAt', 'applicationStatus'];
+        $sort      = in_array($sort, $allowed, true) ? $sort : 'createdAt';
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+        $builder->orderBy($sort, $direction);
+
+        if ($limit > 0) {
+            $builder->limit($limit, $offset);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function countFilteredApplications(string $search = '', string $status = 'active'): int
+    {
+        $builder = $this->builder();
+
+        if ($status === 'archived') {
+            $builder->where('isArchived', 1);
+        } else {
+            $builder->where('isArchived', 0);
+            if ($status !== 'active' && $status !== 'all') {
+                $builder->where('applicationStatus', $status);
+            }
+        }
+
+        if (! empty($search)) {
+            $builder->groupStart()
+                    ->like('applicantName', $search)
+                    ->orLike('startupName', $search)
+                    ->orLike('applicantEmail', $search)
+                    ->groupEnd();
+        }
+
+        return (int) $builder->countAllResults();
     }
 
     /**  
