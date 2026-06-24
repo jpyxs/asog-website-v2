@@ -33,6 +33,8 @@
                 <!-- Map container — maximised height -->
                 <div class="relative rounded-lg overflow-hidden mb-5" style="height:420px;">
                     <iframe
+                        title="Find ASOG Technology Business Incubator on Google Maps"
+                        aria-label="Map showing the location of ASOG Technology Business Incubator in San Miguel, Nabua, Camarines Sur"
                         src="https://maps.google.com/maps?q=ASOG+Technology+Business+Incubator,+San+Miguel,+Nabua,+Camarines+Sur&t=&z=15&ie=UTF8&iwloc=&output=embed"
                         class="absolute inset-0 w-full h-full" style="border:0;" allowfullscreen="" loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade"></iframe>
