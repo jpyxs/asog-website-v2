@@ -13,6 +13,8 @@ use App\Models\LandingSettingModel;
  */
 class IncubateesAdmin extends BaseController
 {
+    private const INCUBATEE_LOGO_MAX_BYTES = 1048576; // 1 MB
+    private const INCUBATEE_TEAM_PHOTO_MAX_BYTES = 10485760; // 10 MB
 
     /**
      * Build a map of published incubatee counts keyed by cohort name.
@@ -39,6 +41,36 @@ class IncubateesAdmin extends BaseController
         }
 
         return $counts;
+    }
+
+    private function formatUploadSize(int $bytes): string
+    {
+        if ($bytes >= 1048576) {
+            $mb = $bytes / 1048576;
+            return rtrim(rtrim(number_format($mb, 1, '.', ''), '0'), '.') . ' MB';
+        }
+
+        if ($bytes >= 1024) {
+            $kb = $bytes / 1024;
+            return rtrim(rtrim(number_format($kb, 1, '.', ''), '0'), '.') . ' KB';
+        }
+
+        return $bytes . ' bytes';
+    }
+
+    private function assertSquareImage(\CodeIgniter\HTTP\Files\UploadedFile $file, string $label): void
+    {
+        $dimensions = @getimagesize($file->getTempName());
+        if ($dimensions === false || ! isset($dimensions[0], $dimensions[1])) {
+            throw new \RuntimeException($label . ' must be a valid image.');
+        }
+
+        $width = (int) $dimensions[0];
+        $height = (int) $dimensions[1];
+
+        if ($width !== $height) {
+            throw new \RuntimeException($label . ' must be square (1:1).');
+        }
     }
 
 
@@ -153,6 +185,10 @@ class IncubateesAdmin extends BaseController
             'existingCohorts' => $this->cohortModel->getActiveNames(),
             'allCohorts'      => $cohorts,
             'cohortStartupCounts' => $this->getPublishedCountsByCohort(),
+            'logoUploadMaxBytes' => self::INCUBATEE_LOGO_MAX_BYTES,
+            'logoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_LOGO_MAX_BYTES),
+            'teamPhotoUploadMaxBytes' => self::INCUBATEE_TEAM_PHOTO_MAX_BYTES,
+            'teamPhotoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_TEAM_PHOTO_MAX_BYTES),
         ];
 
         return view('admin/layout/header', $data)
@@ -224,7 +260,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $path = $uploader->upload($file, 'incubatees');
+                $path = $uploader->upload($file, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($path !== null) {
                     $data['logoPath'] = $path;
                 } else {
@@ -254,7 +290,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $whitePath = $uploader->upload($whiteFile, 'incubatees');
+                $whitePath = $uploader->upload($whiteFile, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($whitePath !== null) {
                     $data['logoWhitePath'] = $whitePath;
                 } else {
@@ -302,6 +338,10 @@ class IncubateesAdmin extends BaseController
             'existingCohorts' => $this->cohortModel->getActiveNames(),
             'allCohorts'      => $cohorts,
             'cohortStartupCounts' => $this->getPublishedCountsByCohort(),
+            'logoUploadMaxBytes' => self::INCUBATEE_LOGO_MAX_BYTES,
+            'logoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_LOGO_MAX_BYTES),
+            'teamPhotoUploadMaxBytes' => self::INCUBATEE_TEAM_PHOTO_MAX_BYTES,
+            'teamPhotoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_TEAM_PHOTO_MAX_BYTES),
         ];
 
         return view('admin/layout/header', $data)
@@ -381,7 +421,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $path = $uploader->upload($file, 'incubatees');
+                $path = $uploader->upload($file, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($path !== null) {
                     // Delete old logo
                     if (! empty($incubatee['logoPath'])) {
@@ -415,7 +455,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $whitePath = $uploader->upload($whiteFile, 'incubatees');
+                $whitePath = $uploader->upload($whiteFile, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($whitePath !== null) {
                     // Delete old white logo
                     if (! empty($incubatee['logoWhitePath'])) {
@@ -538,7 +578,9 @@ class IncubateesAdmin extends BaseController
                     throw new \RuntimeException('Team member photo upload error: file was already processed.');
                 }
 
-                $uploaded = $uploader->upload($photoFile, 'incubatees/team');
+                $this->assertSquareImage($photoFile, 'Founder photo');
+
+                $uploaded = $uploader->upload($photoFile, 'incubatees/team', self::INCUBATEE_TEAM_PHOTO_MAX_BYTES);
                 if ($uploaded === null) {
                     throw new \RuntimeException('Team member photo upload failed: ' . $uploader->getError());
                 }

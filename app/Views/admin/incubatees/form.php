@@ -242,6 +242,17 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
     border: 1px solid #eceae6
 }
 
+.upload-help {
+    margin-top: .35rem;
+    font-size: .62rem;
+    line-height: 1.4;
+    color: #94a3b8
+}
+
+.upload-help.is-error {
+    color: #b91c1c
+}
+
 .switch-row {
     display: flex;
     gap: 1.5rem;
@@ -697,7 +708,7 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
             <div class="field">
                 <label>Company Logo</label>
                 <div class="upload-zone" id="uploadZone">
-                    <input type="file" name="logo" id="logoInput" accept="image/*">
+                    <input type="file" name="logo" id="logoInput" accept="image/*" data-max-bytes="<?= esc((string) ($logoUploadMaxBytes ?? 1048576)) ?>" data-max-label="<?= esc($logoUploadMaxLabel ?? '1 MB') ?>">
                     <div class="label" id="uploadLabel"><strong>Click to upload</strong> or drag a logo here</div>
                     <div class="upload-preview" id="uploadPreview">
                         <?php if ($isEdit && ! empty($incubatee['logoPath'])): ?>
@@ -705,6 +716,11 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                         <?php endif; ?>
                     </div>
                 </div>
+                <p class="upload-help" id="logoUploadHelp">
+                    Allowed: PNG, JPG, GIF, WEBP.<br>
+                    Best results: a clean, centered logo with enough padding around the mark so it does not feel cramped in the card.<br>
+                    Transparent PNG or WEBP is preferred for logos with cutouts or irregular shapes. Keep the file under <?= esc($logoUploadMaxLabel ?? '1 MB') ?>.
+                </p>
                 <?php if ($isEdit && ! empty($incubatee['logoPath'])): ?>
                 <p style="font-size:.62rem;color:#94a3b8;margin-top:.35rem">Click to replace the current logo</p>
                 <?php endif; ?>
@@ -714,7 +730,7 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
             <div class="field">
                 <label>White Logo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b0aaa0">(used on the navy card)</span></label>
                 <div class="upload-zone" id="uploadZoneWhite">
-                    <input type="file" name="logoWhite" id="logoWhiteInput" accept="image/*">
+                    <input type="file" name="logoWhite" id="logoWhiteInput" accept="image/*" data-max-bytes="<?= esc((string) ($logoUploadMaxBytes ?? 1048576)) ?>" data-max-label="<?= esc($logoUploadMaxLabel ?? '1 MB') ?>">
                     <div class="label" id="uploadLabelWhite"><strong>Click to upload</strong> white version of the logo</div>
                     <div class="upload-preview" id="uploadPreviewWhite">
                         <?php if ($isEdit && ! empty($incubatee['logoWhitePath'])): ?>
@@ -722,6 +738,11 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                         <?php endif; ?>
                     </div>
                 </div>
+                <p class="upload-help" id="logoWhiteUploadHelp">
+                    This is the version used on the navy card.<br>
+                    Upload a white or light-colored logo if you have one. If you leave this blank, the site will fall back to the main logo and auto-invert it for the navy background.<br>
+                    Transparent PNG or WEBP is ideal. Keep the file under <?= esc($logoUploadMaxLabel ?? '1 MB') ?>.
+                </p>
                 <?php if ($isEdit && ! empty($incubatee['logoWhitePath'])): ?>
                 <p style="font-size:.62rem;color:#94a3b8;margin-top:.35rem">Click to replace the current white logo</p>
                 <?php endif; ?>
@@ -736,13 +757,17 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
             ?>
             <div class="tm-section">
                 <span class="section-label">Founders</span>
+                <p class="upload-help" style="margin-top:-.15rem">
+                    Founder photos must be square (1:1). Please upload tightly cropped portraits that sit well inside the frame. Max <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> per photo.
+                </p>
+                <p class="upload-help" id="tmUploadHelp">Square founder photos under <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> work best for the team layout.</p>
                 <div class="tm-rows" id="tmRows">
                     <?php if (! empty($existingMembers)): ?>
                     <?php foreach ($existingMembers as $member): ?>
                     <div class="tm-row">
                         <label class="tm-photo-zone">
                             <input type="hidden" name="tm_photo_existing[]" value="<?= esc($member['photo'] ?? '') ?>">
-                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*">
+                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*" data-max-bytes="<?= esc((string) ($teamPhotoUploadMaxBytes ?? 10485760)) ?>" data-aspect="square">
                             <?php if (! empty($member['photo'])): ?>
                                 <img class="tm-photo-preview" src="<?= site_url($member['photo']) ?>" alt="<?= esc($member['name'] ?? '') ?>">
                             <?php else: ?>
@@ -760,7 +785,7 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                     <div class="tm-row">
                         <label class="tm-photo-zone">
                             <input type="hidden" name="tm_photo_existing[]" value="">
-                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*">
+                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*" data-max-bytes="<?= esc((string) ($teamPhotoUploadMaxBytes ?? 10485760)) ?>" data-aspect="square">
                             <span class="tm-photo-placeholder">Founder<br>Photo</span>
                         </label>
                         <input type="text" name="tm_name[]" placeholder="Name">
