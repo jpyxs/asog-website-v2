@@ -1,57 +1,13 @@
 /* Footer — Classic columnar design, navy / gold theme  (refreshed) */
-/* ==========================================================================
-   FOOTER LOADS WITH HEADER - No delay
-   ========================================================================== */
 
-/* Footer hidden initially, but will be shown immediately by JS */
-.site-footer {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-/* Initial hidden state for animation */
-.ft-col {
-    opacity: 0;
-    transform: translateY(20px);
-    will-change: opacity, transform;
-}
-
-.ft-social-link {
-    opacity: 0;
-    transform: translateY(8px);
-    will-change: opacity, transform;
-}
-
+.ft-logo,
+.ft-tagline,
+.ft-heading,
+.ft-links li,
+.ft-contact-list li,
+.ft-social-link,
 .ft-bottom {
-    opacity: 0;
-    transform: translateY(8px);
     will-change: opacity, transform;
-}
-
-/* Final visible state */
-.ft-col.ft-col-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.ft-bottom.ft-bottom-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-    .site-footer {
-        opacity: 1 !important;
-    }
-    .ft-col,
-    .ft-social-link,
-    .ft-bottom {
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-        animation: none !important;
-        transition: none !important;
-    }
 }
 /* ── Base ────────────────────────────────── */
 .site-footer {
@@ -81,9 +37,6 @@
         gap: 2rem 3.5rem;
     }
 }
-
-/* ── Column base ─────────────────────────── */
-.ft-col {}
 
 /* ── Brand column ────────────────────────── */
 .ft-logo {
@@ -280,3 +233,20 @@
     color: rgba(248,175,33,.85);
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .ft-logo,
+    .ft-tagline,
+    .ft-heading,
+    .ft-links li,
+    .ft-contact-list li,
+    .ft-social-link,
+    .ft-bottom,
+    .ft-logo,
+    .ft-social-link,
+    .ft-links a,
+    .ft-contact-list a,
+    .ft-copyright,
+    .ft-funded {
+        transition: none;
+    }
+}
