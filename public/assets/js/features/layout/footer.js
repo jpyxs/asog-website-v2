@@ -1,45 +1,99 @@
 document.addEventListener('DOMContentLoaded', function () {
-    if (typeof gsap === 'undefined') return;
-
     var footer = document.querySelector('.site-footer');
     if (!footer) return;
 
-    /* ── Entrance animation ───────────────── */
-    function playFooterIntro() {
-        var tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-
-        // Columns stagger
-        var cols = footer.querySelectorAll('.ft-col');
-        if (cols.length) {
-            tl.from(cols, { y: 20, opacity: 0, duration: 0.4, stagger: 0.1 });
-        }
-
-        // Social links stagger
-        var links = footer.querySelectorAll('.ft-social-link');
-        if (links.length) {
-            tl.from(links, {
-                y: 8, opacity: 0,
-                duration: 0.3, stagger: 0.06
-            }, '-=0.2');
-        }
-
-        // Bottom bar
-        var bottom = footer.querySelector('.ft-bottom');
-        if (bottom) {
-            tl.from(bottom, { y: 8, opacity: 0, duration: 0.35 }, '-=0.05');
-        }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || typeof gsap === 'undefined') {
+        return;
     }
 
-    /* ── Observer trigger ─────────────────── */
-    var played = false;
-    var io = new IntersectionObserver(function(entries){
-        entries.forEach(function(entry){
-            if (!played && entry.isIntersecting) {
-                played = true;
-                playFooterIntro();
-                io.disconnect();
-            }
+    var logo = footer.querySelector('.ft-logo');
+    var tagline = footer.querySelector('.ft-tagline');
+    var headings = footer.querySelectorAll('.ft-heading');
+    var linkItems = footer.querySelectorAll('.ft-links li');
+    var contactItems = footer.querySelectorAll('.ft-contact-list li');
+    var socialLinks = footer.querySelectorAll('.ft-social-link');
+    var bottom = footer.querySelector('.ft-bottom');
+
+    var targets = [];
+
+    if (logo) targets.push(logo);
+    if (tagline) targets.push(tagline);
+    headings.forEach(function (item) { targets.push(item); });
+    linkItems.forEach(function (item) { targets.push(item); });
+    contactItems.forEach(function (item) { targets.push(item); });
+    socialLinks.forEach(function (item) { targets.push(item); });
+    if (bottom) targets.push(bottom);
+
+    if (!targets.length) return;
+
+    var tl = gsap.timeline({
+        defaults: {
+            ease: 'power2.out'
+        }
+    });
+
+    tl.set(targets, {
+        opacity: 0,
+        y: 12
+    });
+
+    if (logo) {
+        tl.to(logo, {
+            opacity: 1,
+            y: 0,
+            duration: 0.32
         });
-    }, { threshold: 0.15 });
-    io.observe(footer);
+    }
+
+    if (tagline) {
+        tl.to(tagline, {
+            opacity: 1,
+            y: 0,
+            duration: 0.28
+        }, '-=0.16');
+    }
+
+    if (headings.length) {
+        tl.to(headings, {
+            opacity: 1,
+            y: 0,
+            duration: 0.24,
+            stagger: 0.05
+        }, '-=0.12');
+    }
+
+    if (linkItems.length) {
+        tl.to(linkItems, {
+            opacity: 1,
+            y: 0,
+            duration: 0.22,
+            stagger: 0.035
+        }, '-=0.08');
+    }
+
+    if (contactItems.length) {
+        tl.to(contactItems, {
+            opacity: 1,
+            y: 0,
+            duration: 0.22,
+            stagger: 0.035
+        }, '-=0.08');
+    }
+
+    if (socialLinks.length) {
+        tl.to(socialLinks, {
+            opacity: 1,
+            y: 0,
+            duration: 0.22,
+            stagger: 0.04
+        }, '-=0.1');
+    }
+
+    if (bottom) {
+        tl.to(bottom, {
+            opacity: 1,
+            y: 0,
+            duration: 0.24
+        }, '-=0.06');
+    }
 });

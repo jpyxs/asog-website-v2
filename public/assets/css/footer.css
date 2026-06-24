@@ -1,5 +1,14 @@
 /* Footer — Classic columnar design, navy / gold theme  (refreshed) */
 
+.ft-logo,
+.ft-tagline,
+.ft-heading,
+.ft-links li,
+.ft-contact-list li,
+.ft-social-link,
+.ft-bottom {
+    will-change: opacity, transform;
+}
 /* ── Base ────────────────────────────────── */
 .site-footer {
     background: #03558C;
@@ -28,9 +37,6 @@
         gap: 2rem 3.5rem;
     }
 }
-
-/* ── Column base ─────────────────────────── */
-.ft-col {}
 
 /* ── Brand column ────────────────────────── */
 .ft-logo {
@@ -227,3 +233,20 @@
     color: rgba(248,175,33,.85);
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .ft-logo,
+    .ft-tagline,
+    .ft-heading,
+    .ft-links li,
+    .ft-contact-list li,
+    .ft-social-link,
+    .ft-bottom,
+    .ft-logo,
+    .ft-social-link,
+    .ft-links a,
+    .ft-contact-list a,
+    .ft-copyright,
+    .ft-funded {
+        transition: none;
+    }
+}
