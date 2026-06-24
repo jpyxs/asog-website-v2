@@ -12,17 +12,27 @@
     var titleWrap = document.getElementById('heroTitleWrap');
     var descWrap  = document.getElementById('heroDescWrap');
     var hero      = document.getElementById('hero');
+    var heroHeading = document.getElementById('heroHeading');
+    var prevBtn = hero ? hero.querySelector('[data-hero-prev]') : null;
+    var nextBtn = hero ? hero.querySelector('[data-hero-next]') : null;
+    var toggleBtn = hero ? hero.querySelector('[data-hero-toggle]') : null;
     if (slides.length < 2) return;
 
     var mobileRectQuery = window.matchMedia('(max-width: 767px)');
     var cur   = 0;
     var DELAY = 5500;
     var timer;
+    var autoplayPaused = false;
 
     function setActiveFor(list, idx) {
         list.forEach(function (el, i) {
             if (!el) return;
-            el.classList.toggle('active', i === idx);
+            var isActive = i === idx;
+            el.classList.toggle('active', isActive);
+            if (el.classList.contains('hl-link')) {
+                el.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+                el.tabIndex = isActive ? 0 : -1;
+            }
         });
     }
 
@@ -34,6 +44,17 @@
         if (bg) {
             slide.style.backgroundImage = 'url("' + bg.replace(/"/g, '\\"') + '")';
         }
+    }
+
+    function getSlideHeading(idx) {
+        var slide = hls[idx] || null;
+        if (!slide) return '';
+        return (slide.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function syncHeroHeading() {
+        if (!heroHeading) return;
+        heroHeading.textContent = getSlideHeading(cur);
     }
 
     function syncStackHeights() {
@@ -123,30 +144,94 @@
 
         ensureSlideBackground(cur);
 
+        syncHeroHeading();
         syncStackHeights();
     }
 
-    function next() { go((cur + 1) % slides.length); }
-    function startTimer() { timer = setInterval(next, DELAY); }
-    function resetTimer() { clearInterval(timer); startTimer(); }
+    function next() {
+        go((cur + 1) % slides.length);
+    }
+
+    function stopTimer() {
+        if (timer) {
+            clearInterval(timer);
+            timer = null;
+        }
+    }
+
+    function updateToggleButton() {
+        if (!toggleBtn) return;
+        var isPaused = !!autoplayPaused;
+        toggleBtn.classList.toggle('is-paused', isPaused);
+        toggleBtn.setAttribute('aria-pressed', isPaused ? 'true' : 'false');
+        toggleBtn.setAttribute('aria-label', isPaused ? 'Resume autoplay' : 'Pause autoplay');
+        toggleBtn.setAttribute('title', isPaused ? 'Resume autoplay' : 'Pause autoplay');
+    }
+
+    function startTimer() {
+        stopTimer();
+        if (autoplayPaused) return;
+        timer = setInterval(next, DELAY);
+    }
+
+    function pauseAutoplay() {
+        autoplayPaused = true;
+        stopTimer();
+        updateToggleButton();
+    }
+
+    function resumeAutoplay() {
+        autoplayPaused = false;
+        updateToggleButton();
+        startTimer();
+    }
 
     function preloadNextSlide() {
         var nextIdx = (cur + 1) % slides.length;
         ensureSlideBackground(nextIdx);
     }
 
+    function handleManualMove(direction) {
+        pauseAutoplay();
+        go((cur + direction + slides.length) % slides.length);
+        preloadNextSlide();
+    }
+
     /* Expose goTo globally for inline onclick handlers in hero.php */
     window.goTo = function (n) {
+        pauseAutoplay();
         go(n);
-        resetTimer();
         preloadNextSlide();
     };
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+            handleManualMove(-1);
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            handleManualMove(1);
+        });
+    }
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function () {
+            if (autoplayPaused) {
+                resumeAutoplay();
+            } else {
+                pauseAutoplay();
+            }
+        });
+    }
 
     /* Boot */
     slides.forEach(function (slide, idx) {
         if (idx === 0) ensureSlideBackground(idx);
     });
     go(0);
+    syncHeroHeading();
     syncHeroViewportHeight();
     syncStackHeights();
     startTimer();

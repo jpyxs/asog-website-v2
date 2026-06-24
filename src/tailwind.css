@@ -486,6 +486,107 @@
     transition: opacity .7s cubic-bezier(.22,1,.36,1) .4s;
     pointer-events: auto;
   }
+  .hero-controls {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .hero-control {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(2,13,24,.12), rgba(2,13,24,.02));
+    color: rgba(255,248,236,.7);
+    box-shadow: 0 12px 28px rgba(2,13,24,.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: .14;
+    transition: opacity .2s ease, transform .2s ease, color .2s ease, border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+    pointer-events: auto;
+  }
+  #hero:hover .hero-control,
+  #hero:focus-within .hero-control {
+    opacity: .92;
+  }
+  .hero-control:hover,
+  .hero-control:focus-visible {
+    opacity: 1;
+    color: var(--color-gold);
+    border-color: rgba(255,196,61,.55);
+    background: linear-gradient(180deg, rgba(2,13,24,.22), rgba(2,13,24,.08));
+    box-shadow: 0 14px 32px rgba(2,13,24,.18);
+  }
+  .hero-control:focus-visible {
+    outline: 2px solid rgba(255,196,61,.7);
+    outline-offset: 2px;
+  }
+  .hero-control svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hero-control-prev,
+  .hero-control-next {
+    top: 50%;
+    width: 3rem;
+    height: 4.6rem;
+    transform: translateY(-50%);
+  }
+  .hero-control-prev {
+    left: 0;
+    border-radius: 0 999px 999px 0;
+    border-left: 0;
+  }
+  .hero-control-next {
+    right: 0;
+    border-radius: 999px 0 0 999px;
+    border-right: 0;
+  }
+  .hero-control-toggle {
+    right: 1rem;
+    bottom: 1rem;
+    width: 2.7rem;
+    height: 2.7rem;
+    border-radius: 999px;
+  }
+  .hero-control-toggle .hero-icon-play {
+    display: none;
+  }
+  .hero-control-toggle.is-paused .hero-icon-pause {
+    display: none;
+  }
+  .hero-control-toggle.is-paused .hero-icon-play {
+    display: block;
+    fill: currentColor;
+    stroke: none;
+  }
+  .hero-control-toggle.is-paused svg {
+    width: .95rem;
+    height: .95rem;
+  }
+  @media (hover: none) {
+    .hero-control {
+      opacity: .34;
+    }
+  }
+  @media (max-width: 767px) {
+    .hero-control-prev,
+    .hero-control-next {
+      width: 2.45rem;
+      height: 3.9rem;
+    }
+    .hero-control-toggle {
+      right: .75rem;
+      bottom: .75rem;
+    }
+  }
 
   /* ═══ SCROLL REVEAL ANIMATIONS ═══ */
   .reveal {
