@@ -120,6 +120,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->get('messages/(:num)', 'Admin\MessagesAdmin::show/$1');
         $routes->put('messages/(:num)/read', 'Admin\MessagesAdmin::toggleRead/$1');
         $routes->delete('messages/(:num)', 'Admin\MessagesAdmin::delete/$1');
+        $routes->post('messages/bulk', 'Admin\MessagesAdmin::bulkAction');
 
         // Incubatees Management
         $routes->get('incubatees', 'Admin\IncubateesAdmin::index');

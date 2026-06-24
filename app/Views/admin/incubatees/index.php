@@ -85,72 +85,82 @@
     <span class="reorder-status" id="reorderStatus">Drag rows to reorder. Changes save automatically.</span>
 </div>
 
-<?php if (empty($incubatees)): ?>
-    <div class="empty-row">No incubatees yet. <a href="<?= site_url('admin/incubatees/create') ?>">Add one.</a></div>
-<?php else: ?>
-    <table class="inc-tbl" id="incubateeTable">
-        <thead>
-            <tr>
-                <th class="drag-col"></th>
-                <th></th>
-                <th>Company</th>
-                <th>Cohort</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($incubatees as $inc): ?>
-                <tr class="drag-row" draggable="true" data-id="<?= (int) $inc['id'] ?>" data-cohort="<?= esc((string) ($inc['cohort'] ?? '')) ?>">
-                    <td class="drag-cell">
-                        <span class="drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
-                    </td>
-                    <td>
-                        <?php if (! empty($inc['logoPath'])): ?>
-                            <img src="<?= site_url($inc['logoPath']) ?>" alt="" class="tbl-logo"/>
-                        <?php else: ?>
-                            <span class="tbl-logo-empty"><?= strtoupper(mb_substr($inc['companyName'], 0, 2)) ?></span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <span class="tbl-name"><?= esc($inc['companyName']) ?></span>
-                    </td>
-                    <td>
-                        <?php if (! empty($inc['cohort'])): ?>
-                            <span class="tag tag-cohort"><?= esc($inc['cohort']) ?></span>
-                        <?php else: ?>
-                            <span class="cohort-empty">—</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <span class="tag <?= $inc['isPublished'] ? 'tag-live' : 'tag-draft' ?>"><?= $inc['isPublished'] ? 'Published' : 'Draft' ?></span>
-                    </td>
-                    <td>
-                        <div class="acts">
-                            <a href="<?= site_url('admin/incubatees/' . $inc['id'] . '/edit') ?>" class="act-btn edit" title="Edit" aria-label="Edit incubatee">
+<table class="inc-tbl" id="incubateeTable">
+    <thead>
+        <tr>
+            <th class="drag-col"></th>
+            <th></th>
+            <th>Company</th>
+            <th>Cohort</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php if (empty($incubatees)): ?>
+        <tr>
+            <td colspan="6" class="empty-row" style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;font-size:.82rem">
+                No incubatees yet.
+                <a href="<?= site_url('admin/incubatees/create') ?>">Add one.</a>
+            </td>
+        </tr>
+    <?php else: ?>
+        <?php foreach ($incubatees as $inc): ?>
+            <tr class="drag-row" draggable="true" data-id="<?= (int) $inc['id'] ?>" data-cohort="<?= esc((string) ($inc['cohort'] ?? '')) ?>">
+                <td class="drag-cell">
+                    <span class="drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
+                </td>
+                <td>
+                    <?php if (! empty($inc['logoPath'])): ?>
+                        <img src="<?= site_url($inc['logoPath']) ?>" alt="" class="tbl-logo"/>
+                    <?php else: ?>
+                        <span class="tbl-logo-empty"><?= strtoupper(mb_substr($inc['companyName'], 0, 2)) ?></span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <span class="tbl-name"><?= esc($inc['companyName']) ?></span>
+                </td>
+                <td>
+                    <?php if (! empty($inc['cohort'])): ?>
+                        <span class="tag tag-cohort"><?= esc($inc['cohort']) ?></span>
+                    <?php else: ?>
+                        <span class="cohort-empty">—</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <span class="tag <?= $inc['isPublished'] ? 'tag-live' : 'tag-draft' ?>"><?= $inc['isPublished'] ? 'Published' : 'Draft' ?></span>
+                </td>
+                <td>
+                    <div class="acts">
+                        <a href="<?= site_url('admin/incubatees/' . $inc['id'] . '/edit') ?>" class="act-btn edit" title="Edit" aria-label="Edit incubatee">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                            </svg>
+                        </a>
+                        <form action="<?= site_url('admin/incubatees/' . $inc['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Delete this incubatee?')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="act-btn delete" title="Delete" aria-label="Delete incubatee">
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4h8v2"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 6l-1 14H6L5 6"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6M14 11v6"/>
                                 </svg>
-                            </a>
-                            <form action="<?= site_url('admin/incubatees/' . $inc['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Delete this incubatee?')">
-                                <?= csrf_field() ?>
-                                <button type="submit" class="act-btn delete" title="Delete" aria-label="Delete incubatee">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4h8v2"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 6l-1 14H6L5 6"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6M14 11v6"/>
-                                    </svg>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-<?php endif; ?>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        <tr id="cohortEmptyState" style="display:none">
+            <td colspan="6" class="empty-row" style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;font-size:.82rem">
+                No incubatees in this cohort yet.
+            </td>
+        </tr>
+    <?php endif; ?>
+    </tbody>
+</table>
 
 <div class="lf-panel">
     <div class="lf-wrap">
