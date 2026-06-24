@@ -6,7 +6,7 @@ class News extends BaseController
 {
     public function index(): string
     {
-        $validCategories = ['news', 'features', 'opinions'];
+        $validCategories = \Config\PostCategories::keys();
         $validSorts      = ['newest', 'oldest'];
 
         $category = (string) ($this->request->getGet('category') ?? '');
@@ -37,6 +37,7 @@ class News extends BaseController
             'currentPage'    => $page,
             'totalPages'     => $result['pages'],
             'totalPosts'     => $result['total'],
+            'categories'     => \Config\PostCategories::all(),
             'heroSubtitle'   => 'Stay Updated',
             'heroTitle'      => 'News & Insights',
             'heroDesc'       => 'The latest events, features, and stories from ASOG Technology Business Incubator.',

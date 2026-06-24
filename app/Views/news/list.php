@@ -4,6 +4,7 @@ $activeSort     = $activeSort ?? 'newest';
 $currentPage    = (int) ($currentPage ?? 1);
 $totalPages     = (int) ($totalPages ?? 1);
 $totalPosts     = (int) ($totalPosts ?? 0);
+$categories     = $categories ?? \Config\PostCategories::all();
 
 $qp = [];
 if ($activeCategory !== '') $qp['category'] = $activeCategory;
@@ -45,9 +46,9 @@ $sortUrl = function(string $srt) use ($activeCategory): string {
                     class="appearance-none bg-transparent text-[.58rem] font-semibold tracking-[.1em] uppercase focus:outline-none cursor-pointer border-0 min-w-[80px]"
                     style="color:rgba(2,13,24,.7)">
                     <option value="<?= $catUrl('') ?>" <?= $activeCategory === '' ? 'selected' : '' ?>>All Posts</option>
-                    <option value="<?= $catUrl('news') ?>" <?= $activeCategory === 'news' ? 'selected' : '' ?>>News</option>
-                    <option value="<?= $catUrl('features') ?>" <?= $activeCategory === 'features' ? 'selected' : '' ?>>Features</option>
-                    <option value="<?= $catUrl('opinions') ?>" <?= $activeCategory === 'opinions' ? 'selected' : '' ?>>Stories</option>
+                    <?php foreach ($categories as $catVal => $catLabel): ?>
+                    <option value="<?= $catUrl($catVal) ?>" <?= $activeCategory === $catVal ? 'selected' : '' ?>><?= $catLabel ?></option>
+                    <?php endforeach; ?>
                 </select>
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round"
@@ -85,7 +86,7 @@ $sortUrl = function(string $srt) use ($activeCategory): string {
             <?php if ($activeCategory !== ''): ?>
             <div class="flex items-center gap-2 px-3 py-2 rounded-sm" style="background:rgba(3,53,90,.06)">
                 <span class="text-[.56rem] font-semibold tracking-[.1em] uppercase"
-                    style="color:#03355a"><?= esc(ucfirst($activeCategory)) ?></span>
+                    style="color:#03355a"><?= esc($categories[$activeCategory] ?? ucfirst($activeCategory)) ?></span>
                 <a href="<?= $catUrl('') ?>" class="no-underline transition-colors" style="color:rgba(2,13,24,.3)"
                     title="Clear filter">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"

@@ -47,9 +47,9 @@ $formUrl = $isEdit
                     <select id="category" name="category">
                         <?php
                         $cat = $isEdit ? $post['category'] : old('category');
-                        foreach (['news', 'events', 'features'] as $c):
+                        foreach (\Config\PostCategories::all() as $value => $label):
                         ?>
-                        <option value="<?= $c ?>" <?= $cat === $c ? 'selected' : '' ?>><?= ucfirst($c) ?></option>
+                        <option value="<?= $value ?>" <?= $cat === $value ? 'selected' : '' ?>><?= $label ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
