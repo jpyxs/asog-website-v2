@@ -328,7 +328,6 @@
 
   // ── Lean Canvas (single file) ─────────────
   var lcInput   = document.getElementById('leanCanvas');
-  var lcChooser = document.getElementById('leanCanvasChooser');
   var lcButton  = document.getElementById('leanCanvasButton');
   var lcPreview = document.getElementById('leanCanvasPreview');
   var lcStatus  = document.getElementById('leanCanvasStatus');
@@ -339,8 +338,8 @@
     lcStatus.textContent = hasFile
       ? lcInput.files[0].name
       : 'No file chosen';
-    if (lcChooser) {
-      lcChooser.style.display = hasFile ? 'none' : '';
+    if (lcButton) {
+      lcButton.classList.toggle('hidden', hasFile);
     }
   }
 
@@ -367,7 +366,7 @@
         '</svg>' +
         '<span class="flex-1 truncate">' + escHtml(f.name) + '</span>' +
         '<span class="text-[.65rem] text-navy/40 flex-shrink-0">' + formatBytes(f.size) + '</span>' +
-        '<button type="button" onclick="document.getElementById(\'leanCanvas\').value=\'\';document.getElementById(\'leanCanvasChooser\').style.display=\'\';document.getElementById(\'leanCanvasStatus\').textContent=\'No file chosen\';document.getElementById(\'leanCanvasPreview\').classList.add(\'hidden\');document.getElementById(\'leanCanvasPreview\').innerHTML=\'\';" ' +
+        '<button type="button" onclick="document.getElementById(\'leanCanvas\').value=\'\';document.getElementById(\'leanCanvasButton\').classList.remove(\'hidden\');document.getElementById(\'leanCanvasStatus\').textContent=\'No file chosen\';document.getElementById(\'leanCanvasPreview\').classList.add(\'hidden\');document.getElementById(\'leanCanvasPreview\').innerHTML=\'\';" ' +
           'class="ml-1 text-dark/30 hover:text-red-500 transition-colors flex-shrink-0" title="Remove">' +
           '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
         '</button>' +
