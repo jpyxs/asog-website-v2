@@ -89,6 +89,12 @@
 </footer>
 <?php endif; ?>
 
+<button type="button" class="ft-return-top" id="returnToTop" aria-label="Return to top">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 5l-7 7 1.41 1.41L11 8.83V19h2V8.83l4.59 4.58L19 12z"></path>
+    </svg>
+</button>
+
 <!-- Toast notifications -->
 <?= function_exists('renderToast') ? renderToast() : '' ?>
 
