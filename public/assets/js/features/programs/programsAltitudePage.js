@@ -76,13 +76,6 @@
         block: 'start'
       });
     }
-
-    // If altitude-3d hash, auto-enter the 3D experience after landing page shows.
-    if (targetHash === 'altitude-3d') {
-      setTimeout(function () {
-        showProgramPage();
-      }, 300);
-    }
   };
 
   if (readMoreBtn) readMoreBtn.addEventListener('click', showProgramModal);
