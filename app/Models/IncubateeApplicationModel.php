@@ -189,12 +189,12 @@ class IncubateeApplicationModel extends Model
     /**  
      * Set the applicationStatus of a given record.
      * @param  int    $id     Primary-key ID
-     * @param  string $status One of: pending, reviewed, accepted, rejected
+     * @param  string $status One of: pending, accepted, rejected
      * @return bool
     **/
     public function updateStatus(int $id, string $status): bool
     {
-        $allowed = ['pending', 'reviewed', 'accepted', 'rejected'];
+        $allowed = ['pending', 'accepted', 'rejected'];
         if (! in_array($status, $allowed, true)) {
             return false;
         }
