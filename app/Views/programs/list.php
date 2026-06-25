@@ -1,15 +1,14 @@
 <!-- ╔══════════════════════════════════════════════════════════════════════╗
      ║  PROGRAMS & SERVICES — TOC + ALTITUDE, Services, Facilities         ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
-
 <!-- Programs page wrapper -->
 <div class="relative bg-off">
     <div class="max-w-[1320px] mx-auto px-6 md:px-10 lg:px-14">
         <div class="min-w-0">
             <!-- ╔═══════════════════════════════════════════════════════════════════╗
- ║  SECTION 1: ALTITUDE PROGRAM                                      ║
- ╚════════════════════════════════════════════════════════════════════╝ -->
-            <section class="relative py-20 md:py-25">
+                 ║  SECTION 1: ALTITUDE PROGRAM                                      ║
+                 ╚═══════════════════════════════════════════════════════════════════╝ -->
+            <section class="relative py-20 md:py-25" data-navhint="blue">
 
                 <div id="altitude-program" class="scroll-mt-28"></div>
 
@@ -63,9 +62,8 @@
 </div>
 
 <!-- ╔══════════════════════════════════════════════════════════════════════╗
-     ║  ALTITUDE 3D — Wilderness Zoom Overlay + Fullscreen 3D Scene      ║
+     ║  ALTITUDE 3D — Wilderness Zoom Overlay + Fullscreen 3D Scene         ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
-<link rel="stylesheet" href="<?= base_url('assets/css/altitude3d.css') ?>">
 
 <!-- Phase 1: Wilderness Zoom Transition Overlay -->
 <div id="alt3dZoomOverlay" class="alt3d-zoom-overlay">
@@ -159,8 +157,20 @@
         <button class="alt3d-dot" data-i="4"></button>
     </div>
 
-    <!-- Hint -->
-    <p id="alt3dHint" class="alt3d-hint">Click a checkpoint to explore the journey · Press ESC to exit</p>
+    <!-- Instruction Panel -->
+    <div id="alt3dHint" class="alt3d-hint alt3d-instruction-panel">
+        <div class="alt3d-instruction-content">
+            <span class="alt3d-instruction-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                </svg>
+            </span>
+            <span class="alt3d-instruction-text">Click a checkpoint to explore the journey</span>
+            <span class="alt3d-instruction-esc">Press <kbd>ESC</kbd> to exit fullscreen</span>
+        </div>
+        <button id="alt3dHintClose" class="alt3d-instruction-exit-btn" type="button" aria-label="Exit 3D view">Exit</button>
+    </div>
 
     <!-- <button id="alt3dShowPartners" class="alt3d-mentors-btn" type="button" aria-controls="alt3dPartnersPanel"
         aria-expanded="false">
