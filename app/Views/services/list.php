@@ -83,8 +83,7 @@ $services = [
             <div class="max-w-[940px]">
                 <div class="mb-4 flex items-center gap-2">
                     <span class="svc-kicker-line block h-[1.5px] w-7 bg-gold"></span>
-                    <span class="text-[.58rem] font-semibold tracking-[.24em] uppercase text-navy">Services
-                        Offered</span>
+                    <span class="text-[.58rem] font-semibold tracking-[.24em] uppercase text-gold">How We Help</span>
                     <span class="svc-kicker-line block h-[1.5px] w-7 bg-gold"></span>
                 </div>
 
