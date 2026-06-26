@@ -1,6 +1,6 @@
 <!-- ╔══════════════════════════════════════════════════════════════════════╗
-     ║  CONTACT PAGE — Matches landing page layout                        ║
-     ║  Centered header · Big map left · Form right · Plain social icons  ║
+     ║  CONTACT PAGE — Matches landing page layout                          ║
+     ║  Centered header · Big map left · Form right                         ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 <?php
     $contactEmail = 'asogtbi@cspc.edu.ph';
@@ -10,7 +10,7 @@
     $xUrl         = 'https://x.com/asogtbi';
     $threadsUrl   = 'https://www.threads.com/@asogtbi';
 ?>
-<section class="relative overflow-hidden bg-off py-16 md:py-24 px-6 md:px-10 lg:px-14">
+<section class="relative overflow-hidden bg-off py-16 md:py-20 px-6 md:px-10 lg:px-14">
     <div class="max-w-[1400px] mx-auto relative z-[2]">
 
         <!-- ═══════ CENTERED HEADER ═══════ -->
@@ -21,7 +21,7 @@
                 <span class="block w-[18px] h-[1.5px] bg-gold"></span>
             </div>
             <h2 class="font-display text-3xl md:text-[2.4rem] leading-[1.12] text-dark">
-                Contact <em class="italic text-gold">Us</em>
+                Reach <em class="italic text-gold">our Team</em>
             </h2>
         </div>
 
@@ -57,7 +57,7 @@
                 </div>
 
                 <!-- Social — plain icons, no boxes -->
-                <div class="flex items-center gap-1">
+                <!-- <div class="flex items-center gap-1">
                     <span class="text-[.52rem] font-bold tracking-[.18em] uppercase text-dark mr-3">Follow Us</span>
                     <a href="<?= esc($fbUrl) ?>" target="_blank" rel="noopener" title="Facebook"
                         class="inline-flex items-center justify-center w-9 h-9 no-underline transition-colors duration-200 hover:text-gold"
@@ -91,7 +91,7 @@
                                 d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.59 12c.025 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.29 3.276-.776.965-1.872 1.599-3.263 1.885-1.254.258-2.47.148-3.43-.312-1.09-.522-1.815-1.396-2.04-2.46-.346-1.636.307-3.217 1.743-4.227 1.108-.78 2.558-1.168 4.312-1.156.888.006 1.739.096 2.547.27-.062-.784-.225-1.44-.493-1.96-.384-.743-1.009-1.189-1.857-1.327-1.237-.2-2.646.152-3.322.95l-1.54-1.317c1.046-1.232 2.97-1.793 4.746-1.505 1.34.217 2.412.914 3.1 2.015.53.85.838 1.89.935 3.117.516.17.993.394 1.424.674 1.206.783 2.073 1.933 2.51 3.332.587 1.885.382 4.532-1.694 6.565-1.842 1.804-4.15 2.619-7.268 2.643zM11.29 12.666c-1.16-.007-2.136.244-2.833.73-.787.55-1.066 1.29-.93 1.932.122.575.558 1.025 1.194 1.33.72.345 1.62.413 2.544.222 1.017-.21 1.8-.654 2.327-1.31.42-.524.725-1.203.893-2.03-.7-.267-1.497-.423-2.385-.475-.266-.02-.537-.025-.81-.025v-.374z" />
                         </svg>
                     </a>
-                </div>
+                </div> -->
             </div>
 
             <!-- RIGHT — Contact Form -->
