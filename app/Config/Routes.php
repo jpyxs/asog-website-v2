@@ -90,54 +90,68 @@ $routes->post('/asog-admin/reset-password/(:segment)', 'Auth::updateForgottenPas
  * ADMIN DASHBOARD & CONTENT MANAGEMENT ROUTES (Protected by Auth Middleware)
  * ────────────────────────────────────────────────────────────────────────────
  */
-$routes->group('admin', ['filter' => 'auth'], function($routes) {
-    // Dashboard
-    $routes->get('/', 'Admin\Dashboard::index');
-    
-    // Posts / Blog Management
-    $routes->get('posts', 'Admin\PostsAdmin::index');
-    $routes->get('posts/create', 'Admin\PostsAdmin::create');
-    $routes->post('posts', 'Admin\PostsAdmin::store');
-    $routes->post('posts/upload-image', 'Admin\PostsAdmin::uploadImage');
-    $routes->post('posts/featured-order', 'Admin\PostsAdmin::saveFeaturedOrder');
-    $routes->get('posts/(:num)/edit', 'Admin\PostsAdmin::edit/$1');
-    $routes->put('posts/(:num)', 'Admin\PostsAdmin::update/$1');
-    $routes->delete('posts/(:num)', 'Admin\PostsAdmin::delete/$1');
+$routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
-    // Incubatee Applications
-    $routes->get('applications', 'Admin\ApplicationsAdmin::index');
-    $routes->get('applications/(:num)', 'Admin\ApplicationsAdmin::show/$1');
-    $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
+    // ── editor + admin + superadmin ──────────────────────────────────────
+    $routes->group('', ['filter' => 'role:editor'], function ($routes) {
+        $routes->get('/', 'Admin\Dashboard::index');
 
-    // Contact Messages
-    $routes->get('messages', 'Admin\MessagesAdmin::index');
-    $routes->get('messages/(:num)', 'Admin\MessagesAdmin::show/$1');
-    $routes->put('messages/(:num)/read', 'Admin\MessagesAdmin::toggleRead/$1');
-    $routes->delete('messages/(:num)', 'Admin\MessagesAdmin::delete/$1');
+        // Posts / Blog Management
+        $routes->get('posts', 'Admin\PostsAdmin::index');
+        $routes->get('posts/create', 'Admin\PostsAdmin::create');
+        $routes->post('posts', 'Admin\PostsAdmin::store');
+        $routes->post('posts/upload-image', 'Admin\PostsAdmin::uploadImage');
+        $routes->post('posts/featured-order', 'Admin\PostsAdmin::saveFeaturedOrder');
+        $routes->get('posts/(:num)/edit', 'Admin\PostsAdmin::edit/$1');
+        $routes->put('posts/(:num)', 'Admin\PostsAdmin::update/$1');
+        $routes->delete('posts/(:num)', 'Admin\PostsAdmin::delete/$1');
+    });
 
-    // Incubatees Management
-    $routes->get('incubatees', 'Admin\IncubateesAdmin::index');
-    $routes->get('incubatees/create', 'Admin\IncubateesAdmin::create');
-    $routes->post('incubatees', 'Admin\IncubateesAdmin::store');
-    $routes->post('incubatees/reorder', 'Admin\IncubateesAdmin::saveOrder');
-    $routes->post('incubatees/landing-filter', 'Admin\IncubateesAdmin::updateLandingFilter');
-    $routes->get('incubatees/(:num)/edit', 'Admin\IncubateesAdmin::edit/$1');
-    $routes->post('incubatees/(:num)/update', 'Admin\IncubateesAdmin::update/$1');
-    $routes->post('incubatees/(:num)/delete', 'Admin\IncubateesAdmin::delete/$1');
+    // ── admin + superadmin ───────────────────────────────────────────────
+    $routes->group('', ['filter' => 'role:admin'], function ($routes) {
 
-    // Cohort Management (AJAX)
-    $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
-    $routes->post('cohorts/(:num)/delete', 'Admin\IncubateesAdmin::deleteCohort/$1');
+        // Incubatee Applications
+        $routes->get('applications', 'Admin\ApplicationsAdmin::index');
+        $routes->get('applications/(:num)', 'Admin\ApplicationsAdmin::show/$1');
+        $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
+        $routes->put('applications/(:num)/toggle-archive', 'Admin\ApplicationsAdmin::toggleArchive/$1');
+        $routes->post('applications/bulk', 'Admin\ApplicationsAdmin::bulk');
 
-    // Games Management
-    $routes->get('games', 'Admin\GamesAdmin::index');
-    $routes->post('games/guess-startup/availability', 'Admin\GamesAdmin::updateGuessStartupAvailability');
+        // Contact Messages
+        $routes->get('messages', 'Admin\MessagesAdmin::index');
+        $routes->get('messages/(:num)', 'Admin\MessagesAdmin::show/$1');
+        $routes->put('messages/(:num)/read', 'Admin\MessagesAdmin::toggleRead/$1');
+        $routes->delete('messages/(:num)', 'Admin\MessagesAdmin::delete/$1');
+        $routes->post('messages/bulk', 'Admin\MessagesAdmin::bulkAction');
 
-    // Admin Account Management
-    $routes->get('admins', 'Admin\AdminsManagement::index');
-    $routes->get('admins/create', 'Admin\AdminsManagement::create');
-    $routes->post('admins', 'Admin\AdminsManagement::store');
-    $routes->get('admins/(:num)/edit', 'Admin\AdminsManagement::edit/$1');
-    $routes->put('admins/(:num)', 'Admin\AdminsManagement::update/$1');
-    $routes->delete('admins/(:num)', 'Admin\AdminsManagement::delete/$1');
-});
+        // Incubatees Management
+        $routes->get('incubatees', 'Admin\IncubateesAdmin::index');
+        $routes->get('incubatees/create', 'Admin\IncubateesAdmin::create');
+        $routes->post('incubatees', 'Admin\IncubateesAdmin::store');
+        $routes->post('incubatees/reorder', 'Admin\IncubateesAdmin::saveOrder');
+        $routes->post('incubatees/landing-filter', 'Admin\IncubateesAdmin::updateLandingFilter');
+        $routes->get('incubatees/(:num)/edit', 'Admin\IncubateesAdmin::edit/$1');
+        $routes->post('incubatees/(:num)/update', 'Admin\IncubateesAdmin::update/$1');
+        $routes->post('incubatees/(:num)/delete', 'Admin\IncubateesAdmin::delete/$1');
+
+        // Cohort Management (AJAX)
+        $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
+        $routes->post('cohorts/(:num)/delete', 'Admin\IncubateesAdmin::deleteCohort/$1');
+
+        // Games Management
+        $routes->get('games', 'Admin\GamesAdmin::index');
+        $routes->post('games/guess-startup/availability', 'Admin\GamesAdmin::updateGuessStartupAvailability');
+    });
+
+    // ── superadmin only ──────────────────────────────────────────────────
+    $routes->group('', ['filter' => 'role:superadmin'], function ($routes) {
+
+        // Account Management
+        $routes->get('accounts', 'Admin\AdminsManagement::index');
+        $routes->get('accounts/create', 'Admin\AdminsManagement::create');
+        $routes->post('accounts', 'Admin\AdminsManagement::store');
+        $routes->get('accounts/(:num)/edit', 'Admin\AdminsManagement::edit/$1');
+        $routes->put('accounts/(:num)', 'Admin\AdminsManagement::update/$1');
+        $routes->delete('accounts/(:num)', 'Admin\AdminsManagement::delete/$1');
+    });
+});

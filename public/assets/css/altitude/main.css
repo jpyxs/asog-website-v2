@@ -15,6 +15,11 @@
   display: block;
 }
 
+@keyframes alt3dFadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .altitude-exp-hero {
   position: relative;
   overflow: hidden;
@@ -23,6 +28,7 @@
   background: radial-gradient(circle at 75% 10%, #4f91ba 0%, #18496d 45%, #0b2539 100%);
   box-shadow: 0 12px 30px rgba(16, 45, 69, .18);
   color: #f6f7f8;
+  animation: alt3dFadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .altitude-exp-mtn {
@@ -30,6 +36,7 @@
   inset: 0;
   opacity: .62;
   pointer-events: none;
+  animation: alt3dFadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 }
 
 .altitude-exp-mtn svg {
@@ -41,6 +48,7 @@
   position: relative;
   z-index: 2;
   max-width: 860px;
+  animation: alt3dFadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
 }
 
 .altitude-exp-kicker {
@@ -1389,17 +1397,142 @@ select.is-invalid:focus {
   pointer-events: none;
 }
 
-/* Hint text */
+/* Instruction Panel (formerly simple Hint text) */
 .alt3d-hint {
-  position: fixed; bottom: 70px; left: 50%;
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
   transform: translateX(-50%);
-  font-size: .46rem; letter-spacing: .15em;
-  text-transform: uppercase;
-  color: rgba(26,48,64,.16);
-  pointer-events: none; z-index: 20;
-  transition: opacity .4s;
+  z-index: 61; /* high enough to sit above controls, below modals */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(248, 246, 240, 0.50);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(17, 40, 56, 0.18);
+  border-radius: 999px;
+  padding: 8px 18px;
+  box-shadow: 0 10px 30px rgba(17, 40, 56, 0.08);
+  color: #112838;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  pointer-events: auto;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
+  visibility: visible;
+  opacity: 1;
+  white-space: nowrap;
 }
-.alt3d-overlay.zoomed .alt3d-hint { opacity: 0; }
+
+.alt3d-overlay.zoomed .alt3d-hint {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(12px);
+}
+
+.alt3d-instruction-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alt3d-instruction-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #c18a10; /* classy gold-amber matching the theme */
+  width: 15px;
+  height: 15px;
+}
+
+.alt3d-instruction-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.alt3d-instruction-text {
+  letter-spacing: 0.01em;
+}
+
+.alt3d-instruction-esc {
+  color: rgba(17, 40, 56, 0.7);
+  font-size: 0.76rem;
+  border-left: 1px solid rgba(17, 40, 56, 0.15);
+  padding-left: 12px;
+  margin-left: 4px;
+}
+
+.alt3d-instruction-esc kbd {
+  background: rgba(17, 40, 56, 0.06);
+  border: 1px solid rgba(17, 40, 56, 0.15);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.68rem;
+  font-family: inherit;
+  font-weight: 700;
+  color: #112838;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Optional Exit Button */
+.alt3d-instruction-exit-btn {
+  background: #183447;
+  color: #f6f7f8;
+  border: 1px solid #183447;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  line-height: 1.25;
+}
+
+.alt3d-instruction-exit-btn:hover {
+  background: #2a4050;
+  border-color: #2a4050;
+  box-shadow: 0 0 10px rgba(24, 52, 71, 0.15);
+  transform: translateY(-0.5px);
+}
+
+.alt3d-instruction-exit-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 600px) {
+  .alt3d-hint {
+    bottom: 85px;
+    width: 90%;
+    max-width: 380px;
+    border-radius: 16px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    white-space: normal;
+  }
+  
+  .alt3d-instruction-content {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .alt3d-instruction-esc {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+    margin-top: 2px;
+  }
+  
+  .alt3d-instruction-exit-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
 
 
 /* ─── 4. MOBILE ─── */

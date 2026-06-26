@@ -72,6 +72,11 @@
     </script>
     <!-- ================== CSS/JS  ===================== -->
     <link href="<?= base_url('style.css') ?>" rel="stylesheet">
+    <?php if (!empty($extraCss) && is_array($extraCss)): ?>
+        <?php foreach ($extraCss as $css): ?>
+            <link rel="stylesheet" href="<?= esc($css) ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <?php if (empty($hideSiteHeader)): ?>
     <script src="<?= base_url('assets/js/features/layout/header.js') ?>" defer></script>
@@ -134,8 +139,10 @@
     $isLandingPage   = ! empty($isLanding);
     $hideSiteHeader  = ! empty($hideSiteHeader);
 
-    // $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact'], true)
-    //     || str_starts_with($uriPath, 'apply');
+    $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact', 'incubatees'], true)
+        || str_starts_with($uriPath, 'apply');
+
+    $initialNavTheme = $forceWhiteLogoPages ? ' on-blue' : '';
 
     $activeClass = static fn(bool $isActive): string => $isActive ? ' is-active' : '';
     ?>
@@ -154,7 +161,7 @@
 
 
     <nav id="navbar"
-        class="fixed top-0 left-0 right-0 z-[500]<?= $isNewsDetail ? ' logo-color-exception' : '' ?><?= $isProgramsPage ? ' nav-programs-desktop' : '' ?><?= $isLandingPage ? ' landing-nav' : '' ?>">
+        class="fixed top-0 left-0 right-0 z-[500]<?= $initialNavTheme ?><?= $isNewsDetail ? ' logo-color-exception' : '' ?><?= $isProgramsPage ? ' nav-programs-desktop' : '' ?><?= $isLandingPage ? ' landing-nav' : '' ?>">
         <div id="navIn" class="flex items-center px-4 lg:px-10 min-h-20 py-2 lg:py-3">
 
             <!-- desktop left links -->

@@ -49,6 +49,7 @@
 .empty-row{text-align:center;padding:2rem;color:#94a3b8;font-size:.82rem}
 .empty-row a{color:#03558C;text-decoration:underline}
 .cohort-empty{color:#d4d0ca}
+.inc-tbl td.empty-row{padding:2.5rem 1rem !important;color:#94a3b8;font-size:.82rem;text-align:center;cursor:default;font-weight:400}
 
 .cm-overlay{position:fixed;inset:0;z-index:900;background:rgba(2,13,24,.45);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
 .cm-overlay.open{display:flex;opacity:1}

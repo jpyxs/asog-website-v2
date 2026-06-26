@@ -89,6 +89,13 @@ class ApplicationsAdmin extends BaseController
             return $this->response->setStatusCode(422)->setJSON(['error' => 'Invalid status value.']);
         }
 
+        $app = $this->applicationModel->find($id);
+        try {
+            $this->sendStatusEmail($app, $status);
+        } catch (\Throwable $e) {
+            log_message('error', '[ApplicationsAdmin] sendStatusEmail failed: ' . $e->getMessage());
+        }
+
         return $this->response->setJSON([
             'success' => true,
             'message' => 'Application marked as ' . $status . '.',
@@ -142,12 +149,96 @@ class ApplicationsAdmin extends BaseController
             $isArchived = ($action === 'archive') ? 1 : 0;
             $this->applicationModel->whereIn('id', $ids)->set(['isArchived' => $isArchived])->update();
         } else {
+            // Fetch applicants before the batch update so we have email addresses
+            $apps = $this->applicationModel->whereIn('id', $ids)->findAll();
             $this->applicationModel->whereIn('id', $ids)->set(['applicationStatus' => $action])->update();
+            foreach ($apps as $app) {
+                try {
+                    $this->sendStatusEmail($app, $action);
+                } catch (\Throwable $e) {
+                    log_message('error', '[ApplicationsAdmin] bulk sendStatusEmail failed for app #' . $app['id'] . ': ' . $e->getMessage());
+                }
+            }
         }
 
         return $this->response->setJSON([
             'success' => true,
             'message' => 'Bulk action applied.',
         ]);
+    }
+
+    // ─── Private helpers ──────────────────────────────────────────────────────
+
+    /**
+     * Send a transactional email to the applicant when their status changes.
+     *
+     * Silently skips if SMTP credentials are not configured in .env.
+     */
+    private function sendStatusEmail(array $app, string $newStatus): void
+    {
+        $emailSvc = \Config\Services::email();
+        $config   = new \Config\Email();
+
+        if (empty($config->SMTPUser) || $config->SMTPUser === 'your-email@gmail.com') {
+            log_message('info', 'Status email skipped — SMTP credentials not configured in .env');
+            return;
+        }
+
+        $statusMap = [
+            'pending'  => [
+                'label'     => 'Under Review',
+                'badgeBg'   => '#eef2ff',
+                'badgeColor'=> '#4f46e5',
+                'message'   => 'Your application has been received and is currently under review by our team. We appreciate your patience as we evaluate all submissions.',
+                'nextSteps' => 'Our team will review your application in the coming days. You will receive another email once a final decision has been made. Please keep this email for your reference.',
+                'subject'   => 'ASOG TBI — Application Status Update',
+            ],
+            'accepted' => [
+                'label'     => 'Accepted',
+                'badgeBg'   => '#dcfce7',
+                'badgeColor'=> '#15803d',
+                'message'   => 'We are pleased to inform you that your application to the ASOG TBI Incubation Program has been accepted. Congratulations on this achievement!',
+                'nextSteps' => 'Our team will be reaching out to you within 3–5 business days to discuss onboarding and the next steps for joining the program. Please ensure your contact information is up to date.',
+                'subject'   => 'ASOG TBI — Your Application Has Been Accepted',
+            ],
+            'rejected' => [
+                'label'     => 'Not Selected',
+                'badgeBg'   => '#fee2e2',
+                'badgeColor'=> '#dc2626',
+                'message'   => 'Thank you for your interest in the ASOG TBI Incubation Program. After careful review, we regret to inform you that your application was not selected for this cohort.',
+                'nextSteps' => 'We encourage you to continue developing your startup and consider applying again in future cohorts. If you have any questions, feel free to reach out to us.',
+                'subject'   => 'ASOG TBI — Update on Your Application',
+            ],
+        ];
+
+        $info = $statusMap[$newStatus] ?? $statusMap['pending'];
+
+        ob_start();
+        try {
+            $body = view('emails/application_status_update', [
+                'applicantName' => $app['applicantName'],
+                'startupName'   => $app['startupName'],
+                'newStatus'     => $newStatus,
+                'statusLabel'   => $info['label'],
+                'badgeBg'       => $info['badgeBg'],
+                'badgeColor'    => $info['badgeColor'],
+                'message'       => $info['message'],
+                'nextSteps'     => $info['nextSteps'],
+            ]);
+
+            $emailSvc->setFrom($config->fromEmail, $config->fromName);
+            $emailSvc->setTo($app['applicantEmail']);
+            $emailSvc->setSubject($info['subject']);
+            $emailSvc->setMessage($body);
+            $emailSvc->setMailType('html');
+
+            if (! $emailSvc->send(false)) {
+                log_message('error', 'Status email failed for app #' . $app['id'] . ': ' . $emailSvc->printDebugger(['headers']));
+            } else {
+                log_message('info', 'Status email sent to: ' . $app['applicantEmail'] . ' (status: ' . $newStatus . ')');
+            }
+        } finally {
+            ob_end_clean();
+        }
     }
 }

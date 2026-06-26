@@ -25,6 +25,7 @@
         <div class="side-sep"></div>
 
         <div class="side-label">Menu</div>
+        <?php $sessionRole = session()->get('admin_role'); ?>
         <nav class="side-nav">
             <a href="<?= site_url('admin') ?>" class="<?= ($activePage ?? '') === 'dashboard' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
@@ -34,6 +35,7 @@
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h10"/></svg>
                 Posts
             </a>
+            <?php if (in_array($sessionRole, ['admin', 'superadmin'], true)): ?>
             <a href="<?= site_url('admin/applications') ?>" class="<?= ($activePage ?? '') === 'applications' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 Applications
@@ -54,10 +56,13 @@
                     <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#03558C;color:#fff;font-size:.5rem;font-weight:700;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px"><?= $unreadMsgCount ?></span>
                 <?php endif; ?>
             </a>
-            <a href="<?= site_url('admin/admins') ?>" class="<?= ($activePage ?? '') === 'admins' ? 'on' : '' ?>">
+            <?php endif; ?>
+            <?php if ($sessionRole === 'superadmin'): ?>
+            <a href="<?= site_url('admin/accounts') ?>" class="<?= ($activePage ?? '') === 'admins' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
-                Admins
+                Accounts
             </a>
+            <?php endif; ?>
         </nav>
 
         <div class="side-sep" style="margin-top:.4rem"></div>

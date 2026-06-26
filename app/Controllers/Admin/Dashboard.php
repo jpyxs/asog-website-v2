@@ -14,26 +14,34 @@ class Dashboard extends BaseController
      
     public function index()
     {
+        $role       = (string) session()->get('admin_role');
         $postCounts = $this->postModel->getCounts();
-        $appCounts  = $this->applicationModel->getCounts();
 
         $data = [
-            'pageTitle'       => 'Dashboard',
-            'activePage'      => 'dashboard',
-            'totalPosts'      => $postCounts['total'],
-            'publishedPosts'  => $postCounts['published'],
-            'draftPosts'      => $postCounts['drafts'],
-            'featuredPosts'   => $postCounts['featured'],
-            'recentPosts'     => $this->postModel->orderBy('createdAt', 'DESC')->findAll(5),
-            'totalApps'       => $appCounts['total'],
-            'pendingApps'     => $appCounts['pending'],
-            'acceptedApps'    => $appCounts['accepted'],
-            'rejectedApps'    => $appCounts['rejected'],
-            'recentApps'      => $this->applicationModel->getAll(5),
-            'unreadMessages'  => $this->contactModel->countUnread(),
-            'recentIncubatees'=> $this->incubateeModel->orderBy('createdAt', 'DESC')->findAll(5),
-            'recentAdmins'    => $this->adminModel->orderBy('createdAt', 'DESC')->findAll(5),
+            'pageTitle'      => 'Dashboard',
+            'activePage'     => 'dashboard',
+            'role'           => $role,
+            'totalPosts'     => $postCounts['total'],
+            'publishedPosts' => $postCounts['published'],
+            'draftPosts'     => $postCounts['drafts'],
+            'featuredPosts'  => $postCounts['featured'],
+            'recentPosts'    => $this->postModel->orderBy('createdAt', 'DESC')->findAll(5),
         ];
+
+        if (in_array($role, ['admin', 'superadmin'], true)) {
+            $appCounts                = $this->applicationModel->getCounts();
+            $data['totalApps']        = $appCounts['total'];
+            $data['pendingApps']      = $appCounts['pending'];
+            $data['acceptedApps']     = $appCounts['accepted'];
+            $data['rejectedApps']     = $appCounts['rejected'];
+            $data['recentApps']       = $this->applicationModel->getAll(5);
+            $data['unreadMessages']   = $this->contactModel->countUnread();
+            $data['recentIncubatees'] = $this->incubateeModel->orderBy('createdAt', 'DESC')->findAll(5);
+        }
+
+        if ($role === 'superadmin') {
+            $data['recentAdmins'] = $this->adminModel->orderBy('createdAt', 'DESC')->findAll(5);
+        }
 
         return view('admin/layout/header', $data)
              . view('admin/dashboard', $data)
