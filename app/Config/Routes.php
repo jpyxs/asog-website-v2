@@ -134,6 +134,10 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->post('incubatees/(:num)/update', 'Admin\IncubateesAdmin::update/$1');
         $routes->post('incubatees/(:num)/delete', 'Admin\IncubateesAdmin::delete/$1');
 
+        // Organization Page Controls
+        $routes->get('organization', 'Admin\OrganizationAdmin::index');
+        $routes->post('organization/interns-visibility', 'Admin\OrganizationAdmin::updateInternsVisibility');
+
         // Cohort Management (AJAX)
         $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
         $routes->post('cohorts/(:num)/delete', 'Admin\IncubateesAdmin::deleteCohort/$1');
@@ -154,4 +158,4 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->put('accounts/(:num)', 'Admin\AdminsManagement::update/$1');
         $routes->delete('accounts/(:num)', 'Admin\AdminsManagement::delete/$1');
     });
-});
+});
