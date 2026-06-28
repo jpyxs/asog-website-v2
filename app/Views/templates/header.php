@@ -224,7 +224,7 @@
                 </div>
                 <!-- CTA Button -->
                 <a href="<?= $navCta ?>" data-order="6"
-                    class="nav-btn ml-4 font-body text-[.63rem] font-light tracking-[.13em] uppercase text-white bg-sky border border-sky px-5 py-2 rounded-sm no-underline whitespace-nowrap shrink-0 transition-colors duration-200 hover:bg-sky/80">Be
+                    class="nav-btn ml-4 font-body text-[.63rem] font-semibold tracking-[.13em] uppercase text-navy bg-gold border border-gold px-5 py-2 rounded-sm no-underline whitespace-nowrap shrink-0 transition-colors duration-200 hover:bg-gold-dk">Be
                     an Incubatee</a>
 
                 <!-- COLLAPSED DUPLICATES (appear on scroll via .lo) -->
@@ -325,7 +325,7 @@
                 Us</a>
         </nav>
         <a href="<?= $navCta ?>"
-            class="mt-8 text-center font-body text-[.72rem] font-bold tracking-[.14em] uppercase text-white bg-sky px-8 py-4 rounded-sm no-underline transition-colors hover:bg-sky/80">Be
+            class="mt-8 text-center font-body text-[.72rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-4 rounded-sm no-underline transition-colors hover:bg-gold-dk">Be
             an Incubatee</a>
     </div>
     <?php endif; ?>
