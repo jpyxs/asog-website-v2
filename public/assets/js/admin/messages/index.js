@@ -7,6 +7,60 @@ var selectAll     = document.getElementById('selectAll');
 var smartCaretBtn = document.getElementById('smartCaretBtn');
 var smartChkMenu  = document.getElementById('smartChkMenu');
 
+function loadPage(url) {
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (r) { return r.text(); })
+        .then(function (html) {
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+
+            var newStats = doc.querySelector('.grid-stats');
+            var oldStats = document.querySelector('.grid-stats');
+            if (newStats && oldStats) oldStats.replaceWith(newStats);
+
+            var newInbox = doc.querySelector('.inbox-wrap');
+            var oldInbox = document.querySelector('.inbox-wrap');
+            if (newInbox && oldInbox) oldInbox.replaceWith(newInbox);
+
+            var newClear = doc.querySelector('.app-btn-clear');
+            var oldClear = document.querySelector('.app-btn-clear');
+            if (newClear && oldClear) {
+                oldClear.replaceWith(newClear);
+            } else if (!newClear && oldClear) {
+                oldClear.remove();
+            } else if (newClear && !oldClear) {
+                var filterSlot = document.querySelector('.filter-slot');
+                if (filterSlot) filterSlot.appendChild(newClear);
+            }
+
+            selectedIds.clear();
+            updateBulkState();
+            bindInboxEvents();
+            history.pushState(null, '', url);
+        });
+}
+
+function bindInboxEvents() {
+    document.querySelectorAll('.msg-row').forEach(function (row) {
+        var id = row.getAttribute('data-id');
+        row.onclick = function () { openMsg(id); };
+        var chk = row.querySelector('.row-select');
+        if (chk) {
+            chk.onchange = function () { onRowCheck(this, id); };
+        }
+    });
+
+    document.querySelectorAll('.tbl-pagination .pag-btn:not(.pag-disabled)').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            var href = this.getAttribute('href');
+            if (!href || href === '#') return;
+            e.preventDefault();
+            loadPage(href);
+        });
+    });
+}
+
+bindInboxEvents();
+
 function getRows() {
     return Array.from(document.querySelectorAll('.msg-row'));
 }
@@ -180,22 +234,45 @@ function bulkDo(action) {
     });
 }
 
-function handleFilterChange(sel) {
-    var val      = sel.value;
-    var viewInp  = document.getElementById('viewInput');
-    var dateInp  = document.getElementById('dateInput');
-
-    if (val === 'archived') {
-        viewInp.value = 'archived';
-        dateInp.value = 'all';
-    } else {
-        var parts     = val.split('-');
-        viewInp.value = 'inbox';
-        dateInp.value = parts[1] || 'all';
-    }
-
-    document.getElementById('filterForm').submit();
+var filterSelectEl = document.getElementById('filterSelect');
+if (filterSelectEl) {
+    filterSelectEl.addEventListener('change', function () {
+        var val     = this.value;
+        var viewInp = document.getElementById('viewInput');
+        var dateInp = document.getElementById('dateInput');
+        if (val === 'archived') {
+            viewInp.value = 'archived';
+            dateInp.value = 'all';
+        } else {
+            var parts     = val.split('-');
+            viewInp.value = 'inbox';
+            dateInp.value = parts[1] || 'all';
+        }
+        document.getElementById('filterForm').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    });
 }
+
+var filterForm = document.getElementById('filterForm');
+if (filterForm) {
+    filterForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var params  = new URLSearchParams(new FormData(this));
+        var url     = msgBaseUrl + '?' + params.toString();
+        loadPage(url);
+    });
+}
+
+window.addEventListener('popstate', function () {
+    loadPage(location.href);
+});
+
+document.addEventListener('click', function (e) {
+    var clearBtn = e.target.closest('.app-btn-clear');
+    if (clearBtn) {
+        e.preventDefault();
+        loadPage(clearBtn.getAttribute('href'));
+    }
+});
 
 function archiveSingle() {
     if (!currentMsg || !msgBaseUrl) return;

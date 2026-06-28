@@ -65,7 +65,7 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
                     placeholder="Search by name, email, message…"
                     value="<?= esc($currentSearch) ?>">
             </div>
-            <select id="filterSelect" class="app-select-filter" onchange="handleFilterChange(this)">
+            <select id="filterSelect" class="app-select-filter">
                 <optgroup label="Date">
                     <option value="inbox-all"   <?= $filterValue === 'inbox-all'   ? 'selected' : '' ?>>All</option>
                     <option value="inbox-today" <?= $filterValue === 'inbox-today'  ? 'selected' : '' ?>>Today</option>
