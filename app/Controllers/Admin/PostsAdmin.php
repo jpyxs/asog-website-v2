@@ -20,11 +20,29 @@ class PostsAdmin extends BaseController
      */
     public function index()
     {
+        $perPage    = 10;
+        $page       = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $total      = $this->postModel->countAllResults();
+        $totalPages = $total > 0 ? (int) ceil($total / $perPage) : 1;
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * $perPage;
+
+        $featuredStories = $this->postModel->where('isFeatured', 1);
+        if ($this->postModel->supportsSortOrder()) {
+            $featuredStories->orderBy('sortOrder', 'ASC');
+        }
+        $featuredStories = $featuredStories->orderBy('createdAt', 'DESC')->findAll();
+
         $data = [
-            'pageTitle'  => 'Posts',
-            'activePage' => 'posts',
+            'pageTitle'         => 'Posts',
+            'activePage'        => 'posts',
             'supportsSortOrder' => $this->postModel->supportsSortOrder(),
-            'posts'      => $this->postModel->getAdminList(),
+            'posts'             => $this->postModel->getAdminList($perPage, $offset),
+            'featuredStories'   => $featuredStories,
+            'currentPage'       => $page,
+            'totalPages'        => $totalPages,
+            'total'             => $total,
+            'perPage'           => $perPage,
         ];
 
         return view('admin/layout/header', $data)
