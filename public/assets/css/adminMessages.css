@@ -35,7 +35,7 @@
 .app-select-filter:focus{border-color:#03558C}
 .app-btn-search{font-family:inherit;font-size:.72rem;font-weight:600;padding:.42rem .9rem;border-radius:.25rem;border:1px solid #03558C;background:#03558C;color:#fff;cursor:pointer;white-space:nowrap;transition:background .15s}
 .app-btn-search:hover{background:#024470;border-color:#024470}
-.app-btn-clear{font-family:inherit;font-size:.72rem;font-weight:600;padding:.42rem .9rem;border-radius:.25rem;border:1px solid #e4e2dd;background:#fff;color:#64748b;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;transition:all .15s}
+.app-btn-clear{font-family:inherit;font-size:.72rem;font-weight:600;padding:.42rem .9rem;border-radius:.25rem;border:1px solid #e4e2dd;background:#fff;color:#64748b;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;transition:all .15s;margin-left:.55rem}
 .app-btn-clear:hover{background:#f4f3f0;color:#1e293b}
 
 /* ── Bulk actions bar — overlaid in filter-slot (same as apps) ── */
