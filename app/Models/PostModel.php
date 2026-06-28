@@ -160,7 +160,7 @@ class PostModel extends Model
     /**
      * Return posts in admin-friendly order.
      */
-    public function getAdminList(): array
+    public function getAdminList(int $perPage = 10, int $offset = 0): array
     {
         $builder = $this;
 
@@ -168,7 +168,7 @@ class PostModel extends Model
             $builder = $builder->orderBy('sortOrder', 'ASC');
         }
 
-        return $builder->orderBy('createdAt', 'DESC')->findAll();
+        return $builder->orderBy('createdAt', 'DESC')->findAll($perPage, $offset);
     }
 
     /**
