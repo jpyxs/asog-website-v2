@@ -79,7 +79,7 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
                    placeholder="Search by name, startup, email…"
                    value="<?= esc($currentSearch) ?>">
         </div>
-        <select name="status" class="app-select-filter" onchange="this.form.submit()">
+        <select name="status" class="app-select-filter">
             <option value="active"   <?= $currentStatus === 'active'   ? 'selected' : '' ?>>Active</option>
             <option value="pending"  <?= $currentStatus === 'pending'  ? 'selected' : '' ?>>Under Review</option>
             <option value="accepted" <?= $currentStatus === 'accepted' ? 'selected' : '' ?>>Accepted</option>
