@@ -76,6 +76,26 @@ if (! is_array($selectedSdgs)) {
     $selectedSdgs = $rawSelectedSdgs !== '' ? explode(',', (string) $rawSelectedSdgs) : [];
 }
 $selectedSdgs = array_map('intval', $selectedSdgs);
+
+$sdgTitles = [
+    1  => 'No Poverty',
+    2  => 'Zero Hunger',
+    3  => 'Good Health and Well-Being',
+    4  => 'Quality Education',
+    5  => 'Gender Equality',
+    6  => 'Clean Water and Sanitation',
+    7  => 'Affordable and Clean Energy',
+    8  => 'Decent Work and Economic Growth',
+    9  => 'Industry, Innovation and Infrastructure',
+    10 => 'Reduced Inequalities',
+    11 => 'Sustainable Cities and Communities',
+    12 => 'Responsible Consumption and Production',
+    13 => 'Climate Action',
+    14 => 'Life Below Water',
+    15 => 'Life on Land',
+    16 => 'Peace, Justice and Strong Institutions',
+    17 => 'Partnerships for the Goals',
+];
 ?>
 
 <style>
@@ -154,14 +174,14 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
 
 .sdg-select-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: .45rem
 }
 
 .sdg-check {
     display: inline-flex;
     align-items: center;
-    gap: .4rem;
+    gap: .5rem;
     border: 1px solid #e2e8f0;
     border-radius: .25rem;
     padding: .38rem .45rem;
@@ -170,7 +190,9 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
     font-size: .7rem;
     font-weight: 600;
     letter-spacing: .04em;
-    transition: border-color .15s, background .15s
+    line-height: 1.15;
+    transition: border-color .15s, background .15s;
+    min-height: 3rem
 }
 
 .sdg-check:hover {
@@ -180,6 +202,12 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
 
 .sdg-check input {
     accent-color: #03558C
+}
+
+.sdg-check:has(input:checked) {
+    border-color: #03558C;
+    background: #ebf4fb;
+    color: #03558C;
 }
 
 .sdg-help {
@@ -687,7 +715,10 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                             value="<?= $sdgId ?>"
                             <?= in_array($sdgId, $selectedSdgs, true) ? 'checked' : '' ?>
                         >
-                        <span>SDG <?= $sdgId ?></span>
+                        <span>
+                            <span style="display:block;font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;">SDG <?= $sdgId ?></span>
+                            <span style="display:block;font-size:.66rem;font-weight:300;letter-spacing:.02em;text-transform:none;color:inherit;opacity:.7"><?= esc($sdgTitles[$sdgId] ?? '') ?></span>
+                        </span>
                     </label>
                     <?php endfor; ?>
                 </div>
