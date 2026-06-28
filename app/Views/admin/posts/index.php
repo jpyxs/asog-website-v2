@@ -114,35 +114,37 @@ $featuredStories = $featuredStories ?? array_values(array_filter($posts ?? [], s
     </table>
 
     <?php if (!empty($totalPages) && $totalPages > 1): ?>
-        <div class="pagination">
-            <?php if ($currentPage > 1): ?>
-                <a href="<?= site_url('admin/posts?page=' . ($currentPage - 1)) ?>">&larr;</a>
-            <?php endif; ?>
-
-            <?php
-            $range = 2;
-            $pages = [];
-            for ($i = 1; $i <= $totalPages; $i++) {
-                if ($i === 1 || $i === $totalPages || ($i >= $currentPage - $range && $i <= $currentPage + $range)) {
-                    $pages[] = $i;
+        <div class="tbl-pagination">
+            <span class="pag-info">Showing <?= ($currentPage - 1) * $perPage + 1 ?>&ndash;<?= min($currentPage * $perPage, $total) ?> of <?= $total ?></span>
+            <div class="pag-controls">
+                <?php $prevDisabled = $currentPage <= 1; ?>
+                <a class="pag-btn<?= $prevDisabled ? ' pag-disabled' : '' ?>"
+                   href="<?= $prevDisabled ? '#' : site_url('admin/posts?page=' . ($currentPage - 1)) ?>" aria-label="Previous">&larr;</a>
+                <?php
+                $range = 2;
+                $pages = [];
+                for ($i = 1; $i <= $totalPages; $i++) {
+                    if ($i === 1 || $i === $totalPages || ($i >= $currentPage - $range && $i <= $currentPage + $range)) {
+                        $pages[] = $i;
+                    }
                 }
-            }
-            $prev = null;
-            foreach ($pages as $p):
-                if ($prev !== null && $p - $prev > 1): ?>
-                    <span style="padding: 0 .25rem; color: #94a3b8;">&hellip;</span>
-                <?php endif; ?>
+                $prev = null;
+                foreach ($pages as $p):
+                    if ($prev !== null && $p - $prev > 1): ?>
+                        <span class="pag-ellipsis">&hellip;</span>
+                    <?php endif; ?>
+                    
+                    <?php if ($p === $currentPage): ?>
+                        <span class="pag-btn pag-active"><?= $p ?></span>
+                    <?php else: ?>
+                        <a class="pag-btn" href="<?= site_url('admin/posts?page=' . $p) ?>"><?= $p ?></a>
+                    <?php endif; ?>
+                <?php $prev = $p; endforeach; ?>
                 
-                <?php if ($p === $currentPage): ?>
-                    <span class="cur"><?= $p ?></span>
-                <?php else: ?>
-                    <a href="<?= site_url('admin/posts?page=' . $p) ?>"><?= $p ?></a>
-                <?php endif; ?>
-            <?php $prev = $p; endforeach; ?>
-
-            <?php if ($currentPage < $totalPages): ?>
-                <a href="<?= site_url('admin/posts?page=' . ($currentPage + 1)) ?>">&rarr;</a>
-            <?php endif; ?>
+                <?php $nextDisabled = $currentPage >= $totalPages; ?>
+                <a class="pag-btn<?= $nextDisabled ? ' pag-disabled' : '' ?>"
+                   href="<?= $nextDisabled ? '#' : site_url('admin/posts?page=' . ($currentPage + 1)) ?>" aria-label="Next">&rarr;</a>
+            </div>
         </div>
     <?php endif; ?>
 
