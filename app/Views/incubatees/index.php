@@ -99,7 +99,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
                 Incubatees for this cohort will be announced soon.
             </p>
             <a href="<?= site_url('apply') ?>"
-                class="inline-block mt-6 text-[.7rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-navy/85">
+                class="inline-block mt-6 text-[.7rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-gold-dk">
                 Apply Now
             </a>
         </div>
@@ -108,7 +108,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
         <div class="text-center py-12 reveal">
             <p class="text-dark/35 text-[.88rem] mb-6">No cohorts have been announced yet.</p>
             <a href="<?= site_url('apply') ?>"
-                class="inline-block text-[.7rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-navy/85">
+                class="inline-block text-[.7rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-gold-dk">
                 Apply Now
             </a>
         </div>
