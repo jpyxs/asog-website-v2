@@ -89,12 +89,12 @@ class PostModel extends Model
         return $limit > 0 ? $builder->findAll($limit) : $builder->findAll();
     }
 
-    public function getPublishedPage(string $category = '', string $sort = 'newest', int $perPage = 10, int $page = 1): array
+    public function getPublishedPage(array $categories = [], string $sort = 'newest', int $perPage = 10, int $page = 1): array
     {
         $builder = $this->where('isPublished', 1);
 
-        if ($category !== '') {
-            $builder->where('category', $category);
+        if (!empty($categories)) {
+            $builder->whereIn('category', $categories);
         }
 
         $builder->orderBy('publishedAt', $sort === 'oldest' ? 'ASC' : 'DESC');
