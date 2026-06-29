@@ -19,7 +19,8 @@ class MessagesAdmin extends BaseController
             $view === 'archived' ? 1 : 0,
             $search,
             $date,
-            $page
+            $page,
+            10
         );
 
         $data = [

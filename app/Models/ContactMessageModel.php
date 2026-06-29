@@ -89,7 +89,7 @@ class ContactMessageModel extends Model
         return $this->update($id, ['isRead' => 1]);
     }
 
-    public function getFiltered(int $isArchived, string $search = '', string $dateFilter = 'all', int $page = 1, int $perPage = 15): array
+    public function getFiltered(int $isArchived, string $search = '', string $dateFilter = 'all', int $page = 1, int $perPage = 10): array
     {
         $this->where('isArchived', $isArchived);
 
