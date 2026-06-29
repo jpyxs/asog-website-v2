@@ -9,38 +9,42 @@ class News extends BaseController
         $validCategories = \Config\PostCategories::keys();
         $validSorts      = ['newest', 'oldest'];
 
-        $category = (string) ($this->request->getGet('category') ?? '');
-        $sort     = (string) ($this->request->getGet('sort') ?? 'newest');
-        $page     = max(1, (int) ($this->request->getGet('page') ?? 1));
-
-        if (!in_array($category, $validCategories, true)) {
-            $category = '';
+        $rawCategories = $this->request->getGet('categories') ?? [];
+        if (is_string($rawCategories)) {
+            $rawCategories = explode(',', $rawCategories);
+        } elseif (!is_array($rawCategories)) {
+            $rawCategories = [];
         }
+        $activeCategories = array_values(array_filter($rawCategories, fn($c) => in_array($c, $validCategories, true)));
+
+        $sort = (string) ($this->request->getGet('sort') ?? 'newest');
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+
         if (!in_array($sort, $validSorts, true)) {
             $sort = 'newest';
         }
 
-        $result   = $this->postModel->getPublishedPage($category, $sort, 10, $page);
+        $result   = $this->postModel->getPublishedPage($activeCategories, $sort, 10, $page);
         $allPosts = $result['posts'];
 
         $latestPost = null;
-        if ($page === 1 && $category === '' && $sort === 'newest' && !empty($allPosts)) {
+        if ($page === 1 && empty($activeCategories) && $sort === 'newest' && !empty($allPosts)) {
             $latestPost = array_shift($allPosts);
         }
 
         $data = [
-            'title'          => 'News & Insights - ASOG TBI',
-            'latestPost'     => $latestPost,
-            'posts'          => $allPosts,
-            'activeCategory' => $category,
-            'activeSort'     => $sort,
-            'currentPage'    => $page,
-            'totalPages'     => $result['pages'],
-            'totalPosts'     => $result['total'],
-            'categories'     => \Config\PostCategories::all(),
-            'heroSubtitle'   => 'Stay Updated',
-            'heroTitle'      => 'News & Insights',
-            'heroDesc'       => 'The latest events, features, and stories from ASOG Technology Business Incubator.',
+            'title'            => 'News & Insights - ASOG TBI',
+            'latestPost'       => $latestPost,
+            'posts'            => $allPosts,
+            'activeCategories' => $activeCategories,
+            'activeSort'       => $sort,
+            'currentPage'      => $page,
+            'totalPages'       => $result['pages'],
+            'totalPosts'       => $result['total'],
+            'categories'       => \Config\PostCategories::all(),
+            'heroSubtitle'     => 'Stay Updated',
+            'heroTitle'        => 'News & Insights',
+            'heroDesc'         => 'The latest events, features, and stories from ASOG Technology Business Incubator.',
         ];
 
         return view('templates/header', $data)

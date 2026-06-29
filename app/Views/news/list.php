@@ -1,120 +1,206 @@
 <?php
-$activeCategory = $activeCategory ?? '';
-$activeSort     = $activeSort ?? 'newest';
-$currentPage    = (int) ($currentPage ?? 1);
-$totalPages     = (int) ($totalPages ?? 1);
-$totalPosts     = (int) ($totalPosts ?? 0);
-$categories     = $categories ?? \Config\PostCategories::all();
+$activeCategories = $activeCategories ?? [];
+$activeSort       = $activeSort ?? 'newest';
+$currentPage      = (int) ($currentPage ?? 1);
+$totalPages       = (int) ($totalPages ?? 1);
+$totalPosts       = (int) ($totalPosts ?? 0);
+$categories       = $categories ?? \Config\PostCategories::all();
 
-$qp = [];
-if ($activeCategory !== '') $qp['category'] = $activeCategory;
-if ($activeSort !== 'newest') $qp['sort']    = $activeSort;
-$qBase   = site_url('news') . ($qp ? '?' . http_build_query($qp) . '&' : '?');
-$pageUrl = fn(int $p): string => $qBase . 'page=' . $p;
-
-$catUrl = function(string $cat) use ($activeSort): string {
+$buildUrl = function(array $cats, string $srt, int $pg = 1): string {
     $p = [];
-    if ($cat !== '') $p['category'] = $cat;
-    if ($activeSort !== 'newest') $p['sort'] = $activeSort;
-    return site_url('news') . ($p ? '?' . http_build_query($p) : '');
-};
-
-$sortUrl = function(string $srt) use ($activeCategory): string {
-    $p = [];
-    if ($activeCategory !== '') $p['category'] = $activeCategory;
+    if (!empty($cats)) $p['categories'] = implode(',', $cats);
     if ($srt !== 'newest') $p['sort'] = $srt;
+    if ($pg > 1) $p['page'] = $pg;
     return site_url('news') . ($p ? '?' . http_build_query($p) : '');
 };
+
+$pageUrl = fn(int $p): string => $buildUrl($activeCategories, $activeSort, $p);
+
+$sortUrl = function(string $srt) use ($activeCategories, $buildUrl): string {
+    return $buildUrl($activeCategories, $srt);
+};
+
+$activeCatLabel = empty($activeCategories)
+    ? 'All Posts'
+    : implode(', ', array_map(fn($c) => $categories[$c] ?? ucfirst($c), $activeCategories));
 ?>
+<style>
+.nf-wrap{position:relative;display:inline-block}
+.nf-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid rgba(2,13,24,.12);border-radius:2px;padding:7px 10px;cursor:pointer;font-family:inherit;transition:border-color .2s;outline:none}
+.nf-btn:hover,.nf-wrap.open .nf-btn{border-color:rgba(2,13,24,.28)}
+.nf-icon{color:rgba(2,13,24,.28);flex-shrink:0}
+.nf-label{font-size:.5rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(2,13,24,.28);white-space:nowrap;user-select:none}
+.nf-sep{width:1px;height:12px;background:rgba(2,13,24,.08);flex-shrink:0}
+.nf-val{font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(2,13,24,.7);white-space:nowrap}
+.nf-arrow{color:rgba(2,13,24,.3);flex-shrink:0;transition:transform .18s}
+.nf-wrap.open .nf-arrow{transform:rotate(180deg)}
+.nf-panel{display:none;position:absolute;top:calc(100% + 5px);left:0;min-width:160px;background:#fff;border:1px solid rgba(2,13,24,.12);border-radius:3px;box-shadow:0 6px 20px rgba(2,13,24,.09);z-index:200;overflow:hidden}
+.nf-wrap.open .nf-panel{display:block}
+.nf-opt{display:flex;align-items:center;gap:9px;padding:8px 12px;font-size:.56rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(2,13,24,.55);text-decoration:none;transition:background .12s;cursor:pointer;white-space:nowrap;width:100%;background:none;border:none;text-align:left;font-family:inherit}
+.nf-opt:hover{background:rgba(2,13,24,.04);color:rgba(2,13,24,.8);text-decoration:none}
+.nf-chk{width:14px;height:14px;flex-shrink:0;border:1.5px solid rgba(2,13,24,.2);border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:.55rem;transition:background .12s,border-color .12s}
+.nf-opt.nf-active{color:#03355a}
+.nf-opt.nf-active .nf-chk{background:#03355a;border-color:#03355a;color:#fff}
+.nf-opt-radio{display:flex;align-items:center;padding:8px 12px;font-size:.56rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(2,13,24,.55);text-decoration:none;transition:background .12s;white-space:nowrap}
+.nf-opt-radio:hover{background:rgba(2,13,24,.04);color:rgba(2,13,24,.8);text-decoration:none}
+.nf-opt-radio.nf-active{color:#03355a;font-weight:700}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var baseUrl = '<?= site_url('news') ?>';
+
+    function getParams(){
+        return new URLSearchParams(window.location.search);
+    }
+
+    function navigate(cats, sort){
+        var p = new URLSearchParams();
+        if (cats.length) p.set('categories', cats.join(','));
+        var currentSort = getParams().get('sort') || 'newest';
+        if (sort !== undefined) currentSort = sort;
+        if (currentSort !== 'newest') p.set('sort', currentSort);
+        window.location.href = baseUrl + (p.toString() ? '?' + p.toString() : '');
+    }
+
+    var catWrap = document.getElementById('nfCatWrap');
+    var catBtn  = document.getElementById('nfCatBtn');
+    var catVal  = document.querySelector('#nfCatWrap .nf-val');
+
+    var sortWrap = document.getElementById('nfSortWrap');
+    var sortBtn  = document.getElementById('nfSortBtn');
+
+    var catParam = getParams().get('categories') || '';
+    var selected = catParam ? catParam.split(',').filter(Boolean) : [];
+    var dirty = false;
+
+    function updateCatUI(){
+        catWrap.querySelectorAll('.nf-opt[data-cat]').forEach(function(btn){
+            var c = btn.getAttribute('data-cat');
+            var active = c === '' ? selected.length === 0 : selected.indexOf(c) > -1;
+            btn.classList.toggle('nf-active', active);
+            var chk = btn.querySelector('.nf-chk');
+            if (chk) chk.textContent = active ? '✓' : '';
+        });
+        var label = selected.length === 0 ? 'All Posts' : selected.map(function(c){
+            var opts = catWrap.querySelectorAll('.nf-opt[data-cat]');
+            for (var i = 0; i < opts.length; i++){
+                if (opts[i].getAttribute('data-cat') === c){
+                    var optLbl = opts[i].querySelector('.nf-opt-label');
+                    return optLbl ? optLbl.textContent.trim() : c;
+                }
+            }
+            return c;
+        }).join(', ');
+        if (catVal) catVal.textContent = label;
+    }
+
+    if (catWrap && catBtn){
+        updateCatUI();
+
+        catBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            var isOpen = catWrap.classList.toggle('open');
+            catBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (!isOpen && dirty){
+                dirty = false;
+                navigate(selected);
+            }
+            if (sortWrap) sortWrap.classList.remove('open');
+        });
+
+        catWrap.querySelectorAll('.nf-opt[data-cat]').forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                var c = this.getAttribute('data-cat');
+                if (c === ''){
+                    selected = [];
+                } else {
+                    var idx = selected.indexOf(c);
+                    if (idx > -1) selected.splice(idx, 1);
+                    else selected.push(c);
+                }
+                dirty = true;
+                updateCatUI();
+            });
+        });
+    }
+
+    if (sortWrap && sortBtn){
+        sortBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            var isOpen = sortWrap.classList.toggle('open');
+            sortBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (catWrap) catWrap.classList.remove('open');
+        });
+    }
+
+    document.addEventListener('click', function(){
+        if (catWrap && catWrap.classList.contains('open')){
+            catWrap.classList.remove('open');
+            catBtn.setAttribute('aria-expanded','false');
+            if (dirty){
+                dirty = false;
+                navigate(selected);
+            }
+        }
+        if (sortWrap && sortWrap.classList.contains('open')){
+            sortWrap.classList.remove('open');
+            sortBtn.setAttribute('aria-expanded','false');
+        }
+    });
+});
+</script>
 <section class="relative bg-off py-16 md:py-24 px-6 md:px-10 lg:px-14">
     <div class="max-w-[1100px] mx-auto relative z-[2]">
 
         <div class="flex flex-wrap items-center gap-3 mb-10">
 
-            <label
-                class="relative flex items-center gap-2 bg-white border rounded-sm pl-3 pr-8 py-2 cursor-pointer transition-colors duration-200 hover:border-dark/25 focus-within:border-dark/30"
-                style="border-color:rgba(2,13,24,.12)">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="color:rgba(2,13,24,.28);flex-shrink:0"
-                    aria-hidden="true">
-                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                </svg>
-                <span class="text-[.5rem] font-bold tracking-[.18em] uppercase select-none"
-                    style="color:rgba(2,13,24,.28);white-space:nowrap">Filter</span>
-                <div class="w-px h-3 shrink-0" style="background:rgba(2,13,24,.08)"></div>
-                <select id="newsFilter" onchange="window.location=this.value"
-                    class="appearance-none bg-transparent text-[.58rem] font-semibold tracking-[.1em] uppercase focus:outline-none cursor-pointer border-0 min-w-[80px]"
-                    style="color:rgba(2,13,24,.7)">
-                    <option value="<?= $catUrl('') ?>" <?= $activeCategory === '' ? 'selected' : '' ?>>All Posts</option>
+            <div class="nf-wrap" id="nfCatWrap">
+                <button type="button" class="nf-btn" id="nfCatBtn" aria-haspopup="listbox" aria-expanded="false">
+                    <svg class="nf-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    <span class="nf-label">Filter</span>
+                    <div class="nf-sep"></div>
+                    <span class="nf-val"><?= esc($activeCatLabel) ?></span>
+                    <svg class="nf-arrow" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="nf-panel" id="nfCatPanel" role="listbox" aria-multiselectable="true">
+                    <button type="button" class="nf-opt<?= empty($activeCategories) ? ' nf-active' : '' ?>" data-cat="" role="option">
+                        <span class="nf-chk" aria-hidden="true"><?= empty($activeCategories) ? '✓' : '' ?></span>
+                        <span class="nf-opt-label">All Posts</span>
+                    </button>
                     <?php foreach ($categories as $catVal => $catLabel): ?>
-                    <option value="<?= $catUrl($catVal) ?>" <?= $activeCategory === $catVal ? 'selected' : '' ?>><?= $catLabel ?></option>
+                    <?php $isActive = in_array($catVal, $activeCategories, true); ?>
+                    <button type="button" class="nf-opt<?= $isActive ? ' nf-active' : '' ?>" data-cat="<?= esc($catVal) ?>" role="option">
+                        <span class="nf-chk" aria-hidden="true"><?= $isActive ? '✓' : '' ?></span>
+                        <span class="nf-opt-label"><?= esc($catLabel) ?></span>
+                    </button>
                     <?php endforeach; ?>
-                </select>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:rgba(2,13,24,.3);pointer-events:none"
-                    aria-hidden="true">
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-            </label>
-
-            <label
-                class="relative flex items-center gap-2 bg-white border rounded-sm pl-3 pr-8 py-2 cursor-pointer transition-colors duration-200 hover:border-dark/25 focus-within:border-dark/30"
-                style="border-color:rgba(2,13,24,.12)">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="color:rgba(2,13,24,.28);flex-shrink:0"
-                    aria-hidden="true">
-                    <path d="M3 9l4-4 4 4M7 5v14M21 15l-4 4-4-4M17 19V5" />
-                </svg>
-                <span class="text-[.5rem] font-bold tracking-[.18em] uppercase select-none"
-                    style="color:rgba(2,13,24,.28);white-space:nowrap">Sort</span>
-                <div class="w-px h-3 shrink-0" style="background:rgba(2,13,24,.08)"></div>
-                <select id="newsSort" onchange="window.location=this.value"
-                    class="appearance-none bg-transparent text-[.58rem] font-semibold tracking-[.1em] uppercase focus:outline-none cursor-pointer border-0 min-w-[80px]"
-                    style="color:rgba(2,13,24,.7)">
-                    <option value="<?= $sortUrl('newest') ?>" <?= $activeSort === 'newest' ? 'selected' : '' ?>>Newest First</option>
-                    <option value="<?= $sortUrl('oldest') ?>" <?= $activeSort === 'oldest' ? 'selected' : '' ?>>Oldest First</option>
-                </select>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:rgba(2,13,24,.3);pointer-events:none"
-                    aria-hidden="true">
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-            </label>
-
-            <?php if ($activeCategory !== ''): ?>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-sm" style="background:rgba(3,53,90,.06)">
-                <span class="text-[.56rem] font-semibold tracking-[.1em] uppercase"
-                    style="color:#03355a"><?= esc($categories[$activeCategory] ?? ucfirst($activeCategory)) ?></span>
-                <a href="<?= $catUrl('') ?>" class="no-underline transition-colors" style="color:rgba(2,13,24,.3)"
-                    title="Clear filter">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6 6 18" />
-                        <path d="m6 6 12 12" />
-                    </svg>
-                </a>
+                </div>
             </div>
-            <?php endif; ?>
 
-            <?php if ($activeSort !== 'newest'): ?>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-sm" style="background:rgba(3,53,90,.06)">
-                <span class="text-[.56rem] font-semibold tracking-[.1em] uppercase"
-                    style="color:#03355a">Oldest First</span>
-                <a href="<?= $sortUrl('newest') ?>" class="no-underline transition-colors" style="color:rgba(2,13,24,.3)"
-                    title="Clear sort">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6 6 18" />
-                        <path d="m6 6 12 12" />
+            <div class="nf-wrap" id="nfSortWrap">
+                <button type="button" class="nf-btn" id="nfSortBtn" aria-haspopup="listbox" aria-expanded="false">
+                    <svg class="nf-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 9l4-4 4 4M7 5v14M21 15l-4 4-4-4M17 19V5"/>
                     </svg>
-                </a>
+                    <span class="nf-label">Sort</span>
+                    <div class="nf-sep"></div>
+                    <span class="nf-val"><?= $activeSort === 'oldest' ? 'Oldest First' : 'Newest First' ?></span>
+                    <svg class="nf-arrow" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="nf-panel" id="nfSortPanel" role="listbox">
+                    <a href="<?= $sortUrl('newest') ?>" class="nf-opt-radio<?= $activeSort === 'newest' ? ' nf-active' : '' ?>" role="option">Newest First</a>
+                    <a href="<?= $sortUrl('oldest') ?>" class="nf-opt-radio<?= $activeSort === 'oldest' ? ' nf-active' : '' ?>" role="option">Oldest First</a>
+                </div>
             </div>
-            <?php endif; ?>
 
         </div>
-
         <?php if (!empty($latestPost)): ?>
         <div class="mb-14 md:mb-18">
             <div class="flex items-center gap-2 mb-6">
@@ -234,7 +320,7 @@ $sortUrl = function(string $srt) use ($activeCategory): string {
                 <?php if ($currentPage > 1): ?>
                 <a href="<?= $pageUrl($currentPage - 1) ?>"
                     class="inline-flex items-center gap-1 h-8 px-3 text-[.52rem] font-semibold tracking-[.1em] uppercase no-underline border rounded-sm transition-colors duration-150"
-                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.55)">
+                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.55);background:#fff;">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="15 18 9 12 15 6" />
@@ -246,7 +332,7 @@ $sortUrl = function(string $srt) use ($activeCategory): string {
                 <?php if ($rangeStart > 1): ?>
                 <a href="<?= $pageUrl(1) ?>"
                     class="inline-flex items-center justify-center h-8 w-8 text-[.52rem] font-semibold no-underline border rounded-sm transition-colors duration-150"
-                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.5)">1</a>
+                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.5);background:#fff;">1</a>
                 <?php if ($rangeStart > 2): ?>
                 <span class="inline-flex items-center justify-center h-8 text-[.55rem]" style="color:rgba(2,13,24,.25)">…</span>
                 <?php endif; ?>
@@ -261,7 +347,7 @@ $sortUrl = function(string $srt) use ($activeCategory): string {
                 <?php else: ?>
                 <a href="<?= $pageUrl($i) ?>"
                     class="inline-flex items-center justify-center h-8 w-8 text-[.52rem] font-semibold no-underline border rounded-sm transition-colors duration-150"
-                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.5)"><?= $i ?></a>
+                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.5);background:#fff;"><?= $i ?></a>
                 <?php endif; ?>
                 <?php endfor; ?>
 
@@ -271,13 +357,13 @@ $sortUrl = function(string $srt) use ($activeCategory): string {
                 <?php endif; ?>
                 <a href="<?= $pageUrl($totalPages) ?>"
                     class="inline-flex items-center justify-center h-8 w-8 text-[.52rem] font-semibold no-underline border rounded-sm transition-colors duration-150"
-                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.5)"><?= $totalPages ?></a>
+                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.5);background:#fff;"><?= $totalPages ?></a>
                 <?php endif; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
                 <a href="<?= $pageUrl($currentPage + 1) ?>"
                     class="inline-flex items-center gap-1 h-8 px-3 text-[.52rem] font-semibold tracking-[.1em] uppercase no-underline border rounded-sm transition-colors duration-150"
-                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.55)">
+                    style="border-color:rgba(2,13,24,.12);color:rgba(2,13,24,.55);background:#fff;">
                     Next
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -305,4 +391,4 @@ $sortUrl = function(string $srt) use ($activeCategory): string {
         <?php endif; ?>
 
     </div>
-</section>
+</section>
