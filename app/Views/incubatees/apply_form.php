@@ -312,9 +312,8 @@
                         </svg>
                         Guidelines
                     </button>
-                   
+                    
                 </div>
-                
             </div>
         </form>
 
