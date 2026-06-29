@@ -6,7 +6,7 @@ $currentDate   = $currentDate   ?? 'all';
 $currentPage   = $currentPage   ?? 1;
 $totalPages    = $totalPages    ?? 1;
 $total         = $total         ?? 0;
-$perPage       = $perPage       ?? 15;
+$perPage       = $perPage       ?? 10;
 $activeView    = $activeView    ?? 'inbox';
 
 $filterValue = $activeView === 'archived' ? 'archived' : 'inbox-' . $currentDate;
@@ -147,7 +147,16 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
             <span class="dot <?= $m['isRead'] ? 'dot-read' : 'dot-unread' ?>"></span>
             <span class="row-name"><?= esc($m['name']) ?></span>
             <span class="row-preview"><?= esc(mb_substr($m['message'], 0, 120)) ?></span>
-            <span class="row-date"><?= date('M j', strtotime($m['createdAt'])) ?></span>
+            <span class="row-date">
+                <?php
+                $msgTime = strtotime($m['createdAt']);
+                if (date('Y-m-d', $msgTime) === date('Y-m-d')) {
+                    echo date('g:i A', $msgTime);
+                } else {
+                    echo date('M j', $msgTime);
+                }
+                ?>
+            </span>
         </div>
         <?php endforeach; ?>
     <?php endif; ?>

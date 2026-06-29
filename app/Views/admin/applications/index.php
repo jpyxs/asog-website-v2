@@ -183,8 +183,8 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
                            data-status="<?= esc($app['applicationStatus']) ?>"
                            data-is-archived="<?= (int) $app['isArchived'] ?>">
                 </td>
-                <td><?= esc($app['applicantName']) ?></td>
-                <td><?= esc($app['startupName']) ?></td>
+                <td><strong><?= esc($app['applicantName']) ?></strong></td>
+                <td><strong><?= esc($app['startupName']) ?></strong></td>
                 <td class="mono"><?= esc($app['applicantEmail']) ?></td>
                 <td class="mono"><?= date('M j, Y', strtotime($app['createdAt'])) ?></td>
                 <td>
