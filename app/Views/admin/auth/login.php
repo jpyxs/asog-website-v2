@@ -189,7 +189,7 @@
         display: flex;
         align-items: center;
         gap: .5rem;
-        margin: .9rem 0 .2rem;
+        margin: .9rem 0 .8rem;
         color: #94a3b8;
         font-size: .67rem;
         text-transform: uppercase;
@@ -255,6 +255,22 @@
     .back:hover {
         color: #03558C
     }
+    .forgot-link {
+        font-size: .67rem;
+        color: #03558C;
+        text-decoration: none;
+        transition: opacity .15s
+    }
+
+    .forgot-link:hover {
+        opacity: .75
+    }
+
+    .forgot-wrap {
+        text-align: right;
+        margin: -.6rem 0 .6rem
+    }
+
     </style>
 </head>
 
@@ -306,12 +322,12 @@
                     </div>
                 </div>
 
+                <div class="forgot-wrap">
+                    <a href="<?= site_url('asog-admin/forgot-password') ?>" class="forgot-link">Forgot password?</a>
+                </div>
+
                 <button type="submit" class="btn">Sign in</button>
             </form>
-
-            <p style="text-align:center;margin-top:.9rem;font-size:.72rem">
-                <a href="<?= site_url('asog-admin/forgot-password') ?>" style="color:#03558C;text-decoration:none">Forgot password?</a>
-            </p>
 
             <div class="oauth-sep">or</div>
             <a href="<?= site_url('asog-admin/google') ?>" class="btn-google" aria-label="Sign in with Google">

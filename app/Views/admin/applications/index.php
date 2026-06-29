@@ -25,23 +25,23 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
 <!-- Stats -->
 <div class="grid-stats">
     <div class="stat">
-        <div class="n"><?= $counts['total'] ?></div>
+        <div class="n" id="statTotal"><?= $counts['total'] ?></div>
         <div class="t">Total Active</div>
     </div>
     <div class="stat">
-        <div class="n"><?= $counts['pending'] ?></div>
+        <div class="n" id="statPending"><?= $counts['pending'] ?></div>
         <div class="t">Under Review</div>
     </div>
     <div class="stat">
-        <div class="n"><?= $counts['accepted'] ?></div>
+        <div class="n" id="statAccepted"><?= $counts['accepted'] ?></div>
         <div class="t">Accepted</div>
     </div>
     <div class="stat">
-        <div class="n"><?= $counts['rejected'] ?></div>
+        <div class="n" id="statRejected"><?= $counts['rejected'] ?></div>
         <div class="t">Rejected</div>
     </div>
     <div class="stat">
-        <div class="n"><?= $counts['archived'] ?></div>
+        <div class="n" id="statArchived"><?= $counts['archived'] ?></div>
         <div class="t">Archived</div>
     </div>
 </div>
@@ -79,7 +79,7 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
                    placeholder="Search by name, startup, email…"
                    value="<?= esc($currentSearch) ?>">
         </div>
-        <select name="status" class="app-select-filter" onchange="this.form.submit()">
+        <select name="status" class="app-select-filter">
             <option value="active"   <?= $currentStatus === 'active'   ? 'selected' : '' ?>>Active</option>
             <option value="pending"  <?= $currentStatus === 'pending'  ? 'selected' : '' ?>>Under Review</option>
             <option value="accepted" <?= $currentStatus === 'accepted' ? 'selected' : '' ?>>Accepted</option>
@@ -173,7 +173,7 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
         </thead>
         <tbody>
             <?php
-            $statusLabels = ['pending' => 'Under Review', 'accepted' => 'Accepted', 'rejected' => 'Rejected', 'reviewed' => 'Reviewed'];
+            $statusLabels = ['pending' => 'Under Review', 'accepted' => 'Accepted', 'rejected' => 'Rejected'];
             foreach ($applications as $app):
             ?>
             <tr data-id="<?= esc($app['id']) ?>" data-archived="<?= (int) $app['isArchived'] ?>">
@@ -310,17 +310,25 @@ $baseUrl = site_url('admin/applications') . '?' . http_build_query([
                 </svg>
                 Change Status
             </button>
-            <select class="status-select" id="statusSelect" style="display:none">
-                <option value="pending">Under Review</option>
-                <option value="accepted">Accepted</option>
-                <option value="rejected">Rejected</option>
-            </select>
-            <button class="btn-accept" id="btnSaveStatus" style="display:none">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                </svg>
-                Save
-            </button>
+            <div id="statusChangeWrap" style="display:none">
+                <div class="status-picker" id="statusPicker">
+                    <button type="button" class="status-picker-btn" id="statusPickerBtn">
+                        <span id="statusPickerLabel">Select status</span>
+                        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="status-picker-menu" id="statusPickerMenu">
+                        <button type="button" class="spm-item" data-value="pending">Under Review</button>
+                        <button type="button" class="spm-item" data-value="accepted">Accepted</button>
+                        <button type="button" class="spm-item" data-value="rejected">Rejected</button>
+                    </div>
+                </div>
+                <button class="btn-accept" id="btnSaveStatus">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Save
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -343,4 +351,5 @@ $baseUrl = site_url('admin/applications') . '?' . http_build_query([
 </div>
 
 <?= jsBaseUrl() ?>
+<div class="toast" id="appToast"></div>
 <script src="<?= site_url('assets/js/admin/applications/index.js') ?>"></script>

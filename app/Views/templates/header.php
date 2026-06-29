@@ -72,6 +72,11 @@
     </script>
     <!-- ================== CSS/JS  ===================== -->
     <link href="<?= base_url('style.css') ?>" rel="stylesheet">
+    <?php if (!empty($extraCss) && is_array($extraCss)): ?>
+        <?php foreach ($extraCss as $css): ?>
+            <link rel="stylesheet" href="<?= esc($css) ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <?php if (empty($hideSiteHeader)): ?>
     <script src="<?= base_url('assets/js/features/layout/header.js') ?>" defer></script>
@@ -134,8 +139,10 @@
     $isLandingPage   = ! empty($isLanding);
     $hideSiteHeader  = ! empty($hideSiteHeader);
 
-    // $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact'], true)
-    //     || str_starts_with($uriPath, 'apply');
+    $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact', 'incubatees'], true)
+        || str_starts_with($uriPath, 'apply');
+
+    $initialNavTheme = $forceWhiteLogoPages ? ' on-blue' : '';
 
     $activeClass = static fn(bool $isActive): string => $isActive ? ' is-active' : '';
     ?>
@@ -154,7 +161,7 @@
 
 
     <nav id="navbar"
-        class="fixed top-0 left-0 right-0 z-[500]<?= $isNewsDetail ? ' logo-color-exception' : '' ?><?= $isProgramsPage ? ' nav-programs-desktop' : '' ?><?= $isLandingPage ? ' landing-nav' : '' ?>">
+        class="fixed top-0 left-0 right-0 z-[500]<?= $initialNavTheme ?><?= $isNewsDetail ? ' logo-color-exception' : '' ?><?= $isProgramsPage ? ' nav-programs-desktop' : '' ?><?= $isLandingPage ? ' landing-nav' : '' ?>">
         <div id="navIn" class="flex items-center px-4 lg:px-10 min-h-20 py-2 lg:py-3">
 
             <!-- desktop left links -->
@@ -217,7 +224,7 @@
                 </div>
                 <!-- CTA Button -->
                 <a href="<?= $navCta ?>" data-order="6"
-                    class="nav-btn ml-4 font-body text-[.63rem] font-light tracking-[.13em] uppercase text-white bg-sky border border-sky px-5 py-2 rounded-sm no-underline whitespace-nowrap shrink-0 transition-colors duration-200 hover:bg-sky/80">Be
+                    class="nav-btn ml-4 font-body text-[.63rem] font-semibold tracking-[.13em] uppercase text-navy bg-gold border border-gold px-5 py-2 rounded-sm no-underline whitespace-nowrap shrink-0 transition-colors duration-200 hover:bg-gold-dk">Be
                     an Incubatee</a>
 
                 <!-- COLLAPSED DUPLICATES (appear on scroll via .lo) -->
@@ -318,7 +325,7 @@
                 Us</a>
         </nav>
         <a href="<?= $navCta ?>"
-            class="mt-8 text-center font-body text-[.72rem] font-bold tracking-[.14em] uppercase text-white bg-sky px-8 py-4 rounded-sm no-underline transition-colors hover:bg-sky/80">Be
+            class="mt-8 text-center font-body text-[.72rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-4 rounded-sm no-underline transition-colors hover:bg-gold-dk">Be
             an Incubatee</a>
     </div>
     <?php endif; ?>

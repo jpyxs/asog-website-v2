@@ -2,8 +2,7 @@ const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
         if (e.isIntersecting) {
             e.target.classList.add('visible');
-        } else {
-            e.target.classList.remove('visible');
+            io.unobserve(e.target);
         }
     });
 }, {
@@ -11,6 +10,16 @@ const io = new IntersectionObserver(entries => {
     rootMargin: '0px 0px -12% 0px'
 });
 
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 requestAnimationFrame(() => {
-    document.querySelectorAll('.reveal, .reveal-group').forEach(el => io.observe(el));
+    document.querySelectorAll('.reveal, .reveal-group').forEach(el => {
+        if (prefersReducedMotion) {
+            el.style.transition = 'none';
+            el.querySelectorAll('.rc').forEach(rc => { rc.style.transition = 'none'; });
+            el.classList.add('visible');
+        } else {
+            io.observe(el);
+        }
+    });
 });

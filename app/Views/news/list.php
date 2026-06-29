@@ -4,54 +4,152 @@
 <section class="relative bg-off py-16 md:py-24 px-6 md:px-10 lg:px-14">
     <div class="max-w-[1100px] mx-auto relative z-[2]">
 
-        <!-- Category Filter — funnel + select -->
+        <!-- Category Filter — custom dropdown (replaces native <select> for full style control) -->
+        <?php
+            // Map category slug → display label
+            $categoryLabels = [
+                ''         => 'All Posts',
+                'news'     => 'News',
+                'features' => 'Features',
+                'opinions' => 'Stories',
+            ];
+            $activeSlug  = $activeCategory ?? '';
+            $activeLabel = $categoryLabels[$activeSlug] ?? ucfirst($activeSlug);
+        ?>
+        <style>
+            /* ── News filter custom dropdown ─────────────────────────────── */
+            #nf-trigger {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: #fff;
+                border: 1px solid rgba(2,13,24,.12);
+                border-radius: 3px;
+                padding: 7px 32px 7px 10px;
+                cursor: pointer;
+                user-select: none;
+                transition: border-color .18s ease, box-shadow .18s ease;
+                white-space: nowrap;
+            }
+            #nf-trigger:hover  { border-color: rgba(2,13,24,.25); }
+            #nf-trigger.is-open { border-color: rgba(2,13,24,.3); box-shadow: 0 0 0 3px rgba(2,13,24,.04); }
+            #nf-trigger .nf-sep { width: 1px; height: 12px; background: rgba(2,13,24,.08); flex-shrink: 0; }
+            #nf-trigger .nf-label {
+                font-size: .60rem;
+                font-weight: 600;
+                letter-spacing: .1em;
+                text-transform: uppercase;
+                color: rgba(2,13,24,.7);
+                min-width: 60px;
+            }
+            #nf-caret {
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(2,13,24,.3);
+                transition: transform .18s ease, color .18s ease;
+                pointer-events: none;
+            }
+            #nf-trigger.is-open #nf-caret {
+                transform: translateY(-50%) rotate(-180deg);
+                color: rgba(2,13,24,.55);
+            }
+
+            #nf-panel {
+                display: none;
+                position: absolute;
+                top: calc(100% + 4px);
+                left: 0;
+                min-width: 100%;
+                background: #fff;
+                border: 1px solid rgba(2,13,24,.1);
+                border-radius: 4px;
+                box-shadow: 0 6px 20px rgba(2,13,24,.09), 0 1px 4px rgba(2,13,24,.06);
+                overflow: hidden;
+                z-index: 50;
+                animation: nfFadeIn .14s ease;
+            }
+            #nf-panel.is-open { display: block; }
+            @keyframes nfFadeIn {
+                from { opacity: 0; transform: translateY(-4px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .nf-option {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 9px 14px;
+                font-size: .56rem;
+                font-weight: 600;
+                letter-spacing: .1em;
+                text-transform: uppercase;
+                color: rgba(2,13,24,.6);
+                cursor: pointer;
+                transition: background .12s ease, color .12s ease;
+                white-space: nowrap;
+                border-bottom: 1px solid rgba(2,13,24,.05);
+            }
+            .nf-option:last-child { border-bottom: none; }
+            .nf-option:hover { background: rgba(2,13,24,.04); color: rgba(2,13,24,.9); }
+            .nf-option.is-active { color: #03355a; background: rgba(3,53,90,.05); }
+            .nf-option .nf-tick {
+                width: 10px; height: 10px;
+                flex-shrink: 0;
+                opacity: 0;
+                color: #03355a;
+                transition: opacity .1s;
+            }
+            .nf-option.is-active .nf-tick { opacity: 1; }
+        </style>
+
         <div class="flex items-center gap-4 mb-10">
-            <label
-                class="relative flex items-center gap-2 bg-white border rounded-sm pl-3 pr-8 py-2 cursor-pointer transition-colors duration-200 hover:border-dark/25 focus-within:border-dark/30"
-                style="border-color:rgba(2,13,24,.12)">
-                <!-- Funnel -->
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="color:rgba(2,13,24,.28);flex-shrink:0"
-                    aria-hidden="true">
-                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                </svg>
-                <span class="text-[.5rem] font-bold tracking-[.18em] uppercase select-none"
-                    style="color:rgba(2,13,24,.28);white-space:nowrap">Filter</span>
-                <div class="w-px h-3 shrink-0" style="background:rgba(2,13,24,.08)"></div>
-                <select id="newsFilter" onchange="window.location=this.value"
-                    class="appearance-none bg-transparent text-[.58rem] font-semibold tracking-[.1em] uppercase focus:outline-none cursor-pointer border-0 min-w-[80px]"
-                    style="color:rgba(2,13,24,.7)">
-                    <option value="<?= site_url('news') ?>" <?= empty($activeCategory ?? '') ? 'selected' : '' ?>>All
-                        Posts</option>
-                    <option value="<?= site_url('news?category=news') ?>"
-                        <?= ($activeCategory ?? '') === 'news' ? 'selected' : '' ?>>News</option>
-                    <option value="<?= site_url('news?category=features') ?>"
-                        <?= ($activeCategory ?? '') === 'features' ? 'selected' : '' ?>>Features</option>
-                    <option value="<?= site_url('news?category=opinions') ?>"
-                        <?= ($activeCategory ?? '') === 'opinions' ? 'selected' : '' ?>>Stories</option>
-                </select>
-                <!-- Caret -->
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:rgba(2,13,24,.3);pointer-events:none"
-                    aria-hidden="true">
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-            </label>
-            <?php if (!empty($activeCategory ?? '')): ?>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-sm" style="background:rgba(3,53,90,.06)">
-                <span class="text-[.56rem] font-semibold tracking-[.1em] uppercase"
-                    style="color:#03355a"><?= esc(ucfirst($activeCategory)) ?></span>
-                <a href="<?= site_url('news') ?>" class="no-underline transition-colors" style="color:rgba(2,13,24,.3)"
-                    title="Clear filter">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6 6 18" />
-                        <path d="m6 6 12 12" />
+            <!-- Trigger pill -->
+            <div id="nf-wrapper" style="position:relative">
+                <div id="nf-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false"
+                     aria-controls="nf-panel" aria-label="Filter articles by category" tabindex="0">
+                    <!-- Funnel icon -->
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" style="color:rgba(2,13,24,.28);flex-shrink:0" aria-hidden="true">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
                     </svg>
-                </a>
+                    <span style="font-size:.5rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(2,13,24,.28)">Filter</span>
+                    <span class="nf-sep"></span>
+                    <span id="nf-selected-label" class="nf-label"><?= esc($activeLabel) ?></span>
+                    <!-- Caret -->
+                    <svg id="nf-caret" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
+
+                <!-- Dropdown panel -->
+                <div id="nf-panel" role="listbox" aria-label="Category options">
+                    <?php
+                    $filterOptions = [
+                        ['slug' => '',         'label' => 'All Posts', 'url' => site_url('news')],
+                        ['slug' => 'news',     'label' => 'News',      'url' => site_url('news?category=news')],
+                        ['slug' => 'features', 'label' => 'Features',  'url' => site_url('news?category=features')],
+                        ['slug' => 'opinions', 'label' => 'Stories',   'url' => site_url('news?category=opinions')],
+                    ];
+                    foreach ($filterOptions as $opt):
+                        $isActive = ($opt['slug'] === $activeSlug);
+                    ?>
+                    <div class="nf-option <?= $isActive ? 'is-active' : '' ?>"
+                         role="option" aria-selected="<?= $isActive ? 'true' : 'false' ?>"
+                         data-url="<?= esc($opt['url']) ?>">
+                        <!-- Checkmark tick -->
+                        <svg class="nf-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <?= esc($opt['label']) ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
-            <?php endif; ?>
+
         </div>
 
         <?php if (! empty($latestPost)): ?>
@@ -182,3 +280,72 @@
 
     </div><!-- end max-w -->
 </section>
+
+<script>
+(function () {
+    const trigger  = document.getElementById('nf-trigger');
+    const panel    = document.getElementById('nf-panel');
+    const options  = panel ? Array.from(panel.querySelectorAll('.nf-option')) : [];
+
+    if (!trigger || !panel) return;
+
+    function open() {
+        trigger.classList.add('is-open');
+        panel.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+        // Focus first (or active) option for keyboard nav
+        const active = panel.querySelector('.nf-option.is-active') || options[0];
+        if (active) active.focus();
+    }
+
+    function close() {
+        trigger.classList.remove('is-open');
+        panel.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggle() {
+        trigger.classList.contains('is-open') ? close() : open();
+    }
+
+    // Make options focusable for keyboard nav
+    options.forEach(function (opt) {
+        opt.setAttribute('tabindex', '-1');
+        opt.addEventListener('click', function () {
+            window.location.href = opt.dataset.url;
+        });
+        opt.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                window.location.href = opt.dataset.url;
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const next = options[options.indexOf(opt) + 1];
+                if (next) next.focus();
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prev = options[options.indexOf(opt) - 1];
+                if (prev) prev.focus();
+                else trigger.focus();
+            }
+            if (e.key === 'Escape') { close(); trigger.focus(); }
+        });
+    });
+
+    // Trigger interactions
+    trigger.addEventListener('click', toggle);
+    trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+            e.preventDefault(); open();
+        }
+        if (e.key === 'Escape') close();
+    });
+
+    // Click outside to close
+    document.addEventListener('click', function (e) {
+        if (!trigger.contains(e.target) && !panel.contains(e.target)) close();
+    });
+})();
+</script>

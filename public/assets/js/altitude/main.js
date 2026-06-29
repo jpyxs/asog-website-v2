@@ -13,6 +13,7 @@ const zoomText  = document.getElementById('alt3dZoomText');
 const overlay   = document.getElementById('alt3dOverlay');
 const cv        = document.getElementById('alt3dCanvas');
 const closeBtn  = document.getElementById('alt3dClose');
+const hintCloseBtn = document.getElementById('alt3dHintClose');
 const infoCard  = document.getElementById('alt3dInfo');
 const lblCont   = document.getElementById('alt3dLabels');
 const hintEl    = document.getElementById('alt3dHint');
@@ -457,6 +458,7 @@ if (card) {
   card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWildernessZoom(); } });
 }
 if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
+if (hintCloseBtn) hintCloseBtn.addEventListener('click', closeOverlay);
 
 if (miniInfoBtn && infoModal) {
   miniInfoBtn.addEventListener('click', (e) => {
@@ -501,10 +503,11 @@ if (overlay) {
   }, { passive: true });
 }
 
+// When the browser exits fullscreen (e.g. user presses ESC), we intentionally
+// do NOT close the overlay. The 3D experience continues running in windowed mode.
+// The overlay is only dismissed by the X button or Escape when NOT in fullscreen.
 document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement && overlay.classList.contains('active')) {
-    closeOverlay();
-  }
+  // no-op: let fullscreen exit silently without closing the overlay
 });
 
 /* =============================================================
@@ -530,16 +533,16 @@ function initScene() {
   scene.fog = new THREE.Fog(0x87ceeb, 25, 55);
 
   /* Camera — cinematic hiking perspective, closer to trail */
-  cam = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 200);
-  cam.position.set(10, 5.5, 13);
+  cam = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 200);
+  cam.position.set(10.5, 9.0, 19.5);
 
   oc = new OrbitControls(cam, cv);
   oc.enableDamping = true; oc.dampingFactor = 0.06;
   oc.enablePan = false;
-  oc.minDistance = 5; oc.maxDistance = 22;
+  oc.minDistance = 5; oc.maxDistance = 40;
   oc.minPolarAngle = 0.28;
   oc.maxPolarAngle = Math.PI / 2.1;
-  oc.target.set(0, 2.0, 0); oc.update();
+  oc.target.set(0, 2.5, 0); oc.update();
 
   /* Lights */
   scene.add(new THREE.HemisphereLight(0xdceef8, 0x8ab0c4, 0.7));
@@ -1686,8 +1689,8 @@ function initScene() {
 /* =============================================================
    CAMERA
    ============================================================= */
-const OVP = new THREE.Vector3(10, 5.5, 13);
-const OVT = new THREE.Vector3(0, 2.0, 0);
+const OVP = new THREE.Vector3(10.5, 9.0, 19.5);
+const OVT = new THREE.Vector3(0, 2.5, 0);
 
 /* Confetti system for summit celebration */
 function spawnConfetti(pos) {

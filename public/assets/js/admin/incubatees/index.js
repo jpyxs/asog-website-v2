@@ -258,11 +258,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function applyFilter(filterName) {
         var wanted = normalizeCohort(filterName);
+        var visibleCount = 0;
         getRows().forEach(function (row) {
             var rowCohort = normalizeCohort(row.dataset.cohort);
             var matches = wanted === 'all' || rowCohort === wanted;
             row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
         });
+
+        var emptyState = document.getElementById('cohortEmptyState');
+        if (emptyState) {
+            emptyState.style.display = visibleCount === 0 ? '' : 'none';
+        }
     }
 
     filterButtons.forEach(function (button) {

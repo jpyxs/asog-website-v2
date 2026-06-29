@@ -169,6 +169,7 @@
     </div>
 </section>
 
+<?php if (($showInternsSection ?? true)): ?>
 <!-- ── INTERNS ── -->
 <section id="interns" class="relative bg-off py-16 md:py-20 px-6 md:px-10 lg:px-14">
     <div class="ai-grid"></div>
@@ -281,6 +282,7 @@
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- ── MENTORS ── -->
 <section id="mentors" class="relative bg-off py-16 md:py-20 px-6 md:px-10 lg:px-14">

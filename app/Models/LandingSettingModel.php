@@ -11,6 +11,7 @@ class LandingSettingModel extends Model
 {
     public const KEY_INCUBATEES_FILTER = 'landingIncubateesCohortFilter';
     public const KEY_GUESS_STARTUP_ENABLED = 'guessStartupEnabled';
+    public const KEY_SHOW_INTERNS = 'show_interns_section';
 
     protected $table            = 'landing_settings';
     protected $primaryKey       = 'id';

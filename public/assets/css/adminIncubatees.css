@@ -7,7 +7,7 @@
 .lf-form{display:flex;flex-wrap:wrap;align-items:end;gap:.5rem}
 .lf-field{display:flex;flex-direction:column;gap:.28rem}
 .lf-label{font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
-.lf-select{min-width:210px;font-size:.78rem;color:#1e293b;border:1px solid #d8dbe1;border-radius:.3rem;padding:.48rem .58rem;background:#fff}
+.lf-select{min-width:210px;font-family:inherit;font-size:.78rem;color:#1e293b;border:1px solid #e4e2dd;border-radius:.3rem;padding:.48rem 2rem .48rem .6rem;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2394a3b8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E") no-repeat right .6rem center;background-size:14px 14px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none}
 .lf-select:focus{outline:none;border-color:#03558C}
 
 .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
@@ -49,6 +49,7 @@
 .empty-row{text-align:center;padding:2rem;color:#94a3b8;font-size:.82rem}
 .empty-row a{color:#03558C;text-decoration:underline}
 .cohort-empty{color:#d4d0ca}
+.inc-tbl td.empty-row{padding:2.5rem 1rem !important;color:#94a3b8;font-size:.82rem;text-align:center;cursor:default;font-weight:400}
 
 .cm-overlay{position:fixed;inset:0;z-index:900;background:rgba(2,13,24,.45);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
 .cm-overlay.open{display:flex;opacity:1}

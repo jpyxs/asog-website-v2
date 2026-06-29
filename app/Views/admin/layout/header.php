@@ -9,18 +9,23 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet"/>
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet"/>
     <link rel="stylesheet" href="<?= base_url('assets/css/adminLayout.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/adminCustomSelect.css') ?>">
 </head>
 <body>
 <div class="shell">
 
     <aside class="side">
         <div class="side-brand">
-            <h2>ASOG TBI</h2>
-            <span>Content Manager</span>
+            <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI_seal.png') ?>" alt="ASOG TBI" class="side-logo">
+            <div class="side-brand-text">
+                <h2>ASOG TBI</h2>
+                <span>Content Manager</span>
+            </div>
         </div>
         <div class="side-sep"></div>
 
         <div class="side-label">Menu</div>
+        <?php $sessionRole = session()->get('admin_role'); ?>
         <nav class="side-nav">
             <a href="<?= site_url('admin') ?>" class="<?= ($activePage ?? '') === 'dashboard' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
@@ -30,6 +35,7 @@
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h10"/></svg>
                 Posts
             </a>
+            <?php if (in_array($sessionRole, ['admin', 'superadmin'], true)): ?>
             <a href="<?= site_url('admin/applications') ?>" class="<?= ($activePage ?? '') === 'applications' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 Applications
@@ -37,6 +43,10 @@
             <a href="<?= site_url('admin/incubatees') ?>" class="<?= ($activePage ?? '') === 'incubatees' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 Incubatees
+            </a>
+            <a href="<?= site_url('admin/organization') ?>" class="<?= ($activePage ?? '') === 'organization' ? 'on' : '' ?>">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4l8 4-8 4-8-4 8-4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 12l8 4 8-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l8 4 8-4"/></svg>
+                Organization
             </a>
             <a href="<?= site_url('admin/games') ?>" class="<?= ($activePage ?? '') === 'games' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.868v4.264a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 1.76-.39 3.43-1.09 4.93a2 2 0 01-1.58 1.11 48.2 48.2 0 01-12.66 0 2 2 0 01-1.58-1.11A11.96 11.96 0 013 12c0-1.76.39-3.43 1.09-4.93a2 2 0 011.58-1.11 48.2 48.2 0 0112.66 0 2 2 0 011.58 1.11c.7 1.5 1.09 3.17 1.09 4.93z"/></svg>
@@ -50,10 +60,13 @@
                     <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#03558C;color:#fff;font-size:.5rem;font-weight:700;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px"><?= $unreadMsgCount ?></span>
                 <?php endif; ?>
             </a>
-            <a href="<?= site_url('admin/admins') ?>" class="<?= ($activePage ?? '') === 'admins' ? 'on' : '' ?>">
+            <?php endif; ?>
+            <?php if ($sessionRole === 'superadmin'): ?>
+            <a href="<?= site_url('admin/accounts') ?>" class="<?= ($activePage ?? '') === 'admins' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
-                Admins
+                Accounts
             </a>
+            <?php endif; ?>
         </nav>
 
         <div class="side-sep" style="margin-top:.4rem"></div>
@@ -65,9 +78,16 @@
         </nav>
 
         <div class="side-foot">
-            <div class="user"><strong><?= esc(session()->get('admin_name') ?? 'Admin') ?></strong></div>
-            <div class="user" style="margin-bottom:.4rem"><?= esc(session()->get('admin_email') ?? '') ?></div>
-            <a href="<?= site_url('asog-admin/logout') ?>" class="out">Sign out</a>
+            <div class="side-foot-user">
+                <div class="user"><strong><?= esc(session()->get('admin_name') ?? 'Admin') ?></strong></div>
+                <div class="user"><?= esc(session()->get('admin_email') ?? '') ?></div>
+            </div>
+            <nav class="side-nav">
+                <a href="<?= site_url('asog-admin/logout') ?>" class="out">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Sign out
+                </a>
+            </nav>
         </div>
     </aside>
 

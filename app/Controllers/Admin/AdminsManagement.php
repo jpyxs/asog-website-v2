@@ -17,7 +17,7 @@ class AdminsManagement extends BaseController
         $admins = $this->adminModel->findAll();
 
         $data = [
-            'pageTitle'  => 'Admin Accounts',
+            'pageTitle'  => 'Accounts',
             'activePage' => 'admins',
             'admins'     => $admins,
         ];
@@ -33,7 +33,7 @@ class AdminsManagement extends BaseController
     public function create()
     {
         $data = [
-            'pageTitle'  => 'Create Admin Account',
+            'pageTitle'  => 'New Account',
             'activePage' => 'admins',
             'admin'      => null,
         ];
@@ -73,8 +73,8 @@ class AdminsManagement extends BaseController
             return redirect()->back()->withInput();
         }
 
-        setToast('success', 'Admin added. Email: ' . $email . ' | Role: ' . ucfirst($role));
-        return redirect()->to('admin/admins');
+        setToast('success', 'Account added. Email: ' . $email . ' | Role: ' . ucfirst($role));
+        return redirect()->to('admin/accounts');
     }
 
     /**
@@ -84,16 +84,16 @@ class AdminsManagement extends BaseController
     {
         $id = (int) $id;
         if ($id === 0) {
-            return redirect()->to('admin/admins')->with('error', 'Invalid admin ID.');
+            return redirect()->to('admin/accounts')->with('error', 'Invalid admin ID.');
         }
 
         $admin = $this->adminModel->find($id);
         if ($admin === null) {
-            return redirect()->to('admin/admins')->with('error', 'Admin not found.');
+            return redirect()->to('admin/accounts')->with('error', 'Admin not found.');
         }
 
         $data = [
-            'pageTitle'  => 'Edit Admin Account',
+            'pageTitle'  => 'Edit Account',
             'activePage' => 'admins',
             'admin'      => $admin,
         ];
@@ -110,12 +110,12 @@ class AdminsManagement extends BaseController
     {
         $id = (int) $id;
         if ($id === 0) {
-            return redirect()->to('admin/admins')->with('error', 'Invalid admin ID.');
+            return redirect()->to('admin/accounts')->with('error', 'Invalid admin ID.');
         }
 
         $admin = $this->adminModel->find($id);
         if ($admin === null) {
-            return redirect()->to('admin/admins')->with('error', 'Admin not found.');
+            return redirect()->to('admin/accounts')->with('error', 'Admin not found.');
         }
 
         $email       = trim((string) $this->request->getPost('email'));
@@ -142,8 +142,8 @@ class AdminsManagement extends BaseController
             return redirect()->back()->withInput();
         }
 
-        setToast('success', 'Admin updated.');
-        return redirect()->to('admin/admins');
+        setToast('success', 'Account updated.');
+        return redirect()->to('admin/accounts');
     }
 
     /**
@@ -153,12 +153,12 @@ class AdminsManagement extends BaseController
     {
         $id = (int) $id;
         if ($id === 0) {
-            return redirect()->to('admin/admins')->with('error', 'Invalid admin ID.');
+            return redirect()->to('admin/accounts')->with('error', 'Invalid admin ID.');
         }
 
         $admin = $this->adminModel->find($id);
         if ($admin === null) {
-            return redirect()->to('admin/admins')->with('error', 'Admin not found.');
+            return redirect()->to('admin/accounts')->with('error', 'Admin not found.');
         }
 
         if ($this->adminModel->delete($id)) {
@@ -167,6 +167,6 @@ class AdminsManagement extends BaseController
             setToast('error', 'Failed to delete admin account.');
         }
 
-        return redirect()->to('admin/admins');
+        return redirect()->to('admin/accounts');
     }
 }

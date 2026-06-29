@@ -10,8 +10,10 @@
             <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy">Infrastructure</span>
             <span class="block w-[18px] h-[1.5px] bg-navy"></span>
         </div>
-        <h2 class="font-display text-[2rem] md:text-[2.8rem] leading-[1.12] text-dark mb-6">State-of-the-Art <em
-                class="italic text-gold">Facilities</em></h2>
+        <!-- <h2 class="font-display text-[2rem] md:text-[2.8rem] leading-[1.12] text-dark mb-6">State-of-the-Art <em
+                class="italic text-gold">Facilities</em></h2> -->
+        <h2 class="font-display text-[2rem] md:text-[2.8rem] leading-[1.12] text-dark mb-6">World-Class Spaces <em
+                class="italic text-gold">to Build Your Venture</em></h2>
         <p class="text-[.95rem] font-normal leading-[1.85] text-black max-w-[680px] mx-auto">ASOG TBI incubatees have
             access to CSPC's extensive 8-hectare campus facilities, featuring cutting-edge labs and equipment designed
             to support engineering and AI-driven innovation.</p>

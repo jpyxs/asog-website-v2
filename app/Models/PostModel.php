@@ -39,7 +39,7 @@ class PostModel extends Model
         'title'            => 'required|min_length[3]|max_length[255]',
         'shortDescription' => 'permit_empty|max_length[500]',
         'content'          => 'permit_empty',
-        'category'         => 'required|in_list[news,events,features,opinions]',
+        'category'         => 'required|in_list[news,events,features]',
         'sortOrder'        => 'permit_empty|integer',
     ];
 
@@ -49,7 +49,7 @@ class PostModel extends Model
             'min_length' => 'Title must be at least 3 characters.',
         ],
         'category' => [
-            'in_list' => 'Category must be one of: news, events, features, opinions.',
+            'in_list' => 'Category must be one of: news, events, features.',
         ],
     ];
 
@@ -87,6 +87,29 @@ class PostModel extends Model
                         ->orderBy('publishedAt', 'DESC');
 
         return $limit > 0 ? $builder->findAll($limit) : $builder->findAll();
+    }
+
+    public function getPublishedPage(string $category = '', string $sort = 'newest', int $perPage = 10, int $page = 1): array
+    {
+        $builder = $this->where('isPublished', 1);
+
+        if ($category !== '') {
+            $builder->where('category', $category);
+        }
+
+        $builder->orderBy('publishedAt', $sort === 'oldest' ? 'ASC' : 'DESC');
+
+        $total  = $builder->countAllResults(false);
+        $offset = max(0, ($page - 1) * $perPage);
+        $posts  = $builder->findAll($perPage, $offset);
+
+        return [
+            'posts'   => $posts,
+            'total'   => $total,
+            'perPage' => $perPage,
+            'page'    => $page,
+            'pages'   => max(1, (int) ceil($total / $perPage)),
+        ];
     }
 
     /**
@@ -137,7 +160,7 @@ class PostModel extends Model
     /**
      * Return posts in admin-friendly order.
      */
-    public function getAdminList(): array
+    public function getAdminList(int $perPage = 10, int $offset = 0): array
     {
         $builder = $this;
 
@@ -145,7 +168,7 @@ class PostModel extends Model
             $builder = $builder->orderBy('sortOrder', 'ASC');
         }
 
-        return $builder->orderBy('createdAt', 'DESC')->findAll();
+        return $builder->orderBy('createdAt', 'DESC')->findAll($perPage, $offset);
     }
 
     /**

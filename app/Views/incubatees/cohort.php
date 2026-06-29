@@ -47,7 +47,7 @@ $sealUrl       = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
                 The journey of a thousand startups begins with a single application.
             </p>
             <a href="<?= site_url('apply') ?>"
-                class="inline-block mt-8 text-[.7rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-navy/85">
+                class="inline-block mt-8 text-[.7rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-gold-dk">
                 Apply Now
             </a>
         </div>
