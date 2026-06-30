@@ -231,70 +231,127 @@
     </div>
 </section>
 
-<!-- ── 5 · What You'll Receive + CTA — split layout, no card grid ── -->
+<!-- ── 5 · What You'll Receive ── -->
 <section class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
     <div class="ai-grid"></div>
     <div class="ai-grid-fade"></div>
 
     <div class="max-w-[880px] mx-auto relative z-[2]">
-        <div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-14 lg:gap-20">
-            <!-- Left — benefits as a simple list -->
-            <div>
-                <div class="reveal mb-8">
-                    <span
-                        class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">05
-                        — Benefits</span>
-                    <h2 class="font-display text-[1.5rem] md:text-[1.8rem] lg:text-[2.05rem] text-dark leading-[1.15]">
-                        What you'll receive</h2>
-                </div>
-                <ul class="reveal list-none p-0 m-0 space-y-0">
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> Co-working space &amp; lab access
-                    </li>
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> Technical mentorship &amp; advisory
-                    </li>
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> Business model development support
-                    </li>
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> IP &amp; legal guidance
-                    </li>
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> Investor readiness &amp; pitch coaching
-                    </li>
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> Networking &amp; partnership opportunities
-                    </li>
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> Training workshops &amp; seminars
-                    </li>
-                    <li
-                        class="flex items-center gap-3 py-3 border-t border-b border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
-                        <span class="text-gold text-[.7rem]">✓</span> Demo day &amp; showcase events
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Right — CTA block -->
-            <div class="reveal flex flex-col justify-center">
-                <h3 class="font-display text-[1.3rem] md:text-[1.5rem] lg:text-[1.7rem] text-dark leading-[1.2] mb-4">
-                    Ready to get started?</h3>
-                <p class="text-[.88rem] lg:text-[.98rem] font-normal leading-[1.65] text-black mb-6">Fill out our
-                    application form and the ASOG TBI team will reach out to schedule your screening and next steps.</p>
-                <a href="<?= site_url('apply/form') ?>"
-                    class="inline-block self-start font-body text-[.62rem] lg:text-[.7rem] font-bold tracking-[.14em] uppercase text-dark bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors duration-200 hover:bg-gold-dk">
-                    Apply Now →
-                </a>
-            </div>
+        <div class="reveal mb-8">
+            <span
+                class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">05
+                — Benefits</span>
+            <h2 class="font-display text-[1.5rem] md:text-[1.8rem] lg:text-[2.05rem] text-dark leading-[1.15]">
+                What you'll receive</h2>
         </div>
+        <ul class="reveal grid grid-cols-1 md:grid-cols-2 gap-x-12 list-none p-0 m-0">
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Co-working space &amp; lab access
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Technical mentorship &amp; advisory
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Business model development support
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> IP &amp; legal guidance
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Investor readiness &amp; pitch coaching
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Networking &amp; partnership opportunities
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-y border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Training workshops &amp; seminars
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-y border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Demo day &amp; showcase events
+            </li>
+        </ul>
+    </div>
+</section>
+
+<?php if (! empty($faqs)): ?>
+<?php
+$faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
+?>
+
+<!-- FAQ section -->
+<section class="relative overflow-hidden bg-navy py-20 md:py-28 px-6 md:px-10 lg:px-14" data-navhint="blue">
+    <div class="ai-grid opacity-30"></div>
+
+    <div class="max-w-[1120px] mx-auto relative z-[2]">
+        <div class="reveal mb-12 md:mb-16 max-w-[720px]">
+            <span
+                class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">
+                06 — FAQ
+            </span>
+            <h2 class="font-display text-[1.5rem] md:text-[1.8rem] lg:text-[2.05rem] text-off leading-[1.15]">
+                <?= esc($faqTitle ?? 'A few things you might be wondering.') ?>
+            </h2>
+            <p class="mt-5 max-w-[590px] text-[.84rem] lg:text-[.94rem] font-light leading-[1.8] text-white/55">
+                <?= esc($faqIntro ?? 'Find quick answers about eligibility, requirements, and what happens after you submit your application.') ?>
+            </p>
+        </div>
+
+        <div class="reveal grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20 items-start">
+            <?php foreach ($faqColumns as $faqColumn): ?>
+            <div class="faq-list">
+                <?php foreach ($faqColumn as $index => $faq): ?>
+                <details class="faq-item group">
+                    <summary class="faq-question">
+                        <span class="flex items-baseline gap-4 md:gap-5">
+                            <span class="text-[.62rem] font-bold tracking-[.18em] text-gold/65">
+                                <?= str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) ?>
+                            </span>
+                            <span><?= esc($faq['question']) ?></span>
+                        </span>
+                        <span class="shrink-0 text-[1.05rem] font-light leading-none text-gold/80 transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span>
+                    </summary>
+                    <div class="faq-answer">
+                        <div>
+                            <p><?= esc($faq['answer']) ?></p>
+                        </div>
+                    </div>
+                </details>
+                <?php endforeach; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Final application CTA -->
+<section class="relative overflow-hidden bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14" data-navhint="light">
+    <div class="ai-grid"></div>
+    <div class="ai-grid-fade"></div>
+
+    <div class="reveal max-w-[760px] mx-auto relative z-[2] text-center flex flex-col items-center">
+        <span
+            class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">
+            07 — Apply
+        </span>
+        <h2 class="font-display text-[2rem] md:text-[2.65rem] lg:text-[3rem] text-dark leading-[1.08]">
+            Ready to get started?
+        </h2>
+        <p class="mt-5 mb-8 max-w-[590px] text-[.88rem] lg:text-[.98rem] font-normal leading-[1.75] text-black">
+            Fill out our application form and the ASOG TBI team will reach out to schedule your screening and next steps.
+        </p>
+        <a href="<?= site_url('apply/form') ?>"
+            class="inline-block font-body text-[.62rem] lg:text-[.7rem] font-bold tracking-[.14em] uppercase text-dark bg-gold px-9 py-4 rounded-sm no-underline transition-colors duration-200 hover:bg-gold-dk">
+            Apply Now →
+        </a>
     </div>
 </section>
 

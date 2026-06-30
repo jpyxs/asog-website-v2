@@ -134,6 +134,14 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->post('incubatees/(:num)/update', 'Admin\IncubateesAdmin::update/$1');
         $routes->post('incubatees/(:num)/delete', 'Admin\IncubateesAdmin::delete/$1');
 
+        // Apply Page FAQ Management
+        $routes->get('faqs', 'Admin\FaqsAdmin::index');
+        $routes->post('faqs', 'Admin\FaqsAdmin::store');
+        $routes->post('faqs/section', 'Admin\FaqsAdmin::updateSection');
+        $routes->post('faqs/(:num)/update', 'Admin\FaqsAdmin::update/$1');
+        $routes->post('faqs/(:num)/move/(:alpha)', 'Admin\FaqsAdmin::move/$1/$2');
+        $routes->post('faqs/(:num)/delete', 'Admin\FaqsAdmin::delete/$1');
+
         // Organization Page Controls
         $routes->get('organization', 'Admin\OrganizationAdmin::index');
         $routes->post('organization/interns-visibility', 'Admin\OrganizationAdmin::updateInternsVisibility');

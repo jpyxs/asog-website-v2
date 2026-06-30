@@ -44,6 +44,10 @@
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 Incubatees
             </a>
+            <a href="<?= site_url('admin/faqs') ?>" class="<?= ($activePage ?? '') === 'faqs' ? 'on' : '' ?>">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9a3.75 3.75 0 117.252 1.344c-.584 1.238-1.98 1.656-2.73 2.406-.45.45-.75.9-.75 1.5M12 18h.008"/><circle cx="12" cy="12" r="9"/></svg>
+                FAQs
+            </a>
             <a href="<?= site_url('admin/organization') ?>" class="<?= ($activePage ?? '') === 'organization' ? 'on' : '' ?>">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4l8 4-8 4-8-4 8-4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 12l8 4 8-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l8 4 8-4"/></svg>
                 Organization
