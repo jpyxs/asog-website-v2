@@ -23,9 +23,9 @@
 <!-- ── Facility Showcase Blocks ── -->
 
 <!-- 1 · The Co-Lab -->
-<section id="co-lab" class="scroll-mt-28 bg-white">
+<section id="co-lab" class="scroll-mt-28 bg-off">
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[420px] facility-row">
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -87,7 +87,7 @@
                 <li class="flex gap-2 items-start"><span class="text-gold mt-0.5">✦</span> Meeting facilities</li>
             </ul>
         </div>
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -109,9 +109,9 @@
 </section>
 
 <!-- 3 · AIRCoDe Lab -->
-<section id="aircode" class="scroll-mt-28 bg-white">
+<section id="aircode" class="scroll-mt-28 bg-off">
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[420px] facility-row">
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel aircode-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel aircode-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -171,7 +171,7 @@
                 <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> Electronics workstations</li>
             </ul>
         </div>
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -198,9 +198,9 @@
 </section>
 
 <!-- 5 · Rinconada Food Processing Hub - Shared Service Facility (SSF) -->
-<section id="ssf" class="scroll-mt-28 bg-white">
+<section id="ssf" class="scroll-mt-28 bg-off">
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[420px] facility-row">
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -261,7 +261,7 @@
                 <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> Licensing facilitation</li>
             </ul>
         </div>
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -282,7 +282,7 @@
     </div>
 </section>
 
-<div class="bg-white h-10 md:h-14 lg:h-16" aria-hidden="true"></div>
+<div class="bg-off h-10 md:h-14 lg:h-16" aria-hidden="true"></div>
 
 <!-- ── Usage Policy ── -->
     <script src="<?= base_url('assets/js/features/carousel/facilitiesCarousel.js') ?>" defer></script>
