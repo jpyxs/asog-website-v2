@@ -238,6 +238,20 @@
     @apply opacity-100 translate-x-0 pointer-events-auto;
   }
 
+  /* ── off-white dropdown when navbar is over blue/dark blue ── */
+  #navbar.on-blue .dd-menu {
+    @apply bg-off/95 border border-dark/10;
+  }
+  #navbar.on-blue .dd-item {
+    @apply text-dark/70;
+  }
+  #navbar.on-blue .dd-item:hover {
+    @apply text-dark bg-sky/15;
+  }
+  #navbar.on-blue .dd-sub-menu {
+    @apply bg-off/[0.97] border border-dark/10;
+  }
+
   .dd-label {
     @apply block px-2.5 pt-2 pb-1 text-[0.5rem] font-bold tracking-widest uppercase text-sky/70;
   }
