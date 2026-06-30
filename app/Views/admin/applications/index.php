@@ -279,6 +279,12 @@ $baseUrl = site_url('admin/applications') . '?' . http_build_query([
             </div>
         </div>
         <div class="modal-foot" id="modalFoot">
+            <div class="modal-status-meta" id="statusRemarkWrap">
+                <label class="modal-status-label" for="statusRemarkInput">Remark For Applicant</label>
+                <textarea id="statusRemarkInput" class="modal-status-input" rows="3" maxlength="2000"
+                    placeholder="Optional note to include in the status notification email."></textarea>
+                <p class="modal-status-help">Optional. This will be included in the notification email sent for the selected status.</p>
+            </div>
             <button class="btn-arch-modal" id="btnArchModal" style="display:none">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>

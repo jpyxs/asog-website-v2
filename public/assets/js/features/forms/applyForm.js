@@ -64,6 +64,49 @@
     'url':      function (v) { return /^https?:\/\/.+\..+/.test(v)         || 'Enter a valid URL (https://...).'; },
     'name':     function (v) { return /^[A-Za-z\u00C0-\u00FF\s,\.]+$/.test(v) || 'Use format: Last Name, First Name MI'; },
   };
+  var DUPLICATE_EMAIL_MESSAGE = 'This email has already been used in a previous application.';
+  var duplicateToastTimer = null;
+
+  function showHeadsUp(message) {
+    var toast = document.getElementById('applyFormHeadsUp');
+
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'applyFormHeadsUp';
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.style.position = 'fixed';
+      toast.style.top = '24px';
+      toast.style.right = '24px';
+      toast.style.maxWidth = '360px';
+      toast.style.width = 'calc(100vw - 32px)';
+      toast.style.padding = '14px 16px';
+      toast.style.borderRadius = '14px';
+      toast.style.background = '#102033';
+      toast.style.color = '#ffffff';
+      toast.style.boxShadow = '0 16px 45px rgba(16, 32, 51, 0.22)';
+      toast.style.border = '1px solid rgba(240, 165, 18, 0.32)';
+      toast.style.zIndex = '10001';
+      toast.style.opacity = '0';
+      toast.style.pointerEvents = 'none';
+      toast.style.transform = 'translateY(-8px)';
+      toast.style.transition = 'opacity .18s ease, transform .18s ease';
+      document.body.appendChild(toast);
+    }
+
+    toast.innerHTML =
+      '<div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f0a512;margin-bottom:4px;">Application Notice</div>' +
+      '<div style="font-size:13px;line-height:1.55;color:#ffffff;">' + escHtml(message) + '</div>';
+
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+
+    clearTimeout(duplicateToastTimer);
+    duplicateToastTimer = setTimeout(function () {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-8px)';
+    }, 3400);
+  }
 
   function validate(el) {
     var checks = (el.dataset.v || '').split('|').filter(Boolean);
@@ -96,6 +139,33 @@
     return true;
   }
 
+  function setDuplicateEmailState(isDuplicate, showToast) {
+    if (!emailField) return;
+
+    var msg = emailField.closest('div') && emailField.closest('div').querySelector('.v-msg');
+    emailField.dataset.dupEmail = isDuplicate ? '1' : '0';
+
+    if (isDuplicate) {
+      if (msg) {
+        msg.textContent = DUPLICATE_EMAIL_MESSAGE;
+        msg.classList.remove('hidden');
+      }
+      emailField.classList.add('!text-red-600');
+
+      if (showToast) {
+        showHeadsUp(DUPLICATE_EMAIL_MESSAGE);
+      }
+      return;
+    }
+
+    if (msg && msg.textContent.trim() === DUPLICATE_EMAIL_MESSAGE) {
+      msg.textContent = '';
+      msg.classList.add('hidden');
+    }
+
+    emailField.classList.remove('!text-red-600');
+  }
+
   function validateAll() {
     var ok = true;
     document.querySelectorAll('.v-field[data-v]').forEach(function (el) {
@@ -108,7 +178,7 @@
       ok = false;
       var emsg = ef.closest('div') && ef.closest('div').querySelector('.v-msg');
       if (emsg && emsg.classList.contains('hidden')) {
-        emsg.textContent = 'This email has already been used in a previous application.';
+        emsg.textContent = DUPLICATE_EMAIL_MESSAGE;
         emsg.classList.remove('hidden');
         ef.classList.add('!text-red-600');
       }
@@ -150,6 +220,11 @@
       msg.classList.remove('hidden');
       var f = msg.closest('div') && msg.closest('div').querySelector('.v-field');
       if (f) f.classList.add('!text-red-600');
+
+      if (msg.dataset.for === 'applicantEmail' && msg.textContent.trim() === DUPLICATE_EMAIL_MESSAGE) {
+        setDuplicateEmailState(true, false);
+        showHeadsUp(DUPLICATE_EMAIL_MESSAGE);
+      }
     }
   });
 
@@ -157,33 +232,42 @@
   /* ─────────────────────────────────────────────────────────────────
      3. ASYNC DUPLICATE-EMAIL CHECK
   ───────────────────────────────────────────────────────────────────── */
-  var form          = document.querySelector('form');
+  var form          = document.getElementById('applyForm');
   var checkEmailUrl = (form && form.dataset.checkUrl) || '';
   var emailTimer    = null;
   var emailField    = document.getElementById('applicantEmail');
+  var allowNativeSubmit = false;
+
+  function runDuplicateEmailCheck(showToast) {
+    if (!emailField || !checkEmailUrl) {
+      return Promise.resolve(false);
+    }
+
+    if (!validate(emailField)) {
+      return Promise.resolve(false);
+    }
+
+    var val = emailField.value.trim();
+    if (!val) {
+      setDuplicateEmailState(false, false);
+      return Promise.resolve(false);
+    }
+
+    return fetch(checkEmailUrl + '?email=' + encodeURIComponent(val))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var exists = !!(d && d.exists);
+        setDuplicateEmailState(exists, showToast && exists);
+        return exists;
+      })
+      .catch(function () {
+        return false;
+      });
+  }
 
   if (emailField && checkEmailUrl) {
     var checkDupe = function () {
-      if (!validate(emailField)) return;
-      var val = emailField.value.trim();
-      if (!val) return;
-      var msg = emailField.closest('div') && emailField.closest('div').querySelector('.v-msg');
-
-      fetch(checkEmailUrl + '?email=' + encodeURIComponent(val))
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (d.exists) {
-            if (msg) {
-              msg.textContent = 'This email has already been used in a previous application.';
-              msg.classList.remove('hidden');
-            }
-            emailField.classList.add('!text-red-600');
-            emailField.dataset.dupEmail = '1';
-          } else {
-            emailField.dataset.dupEmail = '0';
-          }
-        })
-        .catch(function () {});
+      runDuplicateEmailCheck(true);
     };
 
     emailField.addEventListener('blur', function () {
@@ -191,7 +275,7 @@
       emailTimer = setTimeout(checkDupe, 150);
     });
     emailField.addEventListener('input', function () {
-      emailField.dataset.dupEmail = '0';
+      setDuplicateEmailState(false, false);
     });
   }
 
@@ -394,6 +478,27 @@
   var body  = document.getElementById('previewBody');
   var esc   = function (e) { if (e.key === 'Escape') closeModal(); };
 
+  function validateBeforePreview() {
+    if (!validateAll()) {
+      return Promise.resolve(false);
+    }
+
+    return runDuplicateEmailCheck(true).then(function (exists) {
+      if (!exists) {
+        return true;
+      }
+
+      var emailMsg = emailField && emailField.closest('div') && emailField.closest('div').querySelector('.v-msg');
+      if (emailMsg) {
+        emailMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (emailField) {
+        emailField.focus();
+      }
+      return false;
+    });
+  }
+
   function openModal() {
     // Populate text fields
     var textFields = [
@@ -448,7 +553,9 @@
   var btnPreview = document.getElementById('btnPreview');
   if (btnPreview) {
     btnPreview.addEventListener('click', function () {
-      if (validateAll()) openModal();
+      validateBeforePreview().then(function (ok) {
+        if (ok) openModal();
+      });
     });
   }
 
@@ -466,6 +573,11 @@
     btnConfirm.addEventListener('click', function () {
       try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
       closeModal();
+      allowNativeSubmit = true;
+      if (form && typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+        return;
+      }
       if (form) form.submit();
     });
   }
@@ -473,8 +585,15 @@
   // Block native submit (Enter key) → route through preview
   if (form) {
     form.addEventListener('submit', function (e) {
+      if (allowNativeSubmit) {
+        allowNativeSubmit = false;
+        return;
+      }
+
       e.preventDefault();
-      if (validateAll()) openModal();
+      validateBeforePreview().then(function (ok) {
+        if (ok) openModal();
+      });
     });
   }
 

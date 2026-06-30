@@ -71,6 +71,22 @@
                                 </tr>
                             </table>
 
+                            <?php if (! empty($statusRemark)): ?>
+                            <table width="100%" cellpadding="0" cellspacing="0"
+                                style="margin-bottom:24px;background:#fafaf9;border:1px solid #eceae6;border-radius:6px">
+                                <tr>
+                                    <td style="padding:14px 16px">
+                                        <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748b">
+                                            Remark From The Review Team
+                                        </p>
+                                        <p style="margin:0;font-size:14px;color:#334155;line-height:1.7;white-space:pre-line">
+                                            <?= esc($statusRemark) ?>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <?php endif; ?>
+
                             <!-- What happens next -->
                             <table width="100%" cellpadding="0" cellspacing="0"
                                 style="margin-bottom:24px;background:#f8fbff;border-left:3px solid #03558C;border-radius:0 4px 4px 0">
