@@ -83,15 +83,17 @@ class ApplicationsAdmin extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['error' => 'Application not found.']);
         }
 
-        $status = $this->request->getJSON(true)['status'] ?? '';
+        $payload = $this->request->getJSON(true) ?? [];
+        $status = $payload['status'] ?? '';
+        $remark = $this->normalizeRemark($payload['remark'] ?? null);
 
-        if (! $this->applicationModel->updateStatus($id, $status)) {
+        if (! $this->applicationModel->updateStatus($id, $status, $remark)) {
             return $this->response->setStatusCode(422)->setJSON(['error' => 'Invalid status value.']);
         }
 
         $app = $this->applicationModel->find($id);
         try {
-            $this->sendStatusEmail($app, $status);
+            $this->sendStatusEmail($app, $status, $remark);
         } catch (\Throwable $e) {
             log_message('error', '[ApplicationsAdmin] sendStatusEmail failed: ' . $e->getMessage());
         }
@@ -151,10 +153,13 @@ class ApplicationsAdmin extends BaseController
         } else {
             // Fetch applicants before the batch update so we have email addresses
             $apps = $this->applicationModel->whereIn('id', $ids)->findAll();
-            $this->applicationModel->whereIn('id', $ids)->set(['applicationStatus' => $action])->update();
+            $this->applicationModel->whereIn('id', $ids)->set([
+                'applicationStatus' => $action,
+                'statusRemark'      => null,
+            ])->update();
             foreach ($apps as $app) {
                 try {
-                    $this->sendStatusEmail($app, $action);
+                    $this->sendStatusEmail($app, $action, null);
                 } catch (\Throwable $e) {
                     log_message('error', '[ApplicationsAdmin] bulk sendStatusEmail failed for app #' . $app['id'] . ': ' . $e->getMessage());
                 }
@@ -174,7 +179,7 @@ class ApplicationsAdmin extends BaseController
      *
      * Silently skips if SMTP credentials are not configured in .env.
      */
-    private function sendStatusEmail(array $app, string $newStatus): void
+    private function sendStatusEmail(array $app, string $newStatus, ?string $remark = null): void
     {
         $emailSvc = \Config\Services::email();
         $config   = new \Config\Email();
@@ -224,6 +229,7 @@ class ApplicationsAdmin extends BaseController
                 'badgeColor'    => $info['badgeColor'],
                 'message'       => $info['message'],
                 'nextSteps'     => $info['nextSteps'],
+                'statusRemark'  => $remark,
             ]);
 
             $emailSvc->setFrom($config->fromEmail, $config->fromName);
@@ -240,5 +246,19 @@ class ApplicationsAdmin extends BaseController
         } finally {
             ob_end_clean();
         }
+    }
+
+    private function normalizeRemark($remark): ?string
+    {
+        if (! is_string($remark)) {
+            return null;
+        }
+
+        $remark = trim($remark);
+        if ($remark === '') {
+            return null;
+        }
+
+        return mb_substr($remark, 0, 2000);
     }
 }

@@ -54,6 +54,7 @@ class Incubatees extends BaseController
                 LandingSettingModel::KEY_APPLY_FAQ_INTRO,
                 'Find quick answers about eligibility, requirements, and what happens after you submit your application.'
             ),
+            'allowDuplicateEmails' => $this->allowDuplicateEmails(),
         ];
 
         return view('templates/header', $data)
@@ -89,12 +90,7 @@ class Incubatees extends BaseController
 
     public function applyForm(): string
     {
-        $data = [
-            'title'        => 'Application Form - ASOG TBI',
-            'heroSubtitle' => 'Incubation Program',
-            'heroTitle'    => 'Application Form',
-            'heroDesc'     => 'Fill out the form below to apply for incubation at ASOG TBI.',
-        ];
+        $data = $this->buildApplyFormViewData();
 
         return view('templates/header', $data)
             . view('templates/page_hero', $data)
@@ -113,10 +109,20 @@ class Incubatees extends BaseController
             'shortTermGoals'        => $this->request->getPost('shortTermGoals') ?? null,
             'videoPresentationLink' => $this->request->getPost('videoPresentationLink'),
             'applicantName'         => $this->request->getPost('applicantName'),
-            'applicantEmail'        => $this->request->getPost('applicantEmail'),
+            'applicantEmail'        => trim((string) $this->request->getPost('applicantEmail')),
             'contactNumber'         => $this->request->getPost('contactNumber'),
+            'privacyAgreement'      => (string) ($this->request->getPost('privacyAgreement') ?? ''),
             'applicationStatus'     => 'pending',
         ];
+
+        if ($this->requestBodyExceededPhpLimits()) {
+            return $this->renderApplyFormResponse(
+                $data,
+                [],
+                $this->uploadLimitExceededMessage(),
+                413
+            );
+        }
 
         if ($this->request->getPost('privacyAgreement') !== '1') {
             return redirect()->back()
@@ -129,6 +135,36 @@ class Incubatees extends BaseController
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $applicationModel->errors());
+        }
+
+        if (! $this->allowDuplicateEmails() && $applicationModel->emailExists($data['applicantEmail'])) {
+            return $this->renderApplyFormResponse(
+                $data,
+                ['applicantEmail' => $applicationModel->duplicateEmailMessage()],
+                null,
+                422
+            );
+        }
+
+        $teamCvUploadError = $this->multipleUploadErrorMessage(
+            $this->request->getFileMultiple('teamCv') ?? [],
+            'One or more CV files'
+        );
+        if ($teamCvUploadError !== null) {
+            return $this->renderApplyFormResponse($data, [], $teamCvUploadError, 413);
+        }
+
+        $leanCanvasUploadError = $this->uploadErrorMessage(
+            $this->request->getFile('leanCanvas'),
+            'Your Lean Canvas file'
+        );
+        if ($leanCanvasUploadError !== null) {
+            return $this->renderApplyFormResponse(
+                $data,
+                ['leanCanvas' => $leanCanvasUploadError],
+                null,
+                413
+            );
         }
 
         // Handle file upload (Curriculum Vitae for team members)
@@ -217,6 +253,15 @@ class Incubatees extends BaseController
                 ->with('application_submitted', true);
         }
 
+        if ($applicationModel->isDuplicateEmailDbError()) {
+            return $this->renderApplyFormResponse(
+                $data,
+                ['applicantEmail' => $applicationModel->duplicateEmailMessage()],
+                null,
+                422
+            );
+        }
+
         return redirect()->back()
             ->withInput()
             ->with('error', 'Unable to submit application. Please try again.');
@@ -272,7 +317,7 @@ class Incubatees extends BaseController
             return $this->response->setJSON(['exists' => false]);
         }
 
-        $exists = $this->applicationModel->getByEmail($email) !== null;
+        $exists = ! $this->allowDuplicateEmails() && $this->applicationModel->emailExists($email);
 
         return $this->response->setJSON(['exists' => $exists]);
     }
@@ -290,6 +335,142 @@ class Incubatees extends BaseController
         return view('templates/header', $data)
             . view('incubatees/apply_thank_you', $data)
             . view('templates/footer');
+    }
+
+    private function allowDuplicateEmails(): bool
+    {
+        $settings = new LandingSettingModel();
+        $raw = trim((string) $settings->getValue(
+            LandingSettingModel::KEY_APPLY_ALLOW_DUPLICATE_EMAILS,
+            '0'
+        ));
+
+        return $raw === '1';
+    }
+
+    private function buildApplyFormViewData(array $formInput = [], array $formErrors = [], ?string $formError = null): array
+    {
+        return [
+            'title' => 'Application Form - ASOG TBI',
+            'heroSubtitle' => 'Incubation Program',
+            'heroTitle' => 'Application Form',
+            'heroDesc' => 'Fill out the form below to apply for incubation at ASOG TBI.',
+            'allowDuplicateEmails' => $this->allowDuplicateEmails(),
+            'serverPostMaxSize' => (string) ini_get('post_max_size'),
+            'serverUploadMaxFilesize' => (string) ini_get('upload_max_filesize'),
+            'formInput' => $formInput,
+            'formErrors' => $formErrors,
+            'formError' => $formError,
+        ];
+    }
+
+    private function renderApplyFormResponse(
+        array $formInput = [],
+        array $formErrors = [],
+        ?string $formError = null,
+        int $statusCode = 200
+    ): \CodeIgniter\HTTP\ResponseInterface {
+        $data = $this->buildApplyFormViewData($formInput, $formErrors, $formError);
+        $html = view('templates/header', $data)
+            . view('templates/page_hero', $data)
+            . view('incubatees/apply_form', $data)
+            . view('templates/footer');
+
+        return $this->response
+            ->setStatusCode($statusCode)
+            ->setBody($html);
+    }
+
+    private function requestBodyExceededPhpLimits(): bool
+    {
+        $contentLength = (int) ($this->request->getServer('CONTENT_LENGTH') ?? 0);
+        if ($contentLength <= 0) {
+            return false;
+        }
+
+        $contentType = strtolower($this->request->getHeaderLine('Content-Type'));
+        if (! str_contains($contentType, 'multipart/form-data')) {
+            return false;
+        }
+
+        $limitBytes = $this->parseIniSizeToBytes((string) ini_get('post_max_size'));
+        if ($limitBytes !== null && $contentLength > $limitBytes) {
+            return true;
+        }
+
+        return empty($this->request->getPost()) && empty($this->request->getFiles());
+    }
+
+    private function uploadLimitExceededMessage(): string
+    {
+        $perFileLimit = $this->uploadMaxFilesizeLabel();
+        $totalLimit = trim((string) ini_get('post_max_size'));
+        $totalLimitText = $totalLimit !== '' ? $totalLimit : 'the current server limit';
+
+        return 'Your submission was too large for the server to process. '
+            . 'The current server limits are ' . $perFileLimit . ' per file and '
+            . $totalLimitText . ' total per submission. '
+            . 'Please upload fewer or smaller files, then try again.';
+    }
+
+    private function uploadErrorMessage($file, string $label): ?string
+    {
+        if ($file === null) {
+            return null;
+        }
+
+        $error = $file->getError();
+        if ($error === UPLOAD_ERR_OK || $error === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+            return $label . ' exceeds the current server upload limit of '
+                . $this->uploadMaxFilesizeLabel() . ' per file.';
+        }
+
+        return $label . ' could not be uploaded. Please try again.';
+    }
+
+    private function multipleUploadErrorMessage(array $files, string $label): ?string
+    {
+        foreach ($files as $file) {
+            $message = $this->uploadErrorMessage($file, $label);
+            if ($message !== null) {
+                return $message;
+            }
+        }
+
+        return null;
+    }
+
+    private function uploadMaxFilesizeLabel(): string
+    {
+        $limit = trim((string) ini_get('upload_max_filesize'));
+
+        return $limit !== '' ? $limit : 'the current server limit';
+    }
+
+    private function parseIniSizeToBytes(string $value): ?int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        if (! preg_match('/^(\d+)([KMG]?)$/i', $value, $matches)) {
+            return null;
+        }
+
+        $bytes = (int) $matches[1];
+        $unit = strtoupper($matches[2] ?? '');
+
+        return match ($unit) {
+            'G' => $bytes * 1024 * 1024 * 1024,
+            'M' => $bytes * 1024 * 1024,
+            'K' => $bytes * 1024,
+            default => $bytes,
+        };
     }
 
 }

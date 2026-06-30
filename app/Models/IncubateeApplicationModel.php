@@ -30,6 +30,7 @@ class IncubateeApplicationModel extends Model
         'applicantEmail',
         'contactNumber',
         'applicationStatus',
+        'statusRemark',
         'isArchived',
     ];
 
@@ -42,8 +43,9 @@ class IncubateeApplicationModel extends Model
         'leanCanvasPath'           => 'max_length[500]',
         'videoPresentationLink'    => 'required|valid_url|max_length[500]',
         'applicantName'            => 'required|regex_match[/^[A-Za-z\s,\.]+$/]|max_length[255]',
-        'applicantEmail'           => 'required|valid_email|max_length[255]|is_unique[incubatee_applications.applicantEmail]',
+        'applicantEmail'           => 'required|valid_email|max_length[255]',
         'contactNumber'            => 'required|regex_match[/^[0-9\s\-\+\(\)]+$/]|max_length[20]',
+        'statusRemark'             => 'permit_empty|max_length[2000]',
     ];
 
     protected $validationMessages = [
@@ -71,7 +73,6 @@ class IncubateeApplicationModel extends Model
             'required'     => 'Email is required.',
             'valid_email'  => 'Please enter a valid email address.',
             'max_length'   => 'Email cannot exceed 255 characters.',
-            'is_unique'    => 'This email has already been used in a previous application.',
         ],
         'contactNumber' => [
             'required'     => 'Contact number is required.',
@@ -182,8 +183,44 @@ class IncubateeApplicationModel extends Model
     **/
     public function getByEmail(string $email)
     {
-        return $this->where('applicantEmail', $email)
-                    ->first();
+        $email = strtolower(trim($email));
+        if ($email === '') {
+            return null;
+        }
+
+        return $this->builder()
+                    ->where('LOWER(applicantEmail)', $email)
+                    ->limit(1)
+                    ->get()
+                    ->getRowArray();
+    }
+
+    public function emailExists(string $email): bool
+    {
+        return $this->getByEmail($email) !== null;
+    }
+
+    public function duplicateEmailMessage(): string
+    {
+        return 'This email has already been used in a previous application.';
+    }
+
+    public function getDbError(): array
+    {
+        return $this->db->error();
+    }
+
+    public function isDuplicateEmailDbError(): bool
+    {
+        $error = $this->getDbError();
+        $message = strtolower((string) ($error['message'] ?? ''));
+
+        if ($message === '') {
+            return false;
+        }
+
+        return str_contains($message, 'duplicate')
+            && str_contains($message, 'applicantemail');
     }
 
     /**  
@@ -192,13 +229,16 @@ class IncubateeApplicationModel extends Model
      * @param  string $status One of: pending, accepted, rejected
      * @return bool
     **/
-    public function updateStatus(int $id, string $status): bool
+    public function updateStatus(int $id, string $status, ?string $remark = null): bool
     {
         $allowed = ['pending', 'accepted', 'rejected'];
         if (! in_array($status, $allowed, true)) {
             return false;
         }
 
-        return $this->update($id, ['applicationStatus' => $status]);
+        return $this->update($id, [
+            'applicationStatus' => $status,
+            'statusRemark'      => $remark !== null && trim($remark) !== '' ? trim($remark) : null,
+        ]);
     }
 }

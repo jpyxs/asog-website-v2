@@ -11,9 +11,9 @@
 <div class="faq-admin-settings">
     <section class="faq-admin-panel">
         <div class="faq-admin-panel-head">
-            <span>Section Copy</span>
-            <h2>FAQ heading and introduction</h2>
-            <p>These appear above the two FAQ columns on the public page.</p>
+            <span>Apply Page Settings</span>
+            <h2>FAQ copy and submission rule</h2>
+            <p>Manage the public FAQ heading and whether applicants can reuse the same email address.</p>
         </div>
 
         <form method="POST" action="<?= site_url('admin/faqs/section') ?>" class="faq-admin-form">
@@ -37,8 +37,28 @@
                 <small>Maximum 500 characters.</small>
             </label>
 
+            <?php
+                $duplicateEmailSetting = old('allowDuplicateEmails');
+                $allowDuplicateEmails = $duplicateEmailSetting !== null
+                    ? $duplicateEmailSetting === '1'
+                    : ! empty($allowDuplicateEmails);
+            ?>
+
+            <label class="faq-admin-rule">
+                <input type="hidden" name="allowDuplicateEmails" value="0">
+                <input type="checkbox" name="allowDuplicateEmails" value="1" <?= $allowDuplicateEmails ? 'checked' : '' ?>>
+                <span>
+                    <strong>Allow duplicate applicant emails</strong>
+                    <small>
+                        <?= $allowDuplicateEmails
+                            ? 'Applicants can submit more than once with the same email address.'
+                            : 'Applicants will see an email-specific error if that address was already used before.' ?>
+                    </small>
+                </span>
+            </label>
+
             <div class="faq-admin-form-actions">
-                <button type="submit" class="btn btn-p">Save section copy</button>
+                <button type="submit" class="btn btn-p">Save apply page settings</button>
             </div>
         </form>
     </section>
