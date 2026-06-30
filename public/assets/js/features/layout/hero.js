@@ -13,6 +13,7 @@
     var descWrap  = document.getElementById('heroDescWrap');
     var hero      = document.getElementById('hero');
     var heroHeading = document.getElementById('heroHeading');
+    var heroPageIndicator = hero ? hero.querySelector('[data-hero-page-indicator]') : null;
     var prevBtn = hero ? hero.querySelector('[data-hero-prev]') : null;
     var nextBtn = hero ? hero.querySelector('[data-hero-next]') : null;
     var toggleBtn = hero ? hero.querySelector('[data-hero-toggle]') : null;
@@ -55,6 +56,11 @@
     function syncHeroHeading() {
         if (!heroHeading) return;
         heroHeading.textContent = getSlideHeading(cur);
+    }
+
+    function syncHeroPageIndicator() {
+        if (!heroPageIndicator) return;
+        heroPageIndicator.textContent = (cur + 1) + '/' + slides.length;
     }
 
     function syncStackHeights() {
@@ -145,6 +151,7 @@
         ensureSlideBackground(cur);
 
         syncHeroHeading();
+        syncHeroPageIndicator();
         syncStackHeights();
     }
 
@@ -232,6 +239,7 @@
     });
     go(0);
     syncHeroHeading();
+    syncHeroPageIndicator();
     syncHeroViewportHeight();
     syncStackHeights();
     startTimer();
