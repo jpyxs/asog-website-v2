@@ -25,6 +25,10 @@ class FaqsAdmin extends BaseController
                 LandingSettingModel::KEY_APPLY_FAQ_INTRO,
                 'Find quick answers about eligibility, requirements, and what happens after you submit your application.'
             ),
+            'allowDuplicateEmails' => trim((string) $settings->getValue(
+                LandingSettingModel::KEY_APPLY_ALLOW_DUPLICATE_EMAILS,
+                '0'
+            )) === '1',
         ];
 
         return view('admin/layout/header', $data)
@@ -36,6 +40,7 @@ class FaqsAdmin extends BaseController
     {
         $title = trim((string) $this->request->getPost('faqTitle'));
         $intro = trim((string) $this->request->getPost('faqIntro'));
+        $allowDuplicateEmails = $this->request->getPost('allowDuplicateEmails') === '1';
 
         if ($title === '' || mb_strlen($title) > 120) {
             setToast('error', 'FAQ heading is required and must be 120 characters or fewer.');
@@ -51,14 +56,18 @@ class FaqsAdmin extends BaseController
         $this->db->transStart();
         $savedTitle = $settings->setValue(LandingSettingModel::KEY_APPLY_FAQ_TITLE, $title);
         $savedIntro = $settings->setValue(LandingSettingModel::KEY_APPLY_FAQ_INTRO, $intro);
+        $savedDuplicateSetting = $settings->setValue(
+            LandingSettingModel::KEY_APPLY_ALLOW_DUPLICATE_EMAILS,
+            $allowDuplicateEmails ? '1' : '0'
+        );
         $this->db->transComplete();
 
-        if (! $savedTitle || ! $savedIntro || ! $this->db->transStatus()) {
-            setToast('error', 'Unable to save the FAQ section copy.');
+        if (! $savedTitle || ! $savedIntro || ! $savedDuplicateSetting || ! $this->db->transStatus()) {
+            setToast('error', 'Unable to save the apply page settings.');
             return redirect()->back()->withInput();
         }
 
-        setToast('success', 'FAQ section copy updated.');
+        setToast('success', 'Apply page settings updated.');
 
         return redirect()->to(site_url('admin/faqs'));
     }

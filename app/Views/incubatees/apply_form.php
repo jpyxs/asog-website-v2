@@ -9,10 +9,23 @@
 
         <?php
             // Server-side errors keyed by field name
-            $errs = session('errors') ?? [];
+            $errs = $formErrors ?? (session('errors') ?? []);
+            $formInput = $formInput ?? [];
+            $formError = $formError ?? session('error');
+            $inputValue = static fn (string $key, string $default = ''): string => (string) old($key, $formInput[$key] ?? $default);
+            $privacyAccepted = $inputValue('privacyAgreement') === '1';
+            $serverPostMaxSize = trim((string) ($serverPostMaxSize ?? ''));
+            $serverUploadMaxFilesize = trim((string) ($serverUploadMaxFilesize ?? ''));
         ?>
 
-        <form action="<?= site_url('apply/form') ?>" method="post" enctype="multipart/form-data"
+        <?php if ($formError): ?>
+            <div class="mb-6 rounded-md border border-navy/10 bg-white p-4">
+                <p class="text-[.58rem] font-bold tracking-[.18em] uppercase text-red-500 mb-1">Submission issue</p>
+                <p class="text-[.82rem] font-normal leading-[1.6] text-dark"><?= esc((string) $formError) ?></p>
+            </div>
+        <?php endif; ?>
+
+        <form id="applyForm" action="<?= site_url('apply/form') ?>" method="post" enctype="multipart/form-data"
             data-check-url="<?= site_url('apply/form/check-email') ?>">
             <?= csrf_field() ?>
 
@@ -57,7 +70,7 @@
                 <label class="flex items-start gap-3 cursor-pointer select-none group">
                     <input type="checkbox" id="privacyAgreement" name="privacyAgreement" value="1" required
                         class="v-field mt-0.5 w-4 h-4 shrink-0 accent-gold cursor-pointer" data-v="required"
-                        data-required-message="Please confirm your privacy consent before continuing.">
+                        data-required-message="Please confirm your privacy consent before continuing."<?= $privacyAccepted ? ' checked' : '' ?>>
                     <span class="text-[.82rem] text-dark leading-[1.6] group-hover:text-dark transition-colors">
                         I have read and agree to the <strong class="text-[#102033] font-semibold">Privacy
                             Policy</strong> and
@@ -90,7 +103,7 @@
                         <input type="text" id="applicantName" name="applicantName" maxlength="255"
                             data-v="required|min:2|name"
                             class="v-field w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none placeholder:text-dark/25"
-                            placeholder="Dela Cruz, Juan A." value="<?= old('applicantName') ?>" required>
+                            placeholder="Dela Cruz, Juan A." value="<?= esc($inputValue('applicantName')) ?>" required>
                         <span class="text-[.58rem] text-dark/60 block mt-2">Last Name, First Name MI</span>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
                             data-for="applicantName"><?= $errs['applicantName'] ?? '' ?></span>
@@ -104,7 +117,7 @@
                         <input type="email" id="applicantEmail" name="applicantEmail" maxlength="255"
                             data-v="required|email"
                             class="v-field w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none placeholder:text-dark/25"
-                            placeholder="your.email@example.com" value="<?= old('applicantEmail') ?>" required>
+                            placeholder="your.email@example.com" value="<?= esc($inputValue('applicantEmail')) ?>" required>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
                             data-for="applicantEmail"><?= $errs['applicantEmail'] ?? '' ?></span>
                     </div>
@@ -116,7 +129,7 @@
                         </label>
                         <input type="tel" id="contactNumber" name="contactNumber" maxlength="20" data-v="required|phone"
                             class="v-field w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none placeholder:text-dark/25"
-                            placeholder="09XX XXX XXXX" value="<?= old('contactNumber') ?>" required>
+                            placeholder="09XX XXX XXXX" value="<?= esc($inputValue('contactNumber')) ?>" required>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
                             data-for="contactNumber"><?= $errs['contactNumber'] ?? '' ?></span>
                     </div>
@@ -142,7 +155,7 @@
                         </label>
                         <input type="text" id="startupName" name="startupName" maxlength="255" data-v="required|min:2"
                             class="v-field w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none placeholder:text-dark/25"
-                            placeholder="e.g. GreenTech Innovations" value="<?= old('startupName') ?>" required>
+                            placeholder="e.g. GreenTech Innovations" value="<?= esc($inputValue('startupName')) ?>" required>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
                             data-for="startupName"><?= $errs['startupName'] ?? '' ?></span>
                     </div>
@@ -156,7 +169,7 @@
                             data-v="required|min:10"
                             class="v-field w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
                             placeholder="Describe your solution, target market, and what makes it unique..."
-                            required><?= old('startupDescription') ?></textarea>
+                            required><?= esc($inputValue('startupDescription')) ?></textarea>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
                             data-for="startupDescription"><?= $errs['startupDescription'] ?? '' ?></span>
                     </div>
@@ -169,7 +182,7 @@
                             </label>
                             <textarea id="mainRisk" name="mainRisk" rows="3" maxlength="1000"
                                 class="w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
-                                placeholder="Describe potential challenges..."><?= old('mainRisk') ?></textarea>
+                                placeholder="Describe potential challenges..."><?= esc($inputValue('mainRisk')) ?></textarea>
                         </div>
                         <div class="p-4 md:p-5">
                             <label for="shortTermGoals"
@@ -178,7 +191,7 @@
                             </label>
                             <textarea id="shortTermGoals" name="shortTermGoals" rows="3" maxlength="1000"
                                 class="w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
-                                placeholder="What do you plan to achieve?..."><?= old('shortTermGoals') ?></textarea>
+                                placeholder="What do you plan to achieve?..."><?= esc($inputValue('shortTermGoals')) ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -203,7 +216,7 @@
                                 Team Members' CV
                             </label>
                             <span class="text-[.58rem] text-navy/30 block mb-3">Upload PDFs · Max 10 files · 100 MB
-                                each</span>
+                                each<?= ($serverUploadMaxFilesize !== '' || $serverPostMaxSize !== '') ? ' · Server cap: ' . esc($serverUploadMaxFilesize !== '' ? $serverUploadMaxFilesize : 'current limit') . '/file' . ($serverPostMaxSize !== '' ? ', ' . esc($serverPostMaxSize) . ' total' : '') : '' ?></span>
                             <div id="teamCvChooser" class="inline-flex items-center gap-3">
                                 <button type="button" id="teamCvButton" class="file-upload-button">
                                     Choose File
@@ -226,7 +239,7 @@
                             <input type="url" id="videoPresentationLink" name="videoPresentationLink" maxlength="500"
                                 data-v="required|url"
                                 class="v-field w-full bg-off/50 border border-navy/10 rounded-sm px-3 py-2 text-[.85rem] text-dark font-normal outline-none transition-colors duration-200 focus:border-gold placeholder:text-dark/25"
-                                placeholder="https://youtu.be/..." value="<?= old('videoPresentationLink') ?>" required>
+                                placeholder="https://youtu.be/..." value="<?= esc($inputValue('videoPresentationLink')) ?>" required>
                             <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
                                 data-for="videoPresentationLink"><?= $errs['videoPresentationLink'] ?? '' ?></span>
                         </div>
@@ -272,8 +285,8 @@
                             class="text-[.52rem] font-bold tracking-[.18em] uppercase text-[#102033]/85 block mb-1">
                             Your Startup's Lean Canvas <span class="text-red-400">*</span>
                         </label>
-                        <span class="text-[.58rem] text-navy/30 block mb-3">Must be in .docx or .pdf &middot; 1 file
-                            &middot; Max 10 MB</span>
+                        <span class="text-[.58rem] text-navy/30 block mb-3">Must be in .docx or PDF &middot; 1 file
+                            &middot; Max 10 MB<?= ($serverUploadMaxFilesize !== '' || $serverPostMaxSize !== '') ? ' &middot; Server cap: ' . esc($serverUploadMaxFilesize !== '' ? $serverUploadMaxFilesize : 'current limit') . '/file' . ($serverPostMaxSize !== '' ? ', ' . esc($serverPostMaxSize) . ' total' : '') : '' ?></span>
                         <div id="leanCanvasChooser" class="inline-flex items-center gap-3">
                             <button type="button" id="leanCanvasButton" class="file-upload-button">
                                 Choose File
@@ -539,7 +552,8 @@
       const val = emailField.value.trim();
       if(!val) return;
       const msg = emailField.closest('div').querySelector('.v-msg');
-      fetch('<?= site_url("incubatees/apply/form/check-email") ?>?email=' + encodeURIComponent(val))
+      const checkUrl = document.querySelector('form')?.dataset.checkUrl || '<?= site_url("apply/form/check-email") ?>';
+      fetch(checkUrl + '?email=' + encodeURIComponent(val))
         .then(r => r.json())
         .then(d => {
           if(d.exists){

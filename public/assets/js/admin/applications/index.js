@@ -16,6 +16,8 @@
     var btnSaveStatus     = document.getElementById('btnSaveStatus');
     var btnArchModal = document.getElementById('btnArchModal');
     var btnRestoreModal = document.getElementById('btnRestoreModal');
+    var statusRemarkWrap = document.getElementById('statusRemarkWrap');
+    var statusRemarkInput = document.getElementById('statusRemarkInput');
 
     var confirmBg = document.getElementById('confirmDialog');
     var confirmIcon = document.getElementById('confirmIcon');
@@ -300,8 +302,10 @@
         html += field('Status', '<span class="tag tag-' + escHtml(d.applicationStatus) + '">' + statusLabel(d.applicationStatus) + '</span>');
         html += field('Submitted', formatDate(d.createdAt));
         html += '</div>';
+        html += field('Current Remark', escHtml(d.statusRemark) || '\u2014');
 
         modalBody.innerHTML = html;
+        if (statusRemarkInput) statusRemarkInput.value = d.statusRemark || '';
         updateFooterButtons(d.applicationStatus, d.isArchived);
     }
 
@@ -320,18 +324,21 @@
             btnChange.style.display = 'none';
             if (btnArchModal) btnArchModal.style.display = 'none';
             if (btnRestoreModal) btnRestoreModal.style.display = 'inline-flex';
+            if (statusRemarkWrap) statusRemarkWrap.style.display = 'none';
         } else if (status === 'pending') {
             btnAccept.style.display = 'inline-flex';
             btnReject.style.display = 'inline-flex';
             btnChange.style.display = 'none';
             if (btnArchModal) btnArchModal.style.display = 'inline-flex';
             if (btnRestoreModal) btnRestoreModal.style.display = 'none';
+            if (statusRemarkWrap) statusRemarkWrap.style.display = 'flex';
         } else {
             btnAccept.style.display = 'none';
             btnReject.style.display = 'none';
             btnChange.style.display = 'inline-flex';
             if (btnArchModal) btnArchModal.style.display = 'inline-flex';
             if (btnRestoreModal) btnRestoreModal.style.display = 'none';
+            if (statusRemarkWrap) statusRemarkWrap.style.display = 'flex';
         }
     }
 
@@ -341,6 +348,7 @@
         btnChange.style.display = 'none';
         if (btnArchModal) btnArchModal.style.display = 'none';
         if (btnRestoreModal) btnRestoreModal.style.display = 'none';
+        if (statusRemarkWrap) statusRemarkWrap.style.display = 'none';
         hideChangeMode();
     }
 
@@ -366,6 +374,7 @@
         modalBg.classList.remove('open');
         currentId = null;
         currentAppData = null;
+        if (statusRemarkInput) statusRemarkInput.value = '';
     }
 
     /* ══════════════════════════════════════════════════
@@ -443,6 +452,7 @@
         if (!currentId) return;
         var idCopy = currentId;
         var oldStatus = currentAppData ? currentAppData.applicationStatus : null;
+        var remark = statusRemarkInput ? statusRemarkInput.value.trim() : '';
 
         var row = document.querySelector('tr[data-id="' + idCopy + '"]');
         if (row) {
@@ -458,7 +468,7 @@
         fetch(siteUrl('admin/applications/' + idCopy + '/status'), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({ status: status })
+            body: JSON.stringify({ status: status, remark: remark })
         })
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -469,11 +479,18 @@
                         var tag2 = row.querySelector('.tag:not(.tag-archived)');
                         if (tag2) { tag2.className = 'tag tag-' + (oldStatus || 'pending'); tag2.textContent = statusLabel(oldStatus || 'pending'); }
                     }
+                    if (currentAppData) {
+                        currentAppData.applicationStatus = oldStatus;
+                    }
                 }
             })
             .catch(function () {
                 showToast('Network error. Status may not have been saved.', 'error');
                 updateStatCounts(status, oldStatus);
+                if (row) {
+                    var tag3 = row.querySelector('.tag:not(.tag-archived)');
+                    if (tag3) { tag3.className = 'tag tag-' + (oldStatus || 'pending'); tag3.textContent = statusLabel(oldStatus || 'pending'); }
+                }
             });
     }
 
