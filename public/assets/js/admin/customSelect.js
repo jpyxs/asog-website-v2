@@ -206,11 +206,15 @@
     updateValue();
   }
 
-  function init() {
-    document.querySelectorAll(SELECTORS.join(',')).forEach(function (sel) {
+  function init(root) {
+    var scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll(SELECTORS.join(',')).forEach(function (sel) {
       try { initCsel(sel); } catch (e) {}
     });
   }
+
+  window.AdminCustomSelect = window.AdminCustomSelect || {};
+  window.AdminCustomSelect.init = init;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

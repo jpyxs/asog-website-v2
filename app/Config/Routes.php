@@ -143,6 +143,11 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
         // Organization
         $routes->get('organization', 'Admin\OrganizationAdmin::index');
+        $routes->get('organization/modal', 'Admin\OrganizationAdmin::modalCreate');
+        $routes->get('organization/modal/(:num)', 'Admin\OrganizationAdmin::modalEdit/$1');
+        $routes->post('organization/modal', 'Admin\OrganizationAdmin::modalStore');
+        $routes->post('organization/modal/(:num)', 'Admin\OrganizationAdmin::modalUpdate/$1');
+        $routes->post('organization/reorder', 'Admin\OrganizationAdmin::saveOrder');
         $routes->get('organization/members/create', 'Admin\OrganizationAdmin::create');
         $routes->post('organization/members', 'Admin\OrganizationAdmin::store');
         $routes->get('organization/members/(:num)/edit', 'Admin\OrganizationAdmin::edit/$1');
