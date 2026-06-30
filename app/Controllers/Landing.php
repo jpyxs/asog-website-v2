@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\LandingSettingModel;
+use App\Models\OrganizationMemberModel;
 use App\Models\PostModel;
 
 class Landing extends BaseController
@@ -27,6 +28,9 @@ class Landing extends BaseController
             ? $this->incubateeModel->getPublished()
             : $this->incubateeModel->getPublishedByCohort($cohortFilter);
 
+        $orgMemberModel = new OrganizationMemberModel();
+        $coreTeamMembers = $orgMemberModel->getPublishedBySection(OrganizationMemberModel::SECTION_CORE_TEAM);
+
         $data = [
             'title'              => 'ASOG Technology Business Incubator (ASOG TBI) | CSPC',
             'metaDescription'    => 'ASOG TBI helps startups grow through incubation, mentorship, facilities, and innovation programs in Camarines Sur.',
@@ -42,6 +46,7 @@ class Landing extends BaseController
             'featuredIncubatee'  => $this->incubateeModel->getFeatured(),
             'incubatees'         => $landingIncubatees,
             'landingIncubateesFilter' => $cohortFilter,
+            'coreTeamMembers'    => $coreTeamMembers,
         ];
 
         if (! empty($data['heroSlides'][0]['imagePath'])) {
