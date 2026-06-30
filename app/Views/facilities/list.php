@@ -2,24 +2,6 @@
      ║  FACILITIES — Full-Page Showcase                                    ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 
-<!-- ── Intro ── -->
-<section class="relative bg-off py-20 md:py-28">
-    <div class="max-w-[900px] mx-auto px-6 md:px-10 text-center">
-        <div class="flex items-center justify-center gap-2 mb-4">
-            <span class="block w-[18px] h-[1.5px] bg-navy"></span>
-            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy">Infrastructure</span>
-            <span class="block w-[18px] h-[1.5px] bg-navy"></span>
-        </div>
-        <!-- <h2 class="font-display text-[2rem] md:text-[2.8rem] leading-[1.12] text-dark mb-6">State-of-the-Art <em
-                class="italic text-gold">Facilities</em></h2> -->
-        <h2 class="font-display text-[2rem] md:text-[2.8rem] leading-[1.12] text-dark mb-6">World-Class Spaces <em
-                class="italic text-gold">to Build Your Venture</em></h2>
-        <p class="text-[.95rem] font-normal leading-[1.85] text-black max-w-[680px] mx-auto">ASOG TBI incubatees have
-            access to CSPC's extensive 8-hectare campus facilities, featuring cutting-edge labs and equipment designed
-            to support engineering and AI-driven innovation.</p>
-    </div>
-</section>
-
 <!-- ── Facility Showcase Blocks ── -->
 
 <!-- 1 · The Co-Lab -->
@@ -281,8 +263,6 @@
         </div>
     </div>
 </section>
-
-<div class="bg-off h-10 md:h-14 lg:h-16" aria-hidden="true"></div>
 
 <!-- ── Usage Policy ── -->
     <script src="<?= base_url('assets/js/features/carousel/facilitiesCarousel.js') ?>" defer></script>
