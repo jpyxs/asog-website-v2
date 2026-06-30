@@ -50,7 +50,7 @@
                 scrollTrigger: {
                     trigger: panel,
                     start: 'top 82%',
-                    end: 'bottom 26%',
+                    end: 'bottom 82%',
                     scrub: 0.45
                 }
             })

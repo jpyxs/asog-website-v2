@@ -47,21 +47,21 @@
                     <?= csrf_field() ?>
                     <div>
                         <label
-                            class="text-[.54rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Name</label>
+                            class="text-[.62rem] font-bold tracking-[.16em] uppercase text-dark/60 block mt-.5 mb-2">Name</label>
                         <input type="text" name="name"
                             class="w-full bg-white border border-dark/[.12] rounded-sm px-4 py-3 text-[.85rem] text-dark font-light outline-none transition-colors duration-200 focus:border-gold/50 focus:shadow-sm focus:shadow-gold/10 placeholder:text-dark/30"
                             placeholder="Your full name" required>
                     </div>
                     <div>
                         <label
-                            class="text-[.54rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Email</label>
+                            class="text-[.62rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Email</label>
                         <input type="email" name="email"
                             class="w-full bg-white border border-dark/[.12] rounded-sm px-4 py-3 text-[.85rem] text-dark font-light outline-none transition-colors duration-200 focus:border-gold/50 focus:shadow-sm focus:shadow-gold/10 placeholder:text-dark/30"
                             placeholder="your@email.com" required>
                     </div>
                     <div>
                         <label
-                            class="text-[.54rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Message</label>
+                            class="text-[.62rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Message</label>
                         <textarea rows="5" name="message"
                             class="w-full bg-white border border-dark/[.12] rounded-sm px-4 py-3 text-[.85rem] text-dark font-light outline-none resize-none transition-colors duration-200 focus:border-gold/50 focus:shadow-sm focus:shadow-gold/10 placeholder:text-dark/30"
                             placeholder="How can we help?" required></textarea>

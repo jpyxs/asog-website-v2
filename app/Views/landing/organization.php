@@ -29,7 +29,7 @@
                     Odsinada
                 </h4>
                 <span
-                    class="text-[.5rem] md:text-[.55rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">
+                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">
                     Project Leader</span>
             </div>
             <div class="rc text-center">
@@ -43,7 +43,7 @@
                 </div>
                 <h4 class="font-display text-[.95rem] md:text-[1.05rem] text-off leading-tight">Ms. Rosel O. Onesa</h4>
                 <span
-                    class="text-[.5rem] md:text-[.55rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">Marketing
+                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">Marketing
                     &amp; Communications
                     Lead
                 </span>
@@ -60,7 +60,7 @@
                 <h4 class="font-display text-[.95rem] md:text-[1.05rem] text-off leading-tight">Ms. Kaela Marie N.
                     Fortuno</h4>
                 <span
-                    class="text-[.5rem] md:text-[.55rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">AI
+                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">AI
                     Expert
                 </span>
             </div>
@@ -76,7 +76,7 @@
                 <h4 class="font-display text-[.95rem] md:text-[1.05rem] text-off leading-tight">Eng. Wenceslao D. Gavino
                 </h4>
                 <span
-                    class="text-[.5rem] md:text-[.55rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">ITSO
+                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">ITSO
                     Manager</span>
             </div>
         </div>

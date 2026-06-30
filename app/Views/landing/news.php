@@ -46,7 +46,7 @@
                         <?php endif; ?>
                     </div>
                     <div class="pt-5 pb-5 border-b-2 border-dark/[.06] transition-colors duration-300 group-hover:border-dark/20">
-                        <span class="text-[.46rem] font-bold tracking-[.2em] uppercase text-navy/40 mb-2.5 block">
+                        <span class="text-[.68rem] font-bold tracking-[.2em] uppercase text-navy/50 mb-2 block">
                             <?= $featured['publishedAt'] ? date('F j, Y', strtotime($featured['publishedAt'])) : esc(ucfirst($featured['category'])) ?>
                         </span>
                         <h3 class="font-display text-[1.2rem] md:text-[1.35rem] text-dark leading-snug mb-2"><?= esc($featured['title']) ?></h3>
@@ -61,9 +61,9 @@
                     <?php if (! empty($rest)): ?>
                         <?php foreach ($rest as $i => $post): ?>
                             <a href="<?= site_url('news/' . $post['slug']) ?>"
-                                class="rc group flex gap-5 no-underline py-5 border-b border-dark/[.06] last:border-b-0">
+                                class="rc group flex gap-5 no-underline py-5 border-b border-dark/[.12] last:border-b-0">
                                 <div class="flex-1 min-w-0 border-l-2 border-dark/[.04] group-hover:border-dark/20 pl-4 transition-colors duration-200">
-                                    <span class="text-[.44rem] font-bold tracking-[.2em] uppercase text-navy/35 mb-1.5 block">
+                                    <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy/40 mb-1.5 block">
                                         <?= $post['publishedAt'] ? date('M j, Y', strtotime($post['publishedAt'])) : esc(ucfirst($post['category'])) ?>
                                     </span>
                                     <h3 class="font-display text-[.95rem] text-dark leading-snug mb-1"><?= esc($post['title']) ?></h3>

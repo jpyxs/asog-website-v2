@@ -44,9 +44,9 @@
 
         pgLabel.textContent = (page + 1) + ' / ' + (maxP + 1);
 
-        prev.style.opacity       = page <= 0    ? '.3' : '1';
+        prev.style.opacity       = page <= 0    ? '.5' : '1';
         prev.style.pointerEvents = page <= 0    ? 'none' : 'auto';
-        next.style.opacity       = page >= maxP ? '.3' : '1';
+        next.style.opacity       = page >= maxP ? '.5' : '1';
         next.style.pointerEvents = page >= maxP ? 'none' : 'auto';
     }
 
@@ -58,8 +58,8 @@
             }
         });
         btn.addEventListener('mouseleave', function(){
-            btn.style.borderColor = 'rgba(255,255,255,.15)';
-            btn.style.color       = 'rgba(255,255,255,.40)';
+            btn.style.borderColor = 'rgba(255,255,255,.30)';
+            btn.style.color       = 'rgba(255,255,255,.65)';
         });
     });
 
