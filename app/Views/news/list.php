@@ -29,7 +29,7 @@ $activeCatLabel = empty($activeCategories)
 .nf-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid rgba(2,13,24,.12);border-radius:2px;padding:7px 10px;cursor:pointer;font-family:inherit;transition:border-color .2s;outline:none}
 .nf-btn:hover,.nf-wrap.open .nf-btn{border-color:rgba(2,13,24,.28)}
 .nf-icon{color:rgba(2,13,24,.28);flex-shrink:0}
-.nf-label{font-size:.5rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(2,13,24,.28);white-space:nowrap;user-select:none}
+.nf-label{font-size:.55rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(2,13,24,.35);white-space:nowrap;user-select:none}
 .nf-sep{width:1px;height:12px;background:rgba(2,13,24,.08);flex-shrink:0}
 .nf-val{font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(2,13,24,.7);white-space:nowrap}
 .nf-arrow{color:rgba(2,13,24,.3);flex-shrink:0;transition:transform .18s}
@@ -228,15 +228,15 @@ document.addEventListener('DOMContentLoaded', function(){
                         class="bg-white border-b-2 border-dark/[.06] group-hover:border-dark/20 transition-colors duration-300 p-7 md:p-10 lg:p-12 flex flex-col justify-center">
                         <div class="flex items-center gap-3 mb-4">
                             <span
-                                class="text-[.5rem] font-bold tracking-[.18em] uppercase text-navy/40"><?= esc(ucfirst($latestPost['category'])) ?></span>
+                                class="text-[.68rem] font-semibold tracking-[.18em] uppercase text-navy/50"><?= esc(ucfirst($latestPost['category'])) ?></span>
                             <?php if ($latestPost['publishedAt']): ?>
-                            <span class="text-dark/12">·</span>
+                            <span class="text-dark/30">·</span>
                             <span
-                                class="text-[.5rem] font-medium tracking-[.06em] text-dark/40"><?= date('F j, Y', strtotime($latestPost['publishedAt'])) ?></span>
+                                class="text-[.68rem] font-medium tracking-[.06em] text-dark/40"><?= date('F j, Y', strtotime($latestPost['publishedAt'])) ?></span>
                             <?php endif; ?>
                         </div>
                         <h2
-                            class="font-display text-[1.3rem] md:text-[1.6rem] lg:text-[1.8rem] leading-[1.18] text-dark mb-4">
+                            class="font-display text-[1.3rem] md:text-[1.6rem] lg:text-[1.8rem] leading-[1.18] text-dark mb-3">
                             <?= esc($latestPost['title']) ?></h2>
                         <?php if (!empty($latestPost['shortDescription'])): ?>
                         <p class="text-[.9rem] font-light leading-[1.6] mb-3 transition-colors duration-200"
@@ -244,11 +244,11 @@ document.addEventListener('DOMContentLoaded', function(){
                             <?= html_entity_decode(esc(character_limiter($latestPost['shortDescription'], 180))) ?></p>
                         <?php endif; ?>
                         <?php if (!empty($latestPost['authorName'])): ?>
-                        <span class="text-[.68rem] font-medium text-dark/35 mb-4">By
+                        <span class="text-[.68rem] font-medium text-dark/50 mb-6">By
                             <?= esc($latestPost['authorName']) ?></span>
                         <?php endif; ?>
                         <span
-                            class="text-[.56rem] font-bold tracking-[.14em] uppercase text-dark/30 border-b border-dark/10 self-start pb-0.5 group-hover:text-dark/50 group-hover:border-dark/25 transition-colors duration-200">
+                            class="text-[.56rem] font-bold tracking-[.14em] uppercase text-dark/30 mt-1 border-b border-dark/10 self-start pb-0.5 group-hover:text-dark/50 group-hover:border-dark/25 transition-colors duration-200">
                             Read Article →
                         </span>
                     </div>
@@ -286,11 +286,11 @@ document.addEventListener('DOMContentLoaded', function(){
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
                         <div class="flex items-center gap-2.5 mb-2">
                             <span
-                                class="text-[.46rem] font-bold tracking-[.16em] uppercase text-navy/40"><?= esc(ucfirst($post['category'])) ?></span>
+                                class="text-[.58rem] font-semibold tracking-[.16em] uppercase text-navy/50"><?= esc(ucfirst($post['category'])) ?></span>
                             <?php if ($post['publishedAt']): ?>
-                            <span class="text-dark/10">·</span>
+                            <span class="text-dark/30">·</span>
                             <span
-                                class="text-[.46rem] font-medium text-dark/35"><?= date('M j, Y', strtotime($post['publishedAt'])) ?></span>
+                                class="text-[.62rem] font-medium text-dark/40"><?= date('M j, Y', strtotime($post['publishedAt'])) ?></span>
                             <?php endif; ?>
                         </div>
                         <h3 class="font-display text-[1rem] md:text-[1.08rem] text-dark leading-snug mb-1.5">
@@ -391,4 +391,4 @@ document.addEventListener('DOMContentLoaded', function(){
         <?php endif; ?>
 
     </div>
-</section>
+</section>

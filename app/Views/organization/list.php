@@ -47,7 +47,7 @@
                     </div>
                     <h4 class="font-display text-[1.05rem] font-semibold text-dark leading-tight">Ms. Rosel O. Onesa
                     </h4>
-                    <span class="text-[.6rem] font-semibold tracking-[.1em] uppercase text-dark mt-1 block">Team
+                    <span class="text-[.64rem] font-semibold tracking-[.1em] uppercase text-dark mt-1 block">Team
                         Member</span>
                     <span
                         class="text-[.68rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">Marketing
@@ -68,7 +68,7 @@
                     <h4 class="font-display text-[1.05rem] font-semibold text-dark leading-tight">Ms. Kaela Marie N.
                         Fortuno
                     </h4>
-                    <span class="text-[.6rem] font-semibold tracking-[.1em] uppercase text-dark mt-1 block">Team
+                    <span class="text-[.64rem] font-semibold tracking-[.1em] uppercase text-dark mt-1 block">Team
                         Member</span>
                     <span class="text-[.68rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">AI
                         Expert</span>
@@ -88,7 +88,7 @@
                     <h4 class="font-display text-[1.05rem] font-semibold text-dark leading-tight">Eng. Wenceslao D.
                         Gavino
                     </h4>
-                    <span class="text-[.6rem] font-semibold tracking-[.1em] uppercase text-dark mt-1 block">Team
+                    <span class="text-[.64rem] font-semibold tracking-[.1em] uppercase text-dark mt-1 block">Team
                         Member</span>
                     <span class="text-[.68rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">ITSO
                         Manager</span>
@@ -120,14 +120,14 @@
                 <div class="mx-auto aspect-square rounded-lg mb-4 p-[2px]"
                     style="width:220px;max-width:100%;background:linear-gradient(to top, rgba(236,155,64,.45), rgba(236,155,64,.12));">
                     <div class="w-full h-full rounded-[7px] overflow-hidden">
-                        <img src="<?= base_url('assets/img/team/Hernando.png') ?>" alt="Ms. Racelle Hernando"
+                        <img src="<?= base_url('assets/img/team/Hernando.png') ?>" alt="Ms. Rachelle Ann Hernando"
                             class="w-full h-full object-cover object-center" />
                     </div>
                 </div>
-                <h4 class="font-display text-[1.05rem] font-semibold text-dark leading-tight">Ms. Racelle Hernando</h4>
+                <h4 class="font-display text-[1.05rem] font-semibold text-dark leading-tight">Ms. Rachelle Ann A. Hernando</h4>
                 <span class="text-[.64rem] font-semibold tracking-[.08em] uppercase text-navy mt-1.5 block">TBI
                     Manager</span>
-                <span class="text-[.58rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">Project
+                <span class="text-[.68rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">Project
                     Development Officer</span>
             </div>
 
@@ -145,7 +145,7 @@
                     <span
                         class="text-[.64rem] font-semibold tracking-[.08em] uppercase text-navy mt-1.5 block">Innovation
                         and Community Officer</span>
-                    <span class="text-[.58rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">Project
+                    <span class="text-[.68rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">Project
                         Technical Assistant</span>
                 </div>
 
@@ -161,7 +161,7 @@
                         Sanglay</h4>
                     <span class="text-[.64rem] font-semibold tracking-[.08em] uppercase text-navy mt-1.5 block">Creative
                         Technologies and Digital Engagement Officer</span>
-                    <span class="text-[.58rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">Project
+                    <span class="text-[.68rem] font-semibold tracking-[.08em] uppercase text-dark/70 mt-1 block">Project
                         Technical Assistant</span>
                 </div>
             </div>

@@ -65,7 +65,7 @@
                 <div class="prog-card shrink-0 box-border py-2" data-ix="<?= $i ?>">
                     <div class="h-full px-6 md:px-7<?= $i > 0 ? ' border-l border-white/[.08]' : '' ?>">
                         <span
-                            class="block text-[.5rem] font-semibold tracking-[.22em] uppercase text-gold/70 mb-4"><?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?></span>
+                            class="block text-[.7rem] font-semibold tracking-[.22em] uppercase text-gold/80 mb-4"><?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?></span>
                         <h3 class="font-display text-[1.05rem] text-off mb-3 leading-snug"><?= $prog['title'] ?></h3>
                         <p class="text-[.78rem] font-light leading-[1.8] text-white/60"><?= $prog['desc'] ?></p>
                     </div>
@@ -77,7 +77,7 @@
         <!-- Bottom nav: arrows + page indicator -->
         <div class="flex items-center justify-center gap-4 mt-14 md:mt-16 reveal">
             <button id="progPrev" aria-label="Previous"
-                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/[.15] flex items-center justify-center text-white/40 cursor-pointer opacity-30 pointer-events-none overflow-hidden"
+                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/30 flex items-center justify-center text-white/50 cursor-pointer opacity-50 pointer-events-none overflow-hidden"
                 style="transition:border-color .3s,color .3s,background .3s,opacity .3s,transform .2s">
                 <span
                     class="absolute inset-0 rounded-full bg-gold/0 group-hover/btn:bg-gold/[.12] transition-all duration-300"></span>
@@ -87,14 +87,14 @@
                 </svg>
             </button>
             <div class="flex items-center gap-2">
-                <span class="block w-3 h-[1px] bg-gold/30"></span>
+                <span class="block w-3 h-[1px] bg-gold/50"></span>
                 <span id="progPage"
-                    class="text-[.58rem] font-semibold tracking-[.2em] text-white/45 min-w-[2.5rem] text-center select-none"
+                    class="text-[.65rem] font-semibold tracking-[.2em] text-white/50 min-w-[2.5rem] text-center select-none"
                     style="font-variant-numeric:tabular-nums"></span>
-                <span class="block w-3 h-[1px] bg-gold/30"></span>
+                <span class="block w-3 h-[1px] bg-gold/50"></span>
             </div>
             <button id="progNext" aria-label="Next"
-                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/[.15] flex items-center justify-center text-white/40 cursor-pointer overflow-hidden"
+                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/30 flex items-center justify-center text-white/50 cursor-pointer overflow-hidden"
                 style="transition:border-color .3s,color .3s,background .3s,opacity .3s,transform .2s">
                 <span
                     class="absolute inset-0 rounded-full bg-gold/0 group-hover/btn:bg-gold/[.12] transition-all duration-300"></span>

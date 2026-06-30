@@ -138,7 +138,7 @@
             </div>
         </div>
         <div class="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-12 lg:py-14 facility-copy">
-            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">AI Research Center</span>
+            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">Partner Facility</span>
             <h3 class="font-display text-[1.8rem] md:text-[2.2rem] leading-[1.15] text-dark mb-5">AIRCoDe</h3>
             <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-4">AI Research Center for Community Development (AIRCoDe) empowers communities through artificial intelligence. Funded by DOST-PCIEERD under the Infrastructure Development Program in 2021, AIRCoDe conducts AI research projects addressing critical community needs across disaster risk management, agricultural innovation, and environmental preservation.</p>
             <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-6">Incubatees gain access to cutting-edge HPC infrastructure, AI research expertise, and collaborative opportunities to develop AI-driven solutions responsive to the Bicol Region's unique challenges and opportunities.</p>

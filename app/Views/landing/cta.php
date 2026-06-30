@@ -3,7 +3,7 @@
      ║  Dark bg · centered call-to-action                                   ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 <?php
-    $ctaTitle       = 'Ready to Build your <em class="italic text-gold">business</em> with us?';
+    $ctaTitle       = 'Ready to build your <em class="italic text-gold">business</em> with us?';
     $ctaDesc        = 'Apply to the ASOG TBI incubation program and get access to state-of-the-art facilities, mentorship, and funding opportunities.';
     $ctaBtnText     = 'Be an Incubatee';
     $ctaBtnUrl      = site_url('apply');
@@ -20,13 +20,13 @@
     </div>
     <div class="reveal">
         <div
-            class="text-[.55rem] md:text-[.58rem] font-semibold tracking-[.22em] uppercase text-white/[.30] mb-5 relative z-[2]">
+            class="text-[.55rem] md:text-[.58rem] font-semibold tracking-[.22em] uppercase text-white/50 mb-5 relative z-[2]">
             Join the Ecosystem</div>
         <h2
             class="font-display text-[clamp(1.8rem,3.5vw,3rem)] leading-[1.1] text-off max-w-[620px] mb-4 relative z-[2]">
             <?= $ctaTitle ?></h2>
         <p
-            class="text-[.85rem] md:text-[.95rem] font-light leading-[1.75] text-white/[.40] max-w-[480px] mx-auto mb-10 md:mb-12 relative z-[2]">
+            class="text-[.85rem] md:text-[.95rem] font-light leading-[1.75] text-white/45 max-w-[480px] mx-auto mb-10 md:mb-12 relative z-[2]">
             <?= esc($ctaDesc) ?></p>
     </div>
     <div class="flex flex-col sm:flex-row gap-4 flex-wrap justify-center relative z-[2] reveal reveal-d1">
