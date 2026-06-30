@@ -161,28 +161,3 @@
     <?php endif; ?>
     </tbody>
 </table>
-
-<div class="lf-panel">
-    <div class="lf-wrap">
-        <div class="lf-copy">
-            <p class="lf-kicker">Homepage Incubatees</p>
-            <h3 class="lf-title">Display Filter</h3>
-            <p class="lf-desc">Choose one cohort or all cohorts for the landing section. If the selected cohort has no published startups yet, the site shows "Will be announced soon".</p>
-        </div>
-        <form method="POST" action="<?= site_url('admin/incubatees/landing-filter') ?>" class="lf-form">
-            <?= csrf_field() ?>
-            <div class="lf-field">
-                <label class="lf-label" for="landingCohortFilter">Cohort</label>
-                <select id="landingCohortFilter" name="landingCohortFilter" class="lf-select">
-                    <option value="all" <?= ($selectedLandingFilter ?? 'all') === 'all' ? 'selected' : '' ?>>All Cohorts</option>
-                    <?php foreach (($landingFilterOptions ?? []) as $cohortName): ?>
-                        <option value="<?= esc($cohortName) ?>" <?= ($selectedLandingFilter ?? 'all') === $cohortName ? 'selected' : '' ?>>
-                            <?= esc($cohortName) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-p">Save</button>
-        </form>
-    </div>
-</div>
