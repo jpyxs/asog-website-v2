@@ -15,71 +15,13 @@
                     class="italic text-gold">Organization</em></h2>
         </div>
 
+        <?php if (! empty($coreTeamMembers)): ?>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 reveal-group">
-            <div class="rc text-center">
-                <div class="mx-auto aspect-square rounded-lg mb-3 p-[2px]"
-                    style="width:165px;max-width:100%;background:linear-gradient(160deg, rgba(150,208,255,.7), rgba(3,85,140,.5));">
-                    <div class="w-full h-full rounded-[7px] overflow-hidden"
-                        style="background:linear-gradient(160deg, rgba(150,208,255,.2), rgba(3,85,140,.25));">
-                        <img src="<?= base_url('assets/img/team/Odsinada.png') ?>" alt="Ms. Cherry Lyn M. Odsinada"
-                            class="w-full h-full object-contain object-center" />
-                    </div>
-                </div>
-                <h4 class="font-display text-[.95rem] md:text-[1.05rem] text-off leading-tight">Ms. Cherry Lyn M.
-                    Odsinada
-                </h4>
-                <span
-                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">
-                    Project Leader</span>
-            </div>
-            <div class="rc text-center">
-                <div class="mx-auto aspect-square rounded-lg mb-3 p-[2px]"
-                    style="width:165px;max-width:100%;background:linear-gradient(160deg, rgba(150,208,255,.7), rgba(3,85,140,.5));">
-                    <div class="w-full h-full rounded-[7px] overflow-hidden"
-                        style="background:linear-gradient(160deg, rgba(150,208,255,.2), rgba(3,85,140,.25));">
-                        <img src="<?= base_url('assets/img/team/Onesa.png') ?>" alt="Ms. Rosel O. Onesa"
-                            class="w-full h-full object-contain object-center" />
-                    </div>
-                </div>
-                <h4 class="font-display text-[.95rem] md:text-[1.05rem] text-off leading-tight">Ms. Rosel O. Onesa</h4>
-                <span
-                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">Marketing
-                    &amp; Communications
-                    Lead
-                </span>
-            </div>
-            <div class="rc text-center">
-                <div class="mx-auto aspect-square rounded-lg mb-3 p-[2px]"
-                    style="width:165px;max-width:100%;background:linear-gradient(160deg, rgba(150,208,255,.7), rgba(3,85,140,.5));">
-                    <div class="w-full h-full rounded-[7px] overflow-hidden"
-                        style="background:linear-gradient(160deg, rgba(150,208,255,.2), rgba(3,85,140,.25));">
-                        <img src="<?= base_url('assets/img/team/Fortuno.png') ?>" alt="Ms. Kaela Marie N. Fortuno"
-                            class="w-full h-full object-contain object-center" />
-                    </div>
-                </div>
-                <h4 class="font-display text-[.95rem] md:text-[1.05rem] text-off leading-tight">Ms. Kaela Marie N.
-                    Fortuno</h4>
-                <span
-                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">AI
-                    Expert
-                </span>
-            </div>
-            <div class="rc text-center">
-                <div class="mx-auto aspect-square rounded-lg mb-3 p-[2px]"
-                    style="width:165px;max-width:100%;background:linear-gradient(160deg, rgba(150,208,255,.7), rgba(3,85,140,.5));">
-                    <div class="w-full h-full rounded-[7px] overflow-hidden"
-                        style="background:linear-gradient(160deg, rgba(150,208,255,.2), rgba(3,85,140,.25));">
-                        <img src="<?= base_url('assets/img/team/Gavino.png') ?>" alt="Eng. Wenceslao D. Gavino"
-                            class="w-full h-full object-contain object-center" />
-                    </div>
-                </div>
-                <h4 class="font-display text-[.95rem] md:text-[1.05rem] text-off leading-tight">Eng. Wenceslao D. Gavino
-                </h4>
-                <span
-                    class="text-[.62rem] md:text-[.68rem] font-medium tracking-[.12em] uppercase mt-1 block text-gold/90">ITSO
-                    Manager</span>
-            </div>
+            <?php foreach ($coreTeamMembers as $member): ?>
+                <?= view('organization/_landing_card', ['member' => $member]) ?>
+            <?php endforeach; ?>
         </div>
+        <?php endif; ?>
 
         <!-- See More -->
         <div class="text-center mt-10 md:mt-14 reveal">

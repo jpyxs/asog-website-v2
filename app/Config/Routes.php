@@ -143,6 +143,12 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
         // Organization
         $routes->get('organization', 'Admin\OrganizationAdmin::index');
+        $routes->get('organization/members/create', 'Admin\OrganizationAdmin::create');
+        $routes->post('organization/members', 'Admin\OrganizationAdmin::store');
+        $routes->get('organization/members/(:num)/edit', 'Admin\OrganizationAdmin::edit/$1');
+        $routes->post('organization/members/(:num)/update', 'Admin\OrganizationAdmin::update/$1');
+        $routes->post('organization/members/(:num)/delete', 'Admin\OrganizationAdmin::delete/$1');
+        $routes->post('organization/members/(:num)/move/(:alpha)', 'Admin\OrganizationAdmin::move/$1/$2');
 
         // Cohort Management (AJAX)
         $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
