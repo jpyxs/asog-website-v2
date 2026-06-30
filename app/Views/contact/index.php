@@ -13,7 +13,7 @@
 <section class="relative overflow-hidden bg-off py-16 md:py-20 px-6 md:px-10 lg:px-14">
     <div class="max-w-[1400px] mx-auto relative z-[2]">
 
-        <!-- ═══════ CENTERED HEADER ═══════ -->
+        <!-- ═══════ CENTERED HEADER ═══════
         <div class="text-center mb-10 md:mb-14 reveal">
             <div class="flex items-center justify-center gap-2 mb-3">
                 <span class="block w-[18px] h-[1.5px] bg-gold"></span>
@@ -23,7 +23,7 @@
             <h2 class="font-display text-3xl md:text-[2.4rem] leading-[1.12] text-dark">
                 Reach <em class="italic text-gold">our Team</em>
             </h2>
-        </div>
+        </div> -->
 
         <!-- ═══════ MAP LEFT (wider) + FORM RIGHT ═══════ -->
         <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-12">
