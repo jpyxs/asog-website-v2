@@ -3969,19 +3969,19 @@
   #navbar.on-blue .dd-menu {
     border-style: var(--tw-border-style);
     border-width: 1px;
-    border-color: color-mix(in srgb, #03558C 10%, transparent);
+    border-color: color-mix(in srgb, #fff 10%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--color-dark) 10%, transparent);
+      border-color: color-mix(in oklab, var(--color-white) 10%, transparent);
     }
-    background-color: color-mix(in srgb, #F8F6F2 95%, transparent);
+    background-color: color-mix(in srgb, #03558C 97%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-off) 95%, transparent);
+      background-color: color-mix(in oklab, var(--color-dark) 97%, transparent);
     }
   }
   #navbar.on-blue .dd-item {
-    color: color-mix(in srgb, #03558C 70%, transparent);
+    color: color-mix(in srgb, #fff 55%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
-      color: color-mix(in oklab, var(--color-dark) 70%, transparent);
+      color: color-mix(in oklab, var(--color-white) 55%, transparent);
     }
   }
   #navbar.on-blue .dd-item:hover {
@@ -3989,18 +3989,18 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-sky) 15%, transparent);
     }
-    color: var(--color-dark);
+    color: var(--color-off);
   }
   #navbar.on-blue .dd-sub-menu {
     border-style: var(--tw-border-style);
     border-width: 1px;
-    border-color: color-mix(in srgb, #03558C 10%, transparent);
+    border-color: color-mix(in srgb, #fff 10%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--color-dark) 10%, transparent);
+      border-color: color-mix(in oklab, var(--color-white) 10%, transparent);
     }
-    background-color: color-mix(in srgb, #F8F6F2 97%, transparent);
+    background-color: color-mix(in srgb, #03558C 97%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-off) 97%, transparent);
+      background-color: color-mix(in oklab, var(--color-dark) 97%, transparent);
     }
   }
   .dd-label {
