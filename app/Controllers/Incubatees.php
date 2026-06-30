@@ -2,6 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Models\FaqModel;
+use App\Models\LandingSettingModel;
+
 class Incubatees extends BaseController
 {
     public function index()
@@ -34,11 +37,23 @@ class Incubatees extends BaseController
 
     public function apply(): string
     {
+        $faqModel = new FaqModel();
+        $settings = new LandingSettingModel();
+
         $data = [
             'title'        => 'Be an Incubatee - ASOG TBI',
             'heroSubtitle' => 'Join the Program',
             'heroTitle'    => 'Be an Incubatee',
             'heroDesc'     => 'Apply to the ASOG TBI incubation program and turn your innovation into a market-ready solution.',
+            'faqs'         => $faqModel->getPublished(),
+            'faqTitle'     => $settings->getValue(
+                LandingSettingModel::KEY_APPLY_FAQ_TITLE,
+                'A few things you might be wondering.'
+            ),
+            'faqIntro'     => $settings->getValue(
+                LandingSettingModel::KEY_APPLY_FAQ_INTRO,
+                'Find quick answers about eligibility, requirements, and what happens after you submit your application.'
+            ),
         ];
 
         return view('templates/header', $data)

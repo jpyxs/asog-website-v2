@@ -1,0 +1,310 @@
+.faq-admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.faq-admin-count {
+  display: block;
+  margin-bottom: .2rem;
+  color: #1e293b;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.faq-admin-toolbar p,
+.faq-admin-list-head p {
+  color: #64748b;
+  font-size: .7rem;
+  line-height: 1.5;
+}
+
+.faq-admin-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.faq-admin-panel,
+.faq-admin-item,
+.faq-admin-empty {
+  border: 1px solid #e4e2dd;
+  border-radius: .5rem;
+  background: #fff;
+}
+
+.faq-admin-panel {
+  overflow: hidden;
+}
+
+.faq-admin-panel-head {
+  padding: 1.1rem 1.2rem .9rem;
+  border-bottom: 1px solid #eceae6;
+  background: #faf9f7;
+}
+
+.faq-admin-panel-head > span,
+.faq-admin-list-head span {
+  display: block;
+  margin-bottom: .3rem;
+  color: #f0a512;
+  font-size: .54rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.faq-admin-panel-head h2,
+.faq-admin-list-head h2 {
+  color: #1e293b;
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+
+.faq-admin-panel-head p {
+  margin-top: .3rem;
+  color: #64748b;
+  font-size: .68rem;
+  line-height: 1.55;
+}
+
+.faq-admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  padding: 1.1rem 1.2rem 1.2rem;
+}
+
+.faq-admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.faq-admin-field > span {
+  color: #475569;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.faq-admin-field input,
+.faq-admin-field textarea {
+  width: 100%;
+  border: 1px solid #dcd9d3;
+  border-radius: .35rem;
+  outline: none;
+  background: #fff;
+  color: #1e293b;
+  font: inherit;
+  font-size: .76rem;
+  line-height: 1.55;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.faq-admin-field input {
+  height: 38px;
+  padding: 0 .75rem;
+}
+
+.faq-admin-field textarea {
+  min-height: 94px;
+  padding: .65rem .75rem;
+  resize: vertical;
+}
+
+.faq-admin-field input:focus,
+.faq-admin-field textarea:focus {
+  border-color: #03558c;
+  box-shadow: 0 0 0 3px rgba(3, 85, 140, .08);
+}
+
+.faq-admin-field small,
+.faq-admin-publish small {
+  color: #94a3b8;
+  font-size: .6rem;
+  line-height: 1.4;
+}
+
+.faq-admin-publish {
+  display: flex;
+  align-items: flex-start;
+  gap: .55rem;
+  cursor: pointer;
+}
+
+.faq-admin-publish input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  margin-top: .1rem;
+  accent-color: #03558c;
+}
+
+.faq-admin-publish span {
+  display: flex;
+  flex-direction: column;
+  gap: .08rem;
+}
+
+.faq-admin-publish strong {
+  color: #334155;
+  font-size: .7rem;
+  font-weight: 600;
+}
+
+.faq-admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: .1rem;
+}
+
+.faq-admin-list-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.6rem 0 .75rem;
+}
+
+.faq-admin-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .85rem;
+  align-items: start;
+}
+
+.faq-admin-item {
+  overflow: hidden;
+}
+
+.faq-admin-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding: .55rem .75rem;
+  border-bottom: 1px solid #eceae6;
+  background: #faf9f7;
+}
+
+.faq-admin-item-meta,
+.faq-admin-item-actions {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.faq-admin-item-actions form {
+  display: inline-flex;
+}
+
+.faq-admin-position {
+  color: #03558c;
+  font-size: .65rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.faq-admin-status {
+  padding: .18rem .42rem;
+  border-radius: 99px;
+  font-size: .5rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.faq-admin-status.is-live {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.faq-admin-status.is-hidden {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.faq-admin-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid #dedbd5;
+  border-radius: .28rem;
+  background: #fff;
+  color: #64748b;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+
+.faq-admin-icon-btn:hover:not(:disabled) {
+  border-color: #03558c;
+  color: #03558c;
+  background: #edf5fc;
+}
+
+.faq-admin-icon-btn.is-delete:hover {
+  border-color: #fecaca;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.faq-admin-icon-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.faq-admin-edit-form {
+  gap: .75rem;
+  padding: .9rem;
+}
+
+.faq-admin-edit-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.faq-admin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  padding: 2.5rem 1rem;
+  color: #94a3b8;
+  font-size: .72rem;
+  text-align: center;
+}
+
+.faq-admin-empty strong {
+  color: #475569;
+  font-size: .8rem;
+}
+
+@media (max-width: 900px) {
+  .faq-admin-settings,
+  .faq-admin-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .faq-admin-toolbar,
+  .faq-admin-list-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .faq-admin-edit-foot {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

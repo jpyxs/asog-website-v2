@@ -655,6 +655,102 @@
     pointer-events: none;
     z-index: 0;
   }
+
+  /* FAQ accordion: editorial dividers with a smooth native-details reveal. */
+  .faq-list {
+    border-top: 1px solid rgba(255,255,255,.18);
+  }
+  .faq-item {
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+  }
+  .faq-item::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #F8AF21 0%, rgba(248,175,33,.28) 68%, transparent 100%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .45s cubic-bezier(.16,1,.3,1);
+  }
+  .faq-item:hover::after,
+  .faq-item[open]::after {
+    transform: scaleX(1);
+  }
+  .faq-question {
+    display: flex;
+    cursor: pointer;
+    list-style: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+    color: rgba(255,255,255,.94);
+    font-size: .88rem;
+    font-weight: 600;
+    line-height: 1.45;
+    text-align: left;
+    transition: color .25s ease;
+  }
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+  .faq-question::marker {
+    content: '';
+  }
+  .faq-item:hover .faq-question,
+  .faq-item[open] .faq-question {
+    color: #F8AF21;
+  }
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-.35rem);
+    transition:
+      grid-template-rows .42s cubic-bezier(.16,1,.3,1),
+      opacity .3s ease,
+      transform .42s cubic-bezier(.16,1,.3,1);
+  }
+  .faq-answer > div {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .faq-answer p {
+    max-width: 38rem;
+    margin: 0;
+    padding: 0 2.25rem 1.25rem 2.15rem;
+    color: rgba(255,255,255,.62);
+    font-size: .82rem;
+    font-weight: 400;
+    line-height: 1.7;
+  }
+  .faq-item[open] .faq-answer {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (min-width: 48rem) {
+    .faq-question {
+      padding: 1.1rem 0;
+      font-size: .98rem;
+    }
+    .faq-answer p {
+      padding-right: 2.5rem;
+      padding-bottom: 1.35rem;
+      padding-left: 2.75rem;
+      font-size: .9rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faq-item::after,
+    .faq-answer {
+      transition: none;
+    }
+  }
   .ai-cross::before,
   .ai-cross::after {
     content: '';
