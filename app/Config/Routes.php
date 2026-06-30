@@ -129,7 +129,6 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->get('incubatees/create', 'Admin\IncubateesAdmin::create');
         $routes->post('incubatees', 'Admin\IncubateesAdmin::store');
         $routes->post('incubatees/reorder', 'Admin\IncubateesAdmin::saveOrder');
-        $routes->post('incubatees/landing-filter', 'Admin\IncubateesAdmin::updateLandingFilter');
         $routes->get('incubatees/(:num)/edit', 'Admin\IncubateesAdmin::edit/$1');
         $routes->post('incubatees/(:num)/update', 'Admin\IncubateesAdmin::update/$1');
         $routes->post('incubatees/(:num)/delete', 'Admin\IncubateesAdmin::delete/$1');
@@ -142,21 +141,25 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->post('faqs/(:num)/move/(:alpha)', 'Admin\FaqsAdmin::move/$1/$2');
         $routes->post('faqs/(:num)/delete', 'Admin\FaqsAdmin::delete/$1');
 
-        // Organization Page Controls
+        // Organization
         $routes->get('organization', 'Admin\OrganizationAdmin::index');
-        $routes->post('organization/interns-visibility', 'Admin\OrganizationAdmin::updateInternsVisibility');
 
         // Cohort Management (AJAX)
         $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
         $routes->post('cohorts/(:num)/delete', 'Admin\IncubateesAdmin::deleteCohort/$1');
 
-        // Games Management
-        $routes->get('games', 'Admin\GamesAdmin::index');
-        $routes->post('games/guess-startup/availability', 'Admin\GamesAdmin::updateGuessStartupAvailability');
+        // Legacy redirect for old bookmarks
+        $routes->addRedirect('games', 'admin/settings');
     });
 
     // ── superadmin only ──────────────────────────────────────────────────
     $routes->group('', ['filter' => 'role:superadmin'], function ($routes) {
+
+        // Site Settings
+        $routes->get('settings', 'Admin\SettingsAdmin::index');
+        $routes->post('settings/guess-startup/availability', 'Admin\SettingsAdmin::updateGuessStartupAvailability');
+        $routes->post('settings/interns-visibility', 'Admin\SettingsAdmin::updateInternsVisibility');
+        $routes->post('settings/homepage-incubatees-filter', 'Admin\SettingsAdmin::updateLandingFilter');
 
         // Account Management
         $routes->get('accounts', 'Admin\AdminsManagement::index');
