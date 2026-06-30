@@ -3966,6 +3966,43 @@
     translate: var(--tw-translate-x) var(--tw-translate-y);
     opacity: 100%;
   }
+  #navbar.on-blue .dd-menu {
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: color-mix(in srgb, #03558C 10%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-dark) 10%, transparent);
+    }
+    background-color: color-mix(in srgb, #F8F6F2 95%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-off) 95%, transparent);
+    }
+  }
+  #navbar.on-blue .dd-item {
+    color: color-mix(in srgb, #03558C 70%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--color-dark) 70%, transparent);
+    }
+  }
+  #navbar.on-blue .dd-item:hover {
+    background-color: color-mix(in srgb, #43A7DB 15%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-sky) 15%, transparent);
+    }
+    color: var(--color-dark);
+  }
+  #navbar.on-blue .dd-sub-menu {
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: color-mix(in srgb, #03558C 10%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-dark) 10%, transparent);
+    }
+    background-color: color-mix(in srgb, #F8F6F2 97%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-off) 97%, transparent);
+    }
+  }
   .dd-label {
     display: block;
     padding-inline: calc(var(--spacing) * 2.5);
