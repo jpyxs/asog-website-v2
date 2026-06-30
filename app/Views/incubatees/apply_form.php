@@ -252,13 +252,10 @@
                             startup business idea.
                         </p>
                         <p class="text-[.75rem] text-black leading-[1.7] mt-2 mb-0">
-                            Download the template first, fill out all the fields, and upload it below.
-                            To download, go to <strong class="font-semibold">File</strong> → <strong
-                                class="font-semibold">Download</strong> → <strong class="font-semibold">Microsoft Word
-                                (.docx)</strong>.
+                            Download the Lean Canvas template, complete it, then upload the finished PDF or DOCX file below.
                         </p>
-                        <a href="https://docs.google.com/document/d/1Dj1d7mKuE7QSOLzP8Xwn5GujfhcEeEzt/edit"
-                            target="_blank" rel="noopener"
+                        <a href="<?= base_url('assets/file/ASOG%20TBI%20Startup%20-%20Lean%20Canvas.docx') ?>"
+                            download="ASOG TBI Startup - Lean Canvas.docx"
                             class="inline-flex items-center gap-1.5 mt-3 text-[.6rem] font-bold tracking-[.12em] uppercase text-navy no-underline border border-navy/20 px-4 py-2 rounded-sm transition-all duration-200 hover:bg-navy hover:text-white hover:border-navy">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
@@ -275,7 +272,7 @@
                             class="text-[.52rem] font-bold tracking-[.18em] uppercase text-[#102033]/85 block mb-1">
                             Your Startup's Lean Canvas <span class="text-red-400">*</span>
                         </label>
-                        <span class="text-[.58rem] text-navy/30 block mb-3">Must be in .docx or PDF &middot; 1 file
+                        <span class="text-[.58rem] text-navy/30 block mb-3">Must be in .docx or .pdf &middot; 1 file
                             &middot; Max 10 MB</span>
                         <div id="leanCanvasChooser" class="inline-flex items-center gap-3">
                             <button type="button" id="leanCanvasButton" class="file-upload-button">
@@ -287,7 +284,7 @@
                                 class="hidden">
                         </div>
                         <!-- File preview -->
-                        <div id="leanCanvasPreview" class="mt-3 hidden"></div>
+                        <div id="leanCanvasPreview" class="hidden"></div>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1.5 hidden"
                             id="leanCanvasErr"><?= $errs['leanCanvas'] ?? '' ?></span>
                     </div>
