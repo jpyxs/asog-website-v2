@@ -6,29 +6,46 @@ class News extends BaseController
 {
     public function index(): string
     {
-        $category = $this->request->getGet('category');
-        $validCategories = ['news', 'features', 'opinions'];
+        $validCategories = \Config\PostCategories::keys();
+        $validSorts      = ['newest', 'oldest'];
 
-        if ($category && in_array($category, $validCategories)) {
-            $allPosts = $this->postModel->getByCategory($category);
-            $activeCategory = $category;
-        } else {
-            $allPosts = $this->postModel->getPublished();
-            $activeCategory = '';
+        $rawCategories = $this->request->getGet('categories') ?? [];
+        if (is_string($rawCategories)) {
+            $rawCategories = explode(',', $rawCategories);
+        } elseif (!is_array($rawCategories)) {
+            $rawCategories = [];
+        }
+        $activeCategories = array_values(array_filter($rawCategories, fn($c) => in_array($c, $validCategories, true)));
+
+        $sort = (string) ($this->request->getGet('sort') ?? 'newest');
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+
+        if (!in_array($sort, $validSorts, true)) {
+            $sort = 'newest';
         }
 
-        $latestPost = ! empty($allPosts) ? array_shift($allPosts) : null;
+        $result   = $this->postModel->getPublishedPage($activeCategories, $sort, 10, $page);
+        $allPosts = $result['posts'];
+
+        $latestPost = null;
+        if ($page === 1 && empty($activeCategories) && $sort === 'newest' && !empty($allPosts)) {
+            $latestPost = array_shift($allPosts);
+        }
 
         $data = [
-            'title'           => 'News & Insights - ASOG TBI',
-            'latestPost'      => $latestPost,
-            'posts'           => $allPosts,
-            'activeCategory'  => $activeCategory,
+            'title'            => 'News & Insights - ASOG TBI',
+            'latestPost'       => $latestPost,
+            'posts'            => $allPosts,
+            'activeCategories' => $activeCategories,
+            'activeSort'       => $sort,
+            'currentPage'      => $page,
+            'totalPages'       => $result['pages'],
+            'totalPosts'       => $result['total'],
+            'categories'       => \Config\PostCategories::all(),
+            'heroSubtitle'     => 'Stay Updated',
+            'heroTitle'        => 'News & Insights',
+            'heroDesc'         => 'The latest events, features, and stories from ASOG Technology Business Incubator.',
         ];
-
-        $data['heroSubtitle'] = 'Stay Updated';
-        $data['heroTitle']    = 'News & Insights';
-        $data['heroDesc']     = 'The latest events, features, and stories from ASOG Technology Business Incubator.';
 
         return view('templates/header', $data)
             . view('templates/page_hero', $data)

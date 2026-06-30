@@ -14,12 +14,32 @@ class AdminsManagement extends BaseController
      */
     public function index()
     {
-        $admins = $this->adminModel->findAll();
+        $search    = trim((string) ($this->request->getGet('search') ?? ''));
+        $status    = trim((string) ($this->request->getGet('status') ?? 'all'));
+        $status    = in_array($status, ['all', 'active', 'inactive'], true) ? $status : 'all';
+        $role      = trim((string) ($this->request->getGet('role') ?? 'all'));
+        $role      = in_array($role, ['all', 'superadmin', 'admin'], true) ? $role : 'all';
+        $sort      = trim((string) ($this->request->getGet('sort') ?? 'fullName'));
+        $direction = trim((string) ($this->request->getGet('direction') ?? 'ASC'));
+        $page      = max(1, (int) ($this->request->getGet('page') ?? 1));
+
+        $result = $this->adminModel->getFiltered($search, $status, $role, $sort, $direction, $page, 10);
+        $counts = $this->adminModel->getCounts();
 
         $data = [
-            'pageTitle'  => 'Accounts',
-            'activePage' => 'admins',
-            'admins'     => $admins,
+            'pageTitle'   => 'Accounts',
+            'activePage'  => 'admins',
+            'admins'      => $result['admins'],
+            'total'       => $result['total'],
+            'currentPage' => $result['page'],
+            'totalPages'  => $result['totalPages'],
+            'perPage'     => $result['perPage'],
+            'search'      => $search,
+            'status'      => $status,
+            'role'        => $role,
+            'sort'        => $sort,
+            'direction'   => $direction,
+            'counts'      => $counts,
         ];
 
         return view('admin/layout/header', $data)

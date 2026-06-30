@@ -312,10 +312,8 @@
                         </svg>
                         Guidelines
                     </button>
-                    <p class="text-[.8rem] text-dark max-w-[320px]">We'll review your application and reach out within
-                                        5–7 business days.</p>
+                    
                 </div>
-                
             </div>
         </form>
 
