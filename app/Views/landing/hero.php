@@ -8,6 +8,7 @@
 $heroSlides = $heroSlides ?? [];
 $hasSlides  = ! empty($heroSlides);
 $dotCount   = $hasSlides ? count($heroSlides) : 3;
+$heroPageTotal = $hasSlides ? count($heroSlides) : 3;
 $fallbackHeroImage = base_url('assets/img/incubatees.jpg');
 ?>
 <section id="hero" class="hero-rect-mobile relative w-full overflow-hidden" data-navhint="blue">
@@ -37,8 +38,15 @@ $fallbackHeroImage = base_url('assets/img/incubatees.jpg');
         <!-- Gold accent rule -->
         <div class="hero-kicker hidden md:flex items-center gap-10 mb-6">
             <div class="w-10 h-[2px] bg-gold shrink-0"></div>
-            <span class="text-[.56rem] font-bold tracking-[.28em] uppercase text-gold/80">
-                <?= $hasSlides ? 'Featured Story' : 'Bicol Region\'s Premier Incubator' ?>
+            <span class="inline-flex items-center gap-3 text-[.56rem] font-bold tracking-[.28em] uppercase text-gold/80">
+                <span>
+                    <?= $hasSlides ? 'Featured Story' : 'Bicol Region\'s Premier Incubator' ?>
+                </span>
+                <?php if ($heroPageTotal > 0): ?>
+                <span data-hero-page-indicator aria-live="polite" class="text-gold/70">
+                    1/<?= esc($heroPageTotal) ?>
+                </span>
+                <?php endif; ?>
             </span>
         </div>
 
@@ -82,14 +90,16 @@ $fallbackHeroImage = base_url('assets/img/incubatees.jpg');
             </div>
             <?php endif; ?>
 
-            <!-- Dots below the CTA -->
+            <!-- Dots below the CTA // Removed for now, as the hero controls already have prev/next buttons and a pause/play button
             <div class="hero-dots flex items-center justify-center md:justify-start gap-1.5">
                 <?php for ($d = 0; $d < $dotCount; $d++): ?>
                 <button class="ind <?= $d === 0 ? 'active' : '' ?> border-none p-0 cursor-pointer"
                     onclick="goTo(<?= $d ?>)"></button>
                 <?php endfor; ?>
-            </div>
+            </div> -->
         </div>
+
+
 
     </div><!-- /content -->
 
