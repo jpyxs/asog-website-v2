@@ -10,6 +10,80 @@ class OrganizationAdmin extends BaseController
 {
     private const PHOTO_MAX_BYTES = 2097152; // 2 MB
 
+    public function saveOrder()
+    {
+        $section = $this->sanitizeSection((string) $this->request->getPost('section'));
+        $category = $this->sanitizeMentorCategory((string) $this->request->getPost('category'), $section);
+        $orderedIds = $this->request->getPost('order');
+
+        if (! is_array($orderedIds) || $orderedIds === []) {
+            return $this->response->setJSON([
+                'ok' => false,
+                'error' => 'No member order received.',
+            ]);
+        }
+
+        $memberModel = $this->memberModel();
+        $members = $memberModel->getBySection(
+            $section,
+            $section === OrganizationMemberModel::SECTION_MENTOR ? $category : null
+        );
+
+        $allowed = [];
+        foreach ($members as $m) {
+            $allowed[(int) ($m['id'] ?? 0)] = $m;
+        }
+
+        $featuredIds = [];
+        if ($section !== OrganizationMemberModel::SECTION_MENTOR) {
+            foreach ($members as $m) {
+                if (! empty($m['isFeatured'])) {
+                    $featuredIds[] = (int) $m['id'];
+                }
+            }
+        }
+        $featuredSet = array_fill_keys($featuredIds, true);
+
+        $normalized = [];
+        foreach (array_values($orderedIds) as $id) {
+            $mid = (int) $id;
+            if ($mid <= 0) {
+                continue;
+            }
+            if (! isset($allowed[$mid])) {
+                continue;
+            }
+            if (isset($featuredSet[$mid])) {
+                continue; // featured are pinned (not reorderable)
+            }
+            $normalized[] = $mid;
+        }
+
+        // Preserve current featured ordering at the top, then apply drag order for remaining items.
+        $finalOrder = array_values(array_merge($featuredIds, $normalized));
+
+        $this->db->transStart();
+
+        foreach ($finalOrder as $index => $mid) {
+            $this->db->table('organization_members')
+                ->where('id', $mid)
+                ->update(['sortOrder' => $index + 1]);
+        }
+
+        $this->db->transComplete();
+
+        if (! $this->db->transStatus()) {
+            return $this->response->setJSON([
+                'ok' => false,
+                'error' => 'Unable to save the new order.',
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'ok' => true,
+        ]);
+    }
+
     private function memberModel(): OrganizationMemberModel
     {
         return new OrganizationMemberModel();
@@ -100,6 +174,48 @@ class OrganizationAdmin extends BaseController
         ]));
     }
 
+    public function modalCreate()
+    {
+        $section = $this->sanitizeSection((string) ($this->request->getGet('section') ?? OrganizationMemberModel::SECTION_CORE_TEAM));
+        $category = $this->sanitizeMentorCategory((string) ($this->request->getGet('category') ?? ''), $section);
+
+        return $this->response->setBody($this->renderMemberModal([
+            'mode' => 'add',
+            'member' => null,
+            'defaultSection' => $section,
+            'defaultCategory' => $category,
+            'submitUrl' => site_url('admin/organization/modal'),
+            'errors' => [],
+            'formData' => [],
+        ]));
+    }
+
+    public function modalEdit(int $id)
+    {
+        $member = $this->memberModel()->find($id);
+        if (! is_array($member)) {
+            return $this->response->setStatusCode(404)->setBody('Member not found.');
+        }
+
+        $updatedAt = (string) ($member['updatedAt'] ?? '');
+        $since = trim((string) ($this->request->getGet('since') ?? ''));
+        if ($since !== '' && $since === $updatedAt) {
+            return $this->response->setStatusCode(204);
+        }
+
+        return $this->response
+            ->setHeader('X-Member-Updated-At', $updatedAt)
+            ->setBody($this->renderMemberModal([
+                'mode' => 'edit',
+                'member' => $member,
+                'defaultSection' => (string) ($member['section'] ?? OrganizationMemberModel::SECTION_CORE_TEAM),
+                'defaultCategory' => (string) ($member['mentorCategory'] ?? ''),
+                'submitUrl' => site_url('admin/organization/modal/' . $id),
+                'errors' => [],
+                'formData' => [],
+            ]));
+    }
+
     public function store()
     {
         $memberModel = $this->memberModel();
@@ -148,6 +264,95 @@ class OrganizationAdmin extends BaseController
             (string) ($member['mentorCategory'] ?? ''),
             ['modal' => 'edit', 'memberId' => $id]
         ));
+    }
+
+    public function modalStore()
+    {
+        $memberModel = $this->memberModel();
+        $payload = $this->memberPayload();
+
+        try {
+            $photoPath = $this->handlePhotoUpload();
+            if ($photoPath !== null) {
+                $payload['photoPath'] = $photoPath;
+            }
+        } catch (\RuntimeException $e) {
+            return $this->modalErrorResponse('add', null, $payload, ['photo' => $e->getMessage()]);
+        }
+
+        $payload['sortOrder'] = $memberModel->getNextSortOrder(
+            $payload['section'],
+            $payload['section'] === OrganizationMemberModel::SECTION_MENTOR ? ($payload['mentorCategory'] ?? null) : null
+        );
+
+        if (! $memberModel->insert($payload)) {
+            return $this->modalErrorResponse('add', null, $payload, $memberModel->errors());
+        }
+
+        $memberId = (int) $memberModel->getInsertID();
+
+        return $this->modalSuccessResponse($memberId, 'Member added.', 'insert');
+    }
+
+    public function modalUpdate(int $id)
+    {
+        $memberModel = $this->memberModel();
+        $member = $memberModel->find($id);
+        if (! is_array($member)) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'ok' => false,
+                'message' => 'Member not found.',
+            ]);
+        }
+
+        $payload = $this->memberPayload();
+
+        // Edit modal should not allow changing the section.
+        // We lock section to the current member to prevent accidental/invalid relocation.
+        $payload['section'] = (string) ($member['section'] ?? OrganizationMemberModel::SECTION_CORE_TEAM);
+        if ($payload['section'] !== OrganizationMemberModel::SECTION_MENTOR) {
+            $payload['mentorCategory'] = null;
+        }
+
+        try {
+            $photoPath = $this->handlePhotoUpload($member['photoPath'] ?? null);
+            if ($photoPath !== null) {
+                $payload['photoPath'] = $photoPath;
+            }
+        } catch (\RuntimeException $e) {
+            return $this->modalErrorResponse('edit', $member, $payload, ['photo' => $e->getMessage()], $id);
+        }
+
+        $previousLocation = [
+            'section' => (string) ($member['section'] ?? ''),
+            'category' => (string) ($member['mentorCategory'] ?? ''),
+        ];
+
+        // If mentorCategory changes, treat it as a relocation within the mentor list.
+        $relocated = $previousLocation['section'] !== $payload['section']
+            || (
+                $payload['section'] === OrganizationMemberModel::SECTION_MENTOR
+                && $previousLocation['category'] !== ($payload['mentorCategory'] ?? '')
+            );
+
+        // When relocating, ensure correct ordering in the target list.
+        if ($relocated) {
+            $payload['sortOrder'] = $memberModel->getNextSortOrder(
+                $payload['section'],
+                $payload['section'] === OrganizationMemberModel::SECTION_MENTOR ? ($payload['mentorCategory'] ?? null) : null
+            );
+        }
+
+        if (! $memberModel->update($id, $payload)) {
+            return $this->modalErrorResponse('edit', $member, $payload, $memberModel->errors(), $id);
+        }
+
+        return $this->modalSuccessResponse(
+            $id,
+            'Member updated.',
+            $relocated ? 'relocate' : 'update',
+            $relocated ? $previousLocation : null
+        );
     }
 
     public function update(int $id)
@@ -286,6 +491,240 @@ class OrganizationAdmin extends BaseController
         }
 
         return site_url('admin/organization?' . http_build_query($params));
+    }
+
+    /**
+     * @param array{mode:string,member:?array,defaultSection:string,defaultCategory:string,submitUrl:string,errors:array,formData:array} $data
+     */
+    private function renderMemberModal(array $data): string
+    {
+        return view('admin/organization/_member_modal', [
+            'modalMode' => $data['mode'],
+            'modalMember' => $data['member'],
+            'defaultSection' => $data['defaultSection'],
+            'defaultCategory' => $data['defaultCategory'],
+            'mentorCategories' => OrganizationMemberModel::MENTOR_CATEGORIES,
+            'modalSubmitUrl' => $data['submitUrl'],
+            'formErrors' => $data['errors'],
+            'formData' => $data['formData'],
+        ]);
+    }
+
+    /**
+     * @param array<string,mixed> $payload
+     * @param array<string,string> $errors
+     */
+    private function modalErrorResponse(string $mode, ?array $member, array $payload, array $errors, ?int $memberId = null)
+    {
+        $section = $this->sanitizeSection((string) ($payload['section'] ?? ($member['section'] ?? OrganizationMemberModel::SECTION_CORE_TEAM)));
+        $category = $this->sanitizeMentorCategory((string) ($payload['mentorCategory'] ?? ($member['mentorCategory'] ?? '')), $section);
+
+        $modalHtml = $this->renderMemberModal([
+            'mode' => $mode,
+            'member' => $member,
+            'defaultSection' => $section,
+            'defaultCategory' => $category,
+            'submitUrl' => $mode === 'edit' && $memberId !== null
+                ? site_url('admin/organization/modal/' . $memberId)
+                : site_url('admin/organization/modal'),
+            'errors' => $errors,
+            'formData' => $payload,
+        ]);
+
+        return $this->response->setStatusCode(422)->setJSON([
+            'ok' => false,
+            'modalHtml' => $modalHtml,
+        ]);
+    }
+
+    /**
+     * @param array{section:string,category:string}|null $previousLocation
+     */
+    private function modalSuccessResponse(int $memberId, string $message, string $action, ?array $previousLocation = null)
+    {
+        $memberModel = $this->memberModel();
+        $member = $memberModel->find($memberId);
+        if (! is_array($member)) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'ok' => false,
+                'message' => 'Member not found after save.',
+            ]);
+        }
+
+        $section = $this->sanitizeSection((string) ($member['section'] ?? OrganizationMemberModel::SECTION_CORE_TEAM));
+        $mentorCategory = $this->sanitizeMentorCategory((string) ($member['mentorCategory'] ?? ''), $section);
+        $members = $memberModel->getBySection(
+            $section,
+            $section === OrganizationMemberModel::SECTION_MENTOR ? $mentorCategory : null
+        );
+        $memberIndex = null;
+        foreach ($members as $index => $row) {
+            if ((int) ($row['id'] ?? 0) === $memberId) {
+                $memberIndex = $index;
+                break;
+            }
+        }
+
+        $lastIndex = count($members) - 1;
+        $rowHtml = view('admin/organization/_member_row', [
+            'member' => $member,
+            'activeSection' => $section,
+            'isFirst' => $memberIndex === 0,
+            'isLast' => $memberIndex === $lastIndex,
+        ]);
+
+        $patchRows = [];
+        if ($action === 'insert' && $memberIndex !== null && $memberIndex > 0) {
+            $previousMember = $members[$memberIndex - 1];
+            $patchRows[] = [
+                'id' => (int) $previousMember['id'],
+                'rowHtml' => view('admin/organization/_member_row', [
+                    'member' => $previousMember,
+                    'activeSection' => $section,
+                    'isFirst' => ($memberIndex - 1) === 0,
+                    'isLast' => false,
+                ]),
+            ];
+        }
+
+        $sectionCounts = $this->sectionCounts();
+        $listEmpty = null;
+        if ($action === 'relocate' && is_array($previousLocation)) {
+            $patchRows = array_merge(
+                $patchRows,
+                $this->neighborRowPatches(
+                    $previousLocation['section'],
+                    $previousLocation['section'] === OrganizationMemberModel::SECTION_MENTOR ? $previousLocation['category'] : null
+                )
+            );
+
+            if ($memberIndex !== null && $memberIndex > 0) {
+                $previousMember = $members[$memberIndex - 1];
+                $patchRows[] = [
+                    'id' => (int) $previousMember['id'],
+                    'rowHtml' => view('admin/organization/_member_row', [
+                        'member' => $previousMember,
+                        'activeSection' => $section,
+                        'isFirst' => ($memberIndex - 1) === 0,
+                        'isLast' => false,
+                    ]),
+                ];
+            }
+
+            $oldSection = $this->sanitizeSection($previousLocation['section']);
+            $oldCategory = $this->sanitizeMentorCategory($previousLocation['category'], $oldSection);
+            if (($sectionCounts[$oldSection] ?? 0) === 0) {
+                $listEmpty = [
+                    'selector' => $this->listSelector($oldSection, $oldCategory),
+                    'html' => $this->renderEmptyList($oldSection),
+                ];
+            }
+        }
+
+        return $this->response->setJSON([
+            'ok' => true,
+            'message' => $message,
+            'action' => $action,
+            'memberId' => $memberId,
+            'section' => $section,
+            'category' => $mentorCategory,
+            'listSelector' => $this->listSelector($section, $mentorCategory),
+            'rowHtml' => $rowHtml,
+            'patchRows' => $patchRows,
+            'listEmpty' => $listEmpty,
+            'sectionCounts' => $sectionCounts,
+            'totalCount' => array_sum($sectionCounts),
+            'memberUpdatedAt' => (string) ($member['updatedAt'] ?? ''),
+        ]);
+    }
+
+    /**
+     * @return list<array{id:int,rowHtml:string}>
+     */
+    private function neighborRowPatches(string $section, ?string $mentorCategory = null): array
+    {
+        $members = $this->memberModel()->getBySection($section, $mentorCategory);
+        $lastIndex = count($members) - 1;
+        $patches = [];
+
+        foreach ($members as $index => $member) {
+            if ($index !== 0 && $index !== $lastIndex) {
+                continue;
+            }
+
+            $patches[] = [
+                'id' => (int) $member['id'],
+                'rowHtml' => view('admin/organization/_member_row', [
+                    'member' => $member,
+                    'activeSection' => $section,
+                    'isFirst' => $index === 0,
+                    'isLast' => $index === $lastIndex,
+                ]),
+            ];
+        }
+
+        return $patches;
+    }
+
+    /**
+     * @return array<string,int>
+     */
+    private function sectionCounts(): array
+    {
+        $memberModel = $this->memberModel();
+        $counts = [];
+
+        foreach (OrganizationMemberModel::SECTIONS as $section) {
+            $counts[$section] = $memberModel->where('section', $section)->countAllResults();
+        }
+
+        return $counts;
+    }
+
+    private function listSelector(string $section, string $mentorCategory = ''): string
+    {
+        if ($section === OrganizationMemberModel::SECTION_MENTOR) {
+            return '#mentor-group-' . $this->mentorCategorySlug($mentorCategory);
+        }
+
+        return '#org-section-list';
+    }
+
+    private function renderEmptyList(string $section): string
+    {
+        if ($section === OrganizationMemberModel::SECTION_MENTOR) {
+            return '<div class="org-admin-empty org-admin-empty-compact"><span>No mentors in this area yet.</span></div>';
+        }
+
+        return '<div class="org-admin-empty"><strong>No members in this section</strong><span>Add the first member using the button above.</span></div>';
+    }
+
+    private function sanitizeSection(string $section): string
+    {
+        $section = trim($section);
+        if (! in_array($section, OrganizationMemberModel::SECTIONS, true)) {
+            return OrganizationMemberModel::SECTION_CORE_TEAM;
+        }
+        return $section;
+    }
+
+    private function sanitizeMentorCategory(string $category, string $section): string
+    {
+        if ($section !== OrganizationMemberModel::SECTION_MENTOR) {
+            return '';
+        }
+
+        $category = trim($category);
+        if ($category === '' || ! in_array($category, OrganizationMemberModel::MENTOR_CATEGORIES, true)) {
+            return OrganizationMemberModel::MENTOR_CATEGORIES[0];
+        }
+
+        return $category;
+    }
+
+    private function mentorCategorySlug(string $category): string
+    {
+        return strtolower((string) preg_replace('/[^a-z0-9]+/i', '-', $category));
     }
 
     private function memberPayload(): array

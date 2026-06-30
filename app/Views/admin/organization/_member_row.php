@@ -5,8 +5,10 @@
  */
 $id = (int) $member['id'];
 $isMentor = ($activeSection ?? '') === 'mentor';
+$isFeatured = ! $isMentor && ! empty($member['isFeatured']);
+$isReorderable = ! $isFeatured;
 ?>
-<article class="org-admin-item">
+<article class="org-admin-item org-drag-row" id="org-member-row-<?= $id ?>" data-id="<?= $id ?>" <?= $isReorderable ? 'draggable="true"' : '' ?>>
     <div class="org-admin-item-head">
         <div class="org-admin-item-meta">
             <?php if (! $isMentor && ! empty($member['photoPath'])): ?>
@@ -28,21 +30,12 @@ $isMentor = ($activeSection ?? '') === 'mentor';
             </div>
         </div>
         <div class="org-admin-item-actions">
-            <form method="POST" action="<?= site_url('admin/organization/members/' . $id . '/move/up') ?>">
-                <?= csrf_field() ?>
-                <button type="submit" class="org-admin-icon-btn" title="Move up" aria-label="Move up" <?= ! empty($isFirst) ? 'disabled' : '' ?>>↑</button>
-            </form>
-            <form method="POST" action="<?= site_url('admin/organization/members/' . $id . '/move/down') ?>">
-                <?= csrf_field() ?>
-                <button type="submit" class="org-admin-icon-btn" title="Move down" aria-label="Move down" <?= ! empty($isLast) ? 'disabled' : '' ?>>↓</button>
-            </form>
+            <?php if ($isReorderable): ?>
+                <span class="org-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
+            <?php endif; ?>
             <div class="acts">
-                <a href="<?= site_url('admin/organization?' . http_build_query(array_filter([
-                    'section' => $activeSection,
-                    'category' => $activeSection === 'mentor' ? ($member['mentorCategory'] ?? '') : '',
-                    'modal' => 'edit',
-                    'memberId' => $id,
-                ], static fn ($value) => $value !== null && $value !== ''))) ?>" class="act-btn edit" title="Edit" aria-label="Edit member">
+                <?php $editUrl = site_url('admin/organization/modal/' . $id); ?>
+                <a href="<?= $editUrl ?>" class="act-btn edit js-org-modal-trigger" data-modal-url="<?= $editUrl ?>" data-member-updated-at="<?= esc((string) ($member['updatedAt'] ?? '')) ?>" title="Edit" aria-label="Edit member">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
