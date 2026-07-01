@@ -46,10 +46,43 @@
     } catch (e) {}
   }
 
+  function sanitizeContactNumber(value) {
+    return String(value || '').replace(/\D+/g, '').slice(0, 11);
+  }
+
+  function syncContactNumber(el) {
+    if (!el) return;
+    var nextValue = sanitizeContactNumber(el.value);
+    if (el.value !== nextValue) {
+      el.value = nextValue;
+    }
+  }
+
   persistIds.forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener('input', saveToStorage);
   });
+
+  var contactField = document.getElementById('contactNumber');
+  if (contactField) {
+    syncContactNumber(contactField);
+    contactField.addEventListener('input', function () {
+      syncContactNumber(contactField);
+      validate(contactField);
+      saveToStorage();
+    });
+    contactField.addEventListener('blur', function () {
+      syncContactNumber(contactField);
+      validate(contactField);
+      saveToStorage();
+    });
+    contactField.addEventListener('paste', function () {
+      setTimeout(function () {
+        syncContactNumber(contactField);
+        saveToStorage();
+      }, 0);
+    });
+  }
 
 
   /* ─────────────────────────────────────────────────────────────────
@@ -59,8 +92,8 @@
     'required': function (v) { return v.trim().length > 0 || 'This field is required.'; },
     'min:2':    function (v) { return v.trim().length >= 2  || 'Must be at least 2 characters.'; },
     'min:10':   function (v) { return v.trim().length >= 10 || 'Must be at least 10 characters.'; },
-    'email':    function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Enter a valid email.'; },
-    'phone':    function (v) { return /^[0-9\s\-\+\(\)]{7,20}$/.test(v)   || 'Enter a valid phone number.'; },
+    'email':    function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Please enter a valid email.'; },
+    'phone':    function (v) { return /^09[0-9]{9}$/.test(v) || 'Please enter a valid contact number.'; },
     'url':      function (v) { return /^https?:\/\/.+\..+/.test(v)         || 'Enter a valid URL (https://...).'; },
     'name':     function (v) { return /^[A-Za-z\u00C0-\u00FF\s,\.]+$/.test(v) || 'Use format: Last Name, First Name MI'; },
   };

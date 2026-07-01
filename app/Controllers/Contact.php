@@ -4,6 +4,9 @@ namespace App\Controllers;
 
 class Contact extends BaseController
 {
+    private const MIN_MESSAGE_WORDS = 10;
+    private const MAX_MESSAGE_WORDS = 5000;
+
     public function index(): string
     {
         $data = [
@@ -34,6 +37,30 @@ class Contact extends BaseController
             'email'   => $this->request->getPost('email'),
             'message' => $this->request->getPost('message'),
         ];
+
+        $message = trim((string) $data['message']);
+        $wordCount = $message === '' ? 0 : preg_match_all('/\S+/u', $message, $matches);
+
+        if ($message === '') {
+            setToast('error', 'Please fill in all fields correctly.');
+            return redirect()->back()->withInput();
+        }
+
+        if ($wordCount !== false && $wordCount < self::MIN_MESSAGE_WORDS) {
+            setToast('error', 'Message must be at least ' . self::MIN_MESSAGE_WORDS . ' words.');
+            return redirect()->back()->withInput()->with('errors', [
+                'message' => 'Message must be at least ' . self::MIN_MESSAGE_WORDS . ' words.'
+            ]);
+        }
+
+        if ($wordCount !== false && $wordCount > self::MAX_MESSAGE_WORDS) {
+            setToast('error', 'Message cannot exceed ' . self::MAX_MESSAGE_WORDS . ' words.');
+            return redirect()->back()->withInput()->with('errors', [
+                'message' => 'Message cannot exceed ' . self::MAX_MESSAGE_WORDS . ' words.'
+            ]);
+        }
+
+        $data['message'] = $message;
 
         if (! $this->contactModel->validate($data)) {
             setToast('error', 'Please fill in all fields correctly.');
