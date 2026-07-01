@@ -3810,7 +3810,7 @@
     overflow: hidden;
     padding-inline: calc(var(--spacing) * 0);
     opacity: 0%;
-    transition: opacity .2s .05s ease, max-width .25s ease, padding .2s ease, width .25s ease;
+    transition: opacity .2s ease, max-width .2s ease, padding .2s ease, width .2s ease;
   }
   #navbar.scrolled .lo {
     width: auto;
