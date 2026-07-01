@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Libraries\GmailMailer;
+
 class Contact extends BaseController
 {
     private const MIN_MESSAGE_WORDS = 10;
@@ -84,15 +86,6 @@ class Contact extends BaseController
     // ──────────────────────────────────────────────
     private function notifyAdmin(array $data): void
     {
-        $emailService = \Config\Services::email();
-        $config       = new \Config\Email();
-
-        // Skip silently when SMTP is not configured
-        if (empty($config->SMTPUser) || $config->SMTPUser === 'your-email@gmail.com') {
-            log_message('info', 'Contact notification skipped — SMTP not configured.');
-            return;
-        }
-
         $body = view('emails/contact_notification', [
             'name'    => $data['name'],
             'email'   => $data['email'],
@@ -100,15 +93,20 @@ class Contact extends BaseController
             'sentAt'  => date('F j, Y \a\t g:i A'),
         ]);
 
-        $emailService->setFrom($config->fromEmail, $config->fromName);
-        $emailService->setTo($config->SMTPUser);          // send to the admin's own inbox
-        $emailService->setReplyTo($data['email'], $data['name']);
-        $emailService->setSubject('ASOG TBI — New Contact Message from ' . $data['name']);
-        $emailService->setMessage($body);
-        $emailService->setMailType('html');
+        $gmail = new GmailMailer();
+        $config = config('GmailApi');
+        $recipient = $config->adminRecipient !== '' ? $config->adminRecipient : $config->senderEmail;
 
-        if (! $emailService->send(false)) {
-            log_message('error', 'Contact notification email failed: ' . $emailService->printDebugger(['headers']));
+        if ($recipient === '') {
+            log_message('info', 'Contact notification skipped - Gmail API admin recipient is not configured.');
+            return;
+        }
+
+        if (! $gmail->send($recipient, 'ASOG TBI - New Contact Message from ' . $data['name'], $body, [
+            'email' => (string) $data['email'],
+            'name' => (string) $data['name'],
+        ])) {
+            log_message('error', 'Contact notification email failed via Gmail API.');
         } else {
             log_message('info', 'Contact notification sent for: ' . $data['email']);
         }

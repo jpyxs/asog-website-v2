@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\GmailMailer;
 use App\Models\IncubateeApplicationModel;
 use App\Models\LandingSettingModel;
 
@@ -236,14 +237,6 @@ class ApplicationsAdmin extends BaseController
      */
     private function sendStatusEmail(array $app, string $newStatus, ?string $remark = null, ?string $revalidationUrl = null): void
     {
-        $emailSvc = \Config\Services::email();
-        $config   = new \Config\Email();
-
-        if (empty($config->SMTPUser) || $config->SMTPUser === 'your-email@gmail.com') {
-            log_message('info', 'Status email skipped — SMTP credentials not configured in .env');
-            return;
-        }
-
         $statusMap = [
             'pending'  => [
                 'label'     => 'For Review',
@@ -297,14 +290,10 @@ class ApplicationsAdmin extends BaseController
                 'revalidationExpiresAt' => $app['revalidationTokenExpiresAt'] ?? null,
             ]);
 
-            $emailSvc->setFrom($config->fromEmail, $config->fromName);
-            $emailSvc->setTo($app['applicantEmail']);
-            $emailSvc->setSubject($info['subject']);
-            $emailSvc->setMessage($body);
-            $emailSvc->setMailType('html');
+            $gmail = new GmailMailer();
 
-            if (! $emailSvc->send(false)) {
-                log_message('error', 'Status email failed for app #' . $app['id'] . ': ' . $emailSvc->printDebugger(['headers']));
+            if (! $gmail->send($app['applicantEmail'], $info['subject'], $body)) {
+                log_message('error', 'Status email failed via Gmail API for app #' . $app['id'] . '.');
             } else {
                 log_message('info', 'Status email sent to: ' . $app['applicantEmail'] . ' (status: ' . $newStatus . ')');
             }
