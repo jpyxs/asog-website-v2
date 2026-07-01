@@ -46,6 +46,7 @@
                     'maxWidth' => '280px',
                     'gradient' => 'linear-gradient(160deg, rgba(3,85,140,.58), rgba(3,85,140,.2))',
                     'primaryClass' => 'text-[.68rem] font-semibold tracking-[.08em] uppercase text-dark mt-1.5 block',
+                    'lazy' => false,
                 ]) ?>
             <?php endforeach; ?>
 
