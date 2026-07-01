@@ -174,40 +174,80 @@ $sdgTitles = [
 
 .sdg-select-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: .45rem
+    grid-template-columns: repeat(10, 1fr);
+    gap: .5rem;
+    max-width: 1000px;
 }
 
 .sdg-check {
-    display: inline-flex;
+    position: relative;
+    display: flex;
     align-items: center;
-    gap: .5rem;
-    border: 1px solid #e2e8f0;
+    justify-content: center;
+    border: 2px solid transparent;
+    border-radius: .35rem;
+    padding: .25rem;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.sdg-check img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
     border-radius: .25rem;
-    padding: .38rem .45rem;
-    background: #fff;
-    color: #334155;
-    font-size: .7rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    line-height: 1.15;
-    transition: border-color .15s, background .15s;
-    min-height: 3rem
+    display: block;
+    opacity: .3;
+    transition: opacity .15s;
+}
+
+.sdg-check:hover img {
+    opacity: .8;
+}
+
+.sdg-check:has(input:checked) img {
+    opacity: 1;
+}
+
+@media (max-width: 800px) {
+    .sdg-select-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
 }
 
 .sdg-check:hover {
-    border-color: #03558C;
-    background: #f8fbff
-}
-
-.sdg-check input {
-    accent-color: #03558C
+    border-color: #03558C
 }
 
 .sdg-check:has(input:checked) {
     border-color: #03558C;
-    background: #ebf4fb;
-    color: #03558C;
+    box-shadow: 0 0 0 2px rgba(3,85,140,.15);
+}
+
+.sdg-check input {
+    display: none;
+}
+
+.sdg-tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4a5a73;
+    color: #f1f5f9;
+    font-size: .6rem;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: .3rem .55rem;
+    border-radius: .25rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+
+.sdg-check:hover .sdg-tooltip {
+    opacity: 1;
 }
 
 .sdg-help {
@@ -708,17 +748,16 @@ $sdgTitles = [
                 <label>SDGs</label>
                 <div class="sdg-select-grid">
                     <?php for ($sdgId = 1; $sdgId <= 17; $sdgId++): ?>
-                    <label class="sdg-check">
+                    <?php $sdgNum = str_pad((string) $sdgId, 2, '0', STR_PAD_LEFT); ?>
+                    <label class="sdg-check sdg-check-icon">
                         <input
                             type="checkbox"
                             name="sdgNumbers[]"
                             value="<?= $sdgId ?>"
                             <?= in_array($sdgId, $selectedSdgs, true) ? 'checked' : '' ?>
                         >
-                        <span>
-                            <span style="display:block;font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;">SDG <?= $sdgId ?></span>
-                            <span style="display:block;font-size:.66rem;font-weight:300;letter-spacing:.02em;text-transform:none;color:inherit;opacity:.7"><?= esc($sdgTitles[$sdgId] ?? '') ?></span>
-                        </span>
+                        <img src="<?= base_url('assets/img/sdg/sdg-' . $sdgNum . '.webp') ?>" alt="SDG <?= $sdgId ?> — <?= esc($sdgTitles[$sdgId] ?? '') ?>">
+                        <span class="sdg-tooltip">SDG <?= $sdgId ?> — <?= esc($sdgTitles[$sdgId] ?? '') ?></span>
                     </label>
                     <?php endfor; ?>
                 </div>
