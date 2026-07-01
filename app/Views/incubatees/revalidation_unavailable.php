@@ -1,21 +1,27 @@
-<section class="relative bg-off py-20 px-6 md:px-10 lg:px-14">
+<section class="relative bg-off pt-32 pb-16 md:pt-36 md:pb-20 px-6 md:px-10 lg:px-14">
     <div class="ai-grid"></div>
     <div class="ai-grid-fade"></div>
 
-    <div class="relative z-[2] max-w-[680px] mx-auto bg-white border border-navy/10 rounded-md p-7 md:p-9 text-center">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-navy/10 text-navy mb-5">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+    <div class="relative z-[2] w-full max-w-[600px] mx-auto text-center">
+        <div class="w-14 h-14 mx-auto rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-gold" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
             </svg>
         </div>
-        <p class="text-[.58rem] font-bold tracking-[.2em] uppercase text-gold mb-2">Application Update</p>
-        <h1 class="font-display text-[1.65rem] md:text-[2rem] text-dark leading-tight mb-3">This update link is unavailable</h1>
-        <p class="text-[.86rem] text-dark/70 leading-[1.7] mb-6">
+
+        <div class="flex items-center justify-center gap-2 mb-5">
+            <span class="block w-[18px] h-[2px] bg-gold"></span>
+            <p class="text-[.56rem] font-bold tracking-[.2em] uppercase text-gold m-0">Application Update</p>
+            <span class="block w-[18px] h-[2px] bg-gold"></span>
+        </div>
+
+        <h1 class="font-display text-[1.75rem] md:text-[2.15rem] text-dark leading-tight mb-4">This update link is unavailable</h1>
+        <p class="text-[.88rem] font-light leading-[1.85] text-dark/60 max-w-[560px] mx-auto mb-10">
             The link may have expired, already been used, or the application may no longer be open for revalidation.
             Please contact ASOG TBI if you believe you still need to update your application.
         </p>
         <a href="<?= site_url('contact') ?>"
-            class="inline-flex items-center justify-center bg-navy text-white text-[.68rem] font-bold tracking-[.14em] uppercase px-6 py-3 rounded-sm no-underline transition-colors hover:bg-dark">
+            class="inline-block font-body text-[.72rem] font-medium tracking-[.14em] uppercase text-white bg-sky border border-sky px-8 md:px-10 py-4 rounded-sm no-underline transition-all duration-200 hover:bg-sky/80 hover:-translate-y-0.5">
             Contact ASOG TBI
         </a>
     </div>

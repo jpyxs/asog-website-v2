@@ -20,7 +20,13 @@
             $formAction = $isRevalidation ? ($revalidationAction ?? current_url()) : site_url('apply/form');
             $existingTeamCvPath = trim((string) ($existingTeamCvPath ?? ''));
             $existingLeanCanvasPath = trim((string) ($existingLeanCanvasPath ?? ''));
-            $existingTeamCvCount = $existingTeamCvPath !== '' ? count(array_filter(array_map('trim', explode(',', $existingTeamCvPath)))) : 0;
+            $existingTeamCvPaths = $existingTeamCvPath !== '' ? array_values(array_filter(array_map('trim', explode(',', $existingTeamCvPath)))) : [];
+            $existingTeamCvCount = count($existingTeamCvPaths);
+            $existingLeanCanvasName = $existingLeanCanvasPath !== '' ? basename($existingLeanCanvasPath) : '';
+            $fileUrl = static fn (string $path): string => base_url(ltrim($path, '/'));
+            $storageKey = $isRevalidation
+                ? 'asog_apply_form_revalidation_' . (string) ($formInput['id'] ?? 'unknown')
+                : 'asog_apply_form_public_v2';
         ?>
 
         <?php if ($formError): ?>
@@ -32,24 +38,12 @@
 
         <form id="applyForm" action="<?= esc($formAction) ?>" method="post" enctype="multipart/form-data"
             data-check-url="<?= site_url('apply/form/check-email') ?>"
-            data-skip-duplicate-email="<?= $isRevalidation ? '1' : '0' ?>">
+            data-skip-duplicate-email="<?= $isRevalidation ? '1' : '0' ?>"
+            data-form-mode="<?= $isRevalidation ? 'revalidation' : 'public' ?>"
+            data-storage-key="<?= esc($storageKey) ?>"
+            data-has-existing-lean-canvas="<?= $isRevalidation && $existingLeanCanvasPath !== '' ? '1' : '0' ?>"
+            data-existing-team-cv-count="<?= esc((string) $existingTeamCvCount) ?>">
             <?= csrf_field() ?>
-
-            <?php if ($isRevalidation): ?>
-                <div class="mb-8 rounded-md border border-orange-200 bg-orange-50 p-5 md:p-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="block w-[18px] h-[2px] bg-orange-500"></span>
-                        <span class="text-[.56rem] font-bold tracking-[.18em] uppercase text-orange-700">For Revalidation</span>
-                    </div>
-                    <p class="text-[.84rem] font-semibold text-dark mb-2">Please update your existing application using the remarks below.</p>
-                    <?php if (! empty($revalidationRemark)): ?>
-                        <p class="text-[.8rem] text-dark/80 leading-[1.7] whitespace-pre-line mb-3"><?= esc($revalidationRemark) ?></p>
-                    <?php endif; ?>
-                    <?php if (! empty($revalidationExpiresAt)): ?>
-                        <p class="text-[.66rem] text-orange-700/80 m-0">This private update link is valid until <?= esc(date('M j, Y g:i A', strtotime((string) $revalidationExpiresAt))) ?>.</p>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
 
             <!-- ═══════════════════════════════════════════════════════
                  WELCOME INTRO
@@ -247,7 +241,21 @@
                                 <input type="file" id="teamCv" name="teamCv[]" multiple accept=".pdf" class="hidden">
                             </div>
                             <?php if ($isRevalidation && $existingTeamCvPath !== ''): ?>
-                                <p class="text-[.62rem] text-navy/50 mt-2 mb-0">Current upload<?= $existingTeamCvCount === 1 ? '' : 's' ?>: <?= esc((string) $existingTeamCvCount) ?> CV file<?= $existingTeamCvCount === 1 ? '' : 's' ?>. Leave blank to keep <?= $existingTeamCvCount === 1 ? 'it' : 'them' ?>.</p>
+                                <div class="mt-3 space-y-2">
+                                    <p class="text-[.58rem] font-bold tracking-[.16em] uppercase text-navy/45 m-0">Current CV file<?= $existingTeamCvCount === 1 ? '' : 's' ?></p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <?php foreach ($existingTeamCvPaths as $path): ?>
+                                            <a href="<?= esc($fileUrl($path)) ?>" target="_blank" rel="noopener"
+                                                class="inline-flex items-center gap-2 text-[.72rem] text-dark/70 bg-off/60 border border-navy/10 rounded-sm px-3 py-1.5 no-underline hover:border-navy/30 hover:text-navy transition-colors">
+                                                <svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H4zm7 1.5L16.5 9H12a1 1 0 01-1-1V3.5z"/>
+                                                </svg>
+                                                <span class="max-w-[220px] truncate"><?= esc(basename($path)) ?></span>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <p class="text-[.62rem] text-navy/50 m-0">Leave blank to keep <?= $existingTeamCvCount === 1 ? 'this file' : 'these files' ?>.</p>
+                                </div>
                             <?php endif; ?>
                             <!-- File preview list -->
                             <ul id="teamCvList" class="mt-3 space-y-2.5 list-none p-0 m-0 hidden"></ul>
@@ -322,7 +330,17 @@
                                 class="hidden">
                         </div>
                         <?php if ($isRevalidation && $existingLeanCanvasPath !== ''): ?>
-                            <p class="text-[.62rem] text-navy/50 mt-2 mb-0">A Lean Canvas file is already on record. Leave blank to keep it.</p>
+                            <div class="mt-3 space-y-2">
+                                <p class="text-[.58rem] font-bold tracking-[.16em] uppercase text-navy/45 m-0">Current Lean Canvas</p>
+                                <a href="<?= esc($fileUrl($existingLeanCanvasPath)) ?>" target="_blank" rel="noopener"
+                                    class="inline-flex items-center gap-2 text-[.72rem] text-dark/70 bg-off/60 border border-navy/10 rounded-sm px-3 py-1.5 no-underline hover:border-navy/30 hover:text-navy transition-colors">
+                                    <svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H4zm7 1.5L16.5 9H12a1 1 0 01-1-1V3.5z"/>
+                                    </svg>
+                                    <span class="max-w-[260px] truncate"><?= esc($existingLeanCanvasName) ?></span>
+                                </a>
+                                <p class="text-[.62rem] text-navy/50 m-0">Leave blank to keep this file.</p>
+                            </div>
                         <?php endif; ?>
                         <!-- File preview -->
                         <div id="leanCanvasPreview" class="hidden"></div>
@@ -496,199 +514,6 @@
 </div>
 
 <script src="<?= base_url('assets/js/features/forms/applyForm.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/forms/applyForm.js') ?>"></script>
-
-<!-- ═══ (validation + modal logic lives in public/js/apply_form.js) ═══ -->
-<!--
-(function(){
-  /* ── Validation rules ── */
-  const rules = {
-    required: v => v.trim().length > 0 || 'This field is required.',
-    'min:2':  v => v.trim().length >= 2  || 'Must be at least 2 characters.',
-    'min:10': v => v.trim().length >= 10 || 'Must be at least 10 characters.',
-    email:    v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Enter a valid email.',
-    phone:    v => /^[0-9\s\-\+\(\)]{7,20}$/.test(v) || 'Enter a valid phone number.',
-    url:      v => /^https?:\/\/.+\..+/.test(v) || 'Enter a valid URL.',
-    name:     v => /^[A-Za-zÀ-ÿ\s,\.]+$/.test(v) || 'Use format: Last Name, First Name MI',
-  };
-
-  function validate(el){
-    const checks = (el.dataset.v || '').split('|').filter(Boolean);
-    const val = el.value;
-    const msg = el.closest('div').querySelector('.v-msg');
-    if(!msg) return true;
-    if(!val.trim() && !checks.includes('required')){
-      msg.classList.add('hidden'); msg.textContent = '';
-      el.classList.remove('!text-red-600'); return true;
-    }
-    for(const c of checks){
-      const fn = rules[c]; if(!fn) continue;
-      const result = fn(val);
-      if(result !== true){
-        msg.textContent = result; msg.classList.remove('hidden');
-        el.classList.add('!text-red-600'); return false;
-      }
-    }
-    msg.classList.add('hidden'); msg.textContent = '';
-    el.classList.remove('!text-red-600'); return true;
-  }
-
-  function validateAll(){
-    let ok = true;
-    document.querySelectorAll('.v-field[data-v]').forEach(el => {
-      if(!validate(el)) ok = false;
-    });
-    // Also block if duplicate email was flagged
-    const ef = document.getElementById('applicantEmail');
-    if(ef && ef.dataset.dupEmail === '1'){
-      ok = false;
-      const msg = ef.closest('div').querySelector('.v-msg');
-      if(msg && msg.classList.contains('hidden')){
-        msg.textContent = 'This email has already been used in a previous application.';
-        msg.classList.remove('hidden');
-        ef.classList.add('!text-red-600');
-      }
-    }
-    if(!ok){
-      const first = document.querySelector('.v-msg:not(.hidden)');
-      if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
-    }
-    return ok;
-  }
-
-  // Attach field listeners
-  document.querySelectorAll('.v-field').forEach(el => {
-    el.addEventListener('blur', () => validate(el));
-    el.addEventListener('input', () => {
-      const msg = el.closest('div').querySelector('.v-msg');
-      if(msg && !msg.classList.contains('hidden')) validate(el);
-    });
-  });
-
-  /* ── Async duplicate-email check ── */
-  let emailTimer = null;
-  const emailField = document.getElementById('applicantEmail');
-  const shouldSkipDuplicateEmail = document.querySelector('form')?.dataset.skipDuplicateEmail === '1';
-  if(emailField){
-    const checkDupe = () => {
-      if(shouldSkipDuplicateEmail) return;
-      if(!validate(emailField)) return;           // skip if basic validation fails
-      const val = emailField.value.trim();
-      if(!val) return;
-      const msg = emailField.closest('div').querySelector('.v-msg');
-      const checkUrl = document.querySelector('form')?.dataset.checkUrl || '<?= site_url("apply/form/check-email") ?>';
-      fetch(checkUrl + '?email=' + encodeURIComponent(val))
-        .then(r => r.json())
-        .then(d => {
-          if(d.exists){
-            if(msg){
-              msg.textContent = 'This email has already been used in a previous application.';
-              msg.classList.remove('hidden');
-            }
-            emailField.classList.add('!text-red-600');
-            emailField.dataset.dupEmail = '1';
-          } else {
-            emailField.dataset.dupEmail = '0';
-          }
-        })
-        .catch(() => {});  // silently ignore network errors
-    };
-    emailField.addEventListener('blur', () => { clearTimeout(emailTimer); emailTimer = setTimeout(checkDupe, 150); });
-    emailField.addEventListener('input', () => { emailField.dataset.dupEmail = '0'; });
-  }
-
-  // Show server errors on load
-  document.querySelectorAll('.v-msg').forEach(msg => {
-    if(msg.textContent.trim()){
-      msg.classList.remove('hidden');
-      const f = msg.closest('div').querySelector('.v-field');
-      if(f) f.classList.add('!text-red-600');
-    }
-  });
-
-  /* ── Preview Modal ── */
-  const modal    = document.getElementById('previewModal');
-  const body     = document.getElementById('previewBody');
-  const form     = document.querySelector('form');
-  const esc      = e => { if(e.key === 'Escape') closeModal(); };
-
-  function openModal(){
-    // Populate preview fields
-    const fields = ['applicantName','applicantEmail','contactNumber',
-                    'startupName','startupDescription','mainRisk','shortTermGoals'];
-    fields.forEach(id => {
-      const el = document.getElementById(id);
-      const pv = document.getElementById('pv_' + id);
-      if(el && pv) pv.textContent = el.value.trim() || '—';
-    });
-
-    // Video link
-    const vLink = document.getElementById('videoPresentationLink');
-    const pvLink = document.getElementById('pv_videoPresentationLink');
-    if(vLink && pvLink){
-      const url = vLink.value.trim();
-      pvLink.textContent = url || '—';
-      pvLink.href = url || '#';
-    }
-
-    // CV files
-    const cvInput = document.getElementById('teamCv');
-    const pvCv = document.getElementById('pv_teamCv');
-    if(cvInput && pvCv){
-      const files = cvInput.files;
-      if(files.length > 0){
-        pvCv.textContent = Array.from(files).map(f => f.name).join(', ');
-      } else {
-        pvCv.textContent = <?= json_encode($isRevalidation && $existingTeamCvCount > 0 ? 'Keeping existing CV file' . ($existingTeamCvCount === 1 ? '' : 's') : 'None uploaded') ?>;
-      }
-    }
-
-    const leanInput = document.getElementById('leanCanvas');
-    const pvLean = document.getElementById('pv_leanCanvas');
-    if(leanInput && pvLean){
-      pvLean.textContent = leanInput.files.length > 0
-        ? leanInput.files[0].name
-        : <?= json_encode($isRevalidation && $existingLeanCanvasPath !== '' ? 'Keeping existing Lean Canvas file' : 'No file uploaded') ?>;
-    }
-
-    // Show
-    modal.classList.remove('opacity-0','pointer-events-none');
-    body.classList.remove('scale-95');
-    body.classList.add('scale-100');
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', esc);
-  }
-
-  function closeModal(){
-    modal.classList.add('opacity-0','pointer-events-none');
-    body.classList.remove('scale-100');
-    body.classList.add('scale-95');
-    document.body.style.overflow = '';
-    document.removeEventListener('keydown', esc);
-  }
-
-  // Review button → validate, then show modal
-  document.getElementById('btnPreview')?.addEventListener('click', () => {
-    if(validateAll()) openModal();
-  });
-
-  // Close modal buttons
-  document.getElementById('btnClosePreview')?.addEventListener('click', closeModal);
-  document.getElementById('btnBackEdit')?.addEventListener('click', closeModal);
-  document.getElementById('previewBackdrop')?.addEventListener('click', closeModal);
-
-  // Confirm → actually submit
-  document.getElementById('btnConfirmSubmit')?.addEventListener('click', () => {
-    closeModal();
-    form?.submit();
-  });
-
-  // Block native submit (Enter key) — route through preview
-  form?.addEventListener('submit', function(e){
-    e.preventDefault();
-    if(validateAll()) openModal();
-  });
-})();
--->
 
 <!-- ═══ GUIDELINES MODAL (reusable) ═══ -->
 <?= view('incubatees/partials/_guidelines_modal') ?>
