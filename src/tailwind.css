@@ -175,7 +175,7 @@
   /* ═══ COLLAPSED DUPLICATES (.lo) ═══ */
   .lo {
     @apply flex min-w-0 w-0 opacity-0 max-w-0 px-0 overflow-hidden;
-    transition: opacity .2s .05s ease, max-width .25s ease, padding .2s ease, width .25s ease;
+    transition: opacity .2s ease, max-width .2s ease, padding .2s ease, width .2s ease;
   }
   #navbar.scrolled .lo {
     @apply opacity-100 w-auto max-w-[260px] px-4 overflow-visible;
