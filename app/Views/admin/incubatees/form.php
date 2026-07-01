@@ -324,6 +324,38 @@ $sdgTitles = [
     color: #03558C
 }
 
+.upload-zone.upload-zone-white {
+    background: #03355a;
+    border: 1.5px solid transparent;
+    background-image:
+        linear-gradient(#03355a, #03355a),
+        repeating-linear-gradient(
+            135deg,
+            rgba(255,255,255,.42) 0 8px,
+            rgba(127,179,209,.48) 8px 16px
+        );
+    background-origin: border-box;
+    background-clip: padding-box, border-box
+}
+
+.upload-zone.upload-zone-white:hover {
+    background-image:
+        linear-gradient(#044066, #044066),
+        repeating-linear-gradient(
+            135deg,
+            rgba(255,255,255,.6) 0 8px,
+            rgba(147,197,253,.7) 8px 16px
+        )
+}
+
+.upload-zone.upload-zone-white .label {
+    color: rgba(255,255,255,.72)
+}
+
+.upload-zone.upload-zone-white .label strong {
+    color: #fff
+}
+
 .upload-preview {
     margin-top: .6rem
 }
@@ -335,11 +367,34 @@ $sdgTitles = [
     border: 1px solid #eceae6
 }
 
+.upload-preview.upload-preview-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #03355a;
+    padding: .5rem;
+    border-radius: .3rem;
+    border: 1px solid rgba(255,255,255,.16)
+}
+
+.upload-preview.upload-preview-white img {
+    border: 0;
+    background: transparent;
+}
+
+.upload-preview-white-logo {
+    filter: brightness(0) invert(1)
+}
+
 .upload-help {
     margin-top: .35rem;
     font-size: .62rem;
     line-height: 1.4;
     color: #94a3b8
+}
+
+.upload-zone.upload-zone-white + .upload-help {
+    margin-top: .55rem
 }
 
 .upload-help.is-error {
@@ -356,6 +411,17 @@ $sdgTitles = [
 /* Founders repeater */
 .tm-section {
     margin-top: .25rem
+}
+
+.tm-help-stack {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    margin-bottom: .85rem
+}
+
+.tm-help-stack .upload-help {
+    margin-top: 0
 }
 
 .tm-section .section-label {
@@ -816,20 +882,17 @@ $sdgTitles = [
                     Best results: a clean, centered logo with enough padding around the mark so it does not feel cramped in the card.<br>
                     Transparent PNG or WEBP is preferred for logos with cutouts or irregular shapes. Keep the file under <?= esc($logoUploadMaxLabel ?? '1 MB') ?>.
                 </p>
-                <?php if ($isEdit && ! empty($incubatee['logoPath'])): ?>
-                <p style="font-size:.62rem;color:#94a3b8;margin-top:.35rem">Click to replace the current logo</p>
-                <?php endif; ?>
             </div>
 
             <!-- White Logo upload (for big card) -->
             <div class="field">
                 <label>White Logo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b0aaa0">(used on the navy card)</span></label>
-                <div class="upload-zone" id="uploadZoneWhite">
+                <div class="upload-zone upload-zone-white" id="uploadZoneWhite">
                     <input type="file" name="logoWhite" id="logoWhiteInput" accept="image/*" data-max-bytes="<?= esc((string) ($logoUploadMaxBytes ?? 1048576)) ?>" data-max-label="<?= esc($logoUploadMaxLabel ?? '1 MB') ?>">
                     <div class="label" id="uploadLabelWhite"><strong>Click to upload</strong> white version of the logo</div>
-                    <div class="upload-preview" id="uploadPreviewWhite">
+                    <div class="upload-preview upload-preview-white" id="uploadPreviewWhite">
                         <?php if ($isEdit && ! empty($incubatee['logoWhitePath'])): ?>
-                        <img src="<?= site_url($incubatee['logoWhitePath']) ?>" alt="" style="background:#03355a;padding:.5rem;border-radius:.3rem;filter:brightness(0) invert(1)">
+                        <img class="upload-preview-white-logo" src="<?= site_url($incubatee['logoWhitePath']) ?>" alt="">
                         <?php endif; ?>
                     </div>
                 </div>
@@ -838,9 +901,6 @@ $sdgTitles = [
                     Upload a white or light-colored logo if you have one. If you leave this blank, the site will fall back to the main logo and auto-invert it for the navy background.<br>
                     Transparent PNG or WEBP is ideal. Keep the file under <?= esc($logoUploadMaxLabel ?? '1 MB') ?>.
                 </p>
-                <?php if ($isEdit && ! empty($incubatee['logoWhitePath'])): ?>
-                <p style="font-size:.62rem;color:#94a3b8;margin-top:.35rem">Click to replace the current white logo</p>
-                <?php endif; ?>
             </div>
 
             <!-- Founders -->
@@ -852,10 +912,12 @@ $sdgTitles = [
             ?>
             <div class="tm-section">
                 <span class="section-label">Founders</span>
-                <p class="upload-help" style="margin-top:-.15rem">
-                    Founder photos must be square (1:1). Please upload tightly cropped portraits that sit well inside the frame. Max <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> per photo.
-                </p>
-                <p class="upload-help" id="tmUploadHelp">Square founder photos under <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> work best for the team layout.</p>
+                <div class="tm-help-stack">
+                    <p class="upload-help">
+                        Founder photos must be square (1:1). Please upload tightly cropped portraits that sit well inside the frame. Max <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> per photo.
+                    </p>
+                    <p class="upload-help" id="tmUploadHelp">Square founder photos under <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> work best for the team layout.</p>
+                </div>
                 <div class="tm-rows" id="tmRows">
                     <?php if (! empty($existingMembers)): ?>
                     <?php foreach ($existingMembers as $member): ?>

@@ -136,7 +136,7 @@
         setHelpState(logoWhiteHelp, logoWhiteDefaultHelp, logoWhiteDefaultHelp, false);
         var reader = new FileReader();
         reader.onload = function(e) {
-            previewW.innerHTML = '<img src="' + e.target.result + '" alt="" style="background:#03355a;padding:.5rem;border-radius:.3rem;filter:brightness(0) invert(1)">';
+            previewW.innerHTML = '<img class="upload-preview-white-logo" src="' + e.target.result + '" alt="">';
             labelW.style.display = 'none';
         };
         reader.readAsDataURL(file);
@@ -144,8 +144,8 @@
 
     zoneW.addEventListener('dragover', function(e) {
         e.preventDefault();
-        zoneW.style.borderColor = '#03558C';
-        zoneW.style.background = '#fafcff';
+        zoneW.style.borderColor = '#7fb3d1';
+        zoneW.style.background = '#044066';
     });
     zoneW.addEventListener('dragleave', function() {
         zoneW.style.borderColor = '';
