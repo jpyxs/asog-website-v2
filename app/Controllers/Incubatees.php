@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\GmailMailer;
 use App\Models\FaqModel;
 use App\Models\IncubateeApplicationModel;
 use App\Models\LandingSettingModel;
@@ -454,15 +455,6 @@ class Incubatees extends BaseController
     // ──────────────────────────────────────────────
     private function sendConfirmationEmail(array $data, bool $isUpdate = false): void
     {
-        $email = \Config\Services::email();
-
-        // Skip silently if SMTP is not configured
-        $config = new \Config\Email();
-        if (empty($config->SMTPUser) || $config->SMTPUser === 'your-email@gmail.com') {
-            log_message('info', 'Confirmation email skipped — SMTP credentials not configured in .env');
-            return;
-        }
-
         $body = view('emails/application_confirmation', [
             'applicantName'         => $data['applicantName'],
             'applicantEmail'        => $data['applicantEmail'],
@@ -475,14 +467,10 @@ class Incubatees extends BaseController
             'isUpdate'              => $isUpdate,
         ]);
 
-        $email->setFrom($config->fromEmail, $config->fromName);
-        $email->setTo($data['applicantEmail']);
-        $email->setSubject($isUpdate ? 'ASOG TBI - Updated Application Received' : 'ASOG TBI - Application Received');
-        $email->setMessage($body);
-        $email->setMailType('html');
+        $gmail = new GmailMailer();
 
-        if (! $email->send(false)) {
-            log_message('error', 'Confirmation email failed: ' . $email->printDebugger(['headers']));
+        if (! $gmail->send($data['applicantEmail'], $isUpdate ? 'ASOG TBI - Updated Application Received' : 'ASOG TBI - Application Received', $body)) {
+            log_message('error', 'Confirmation email failed via Gmail API.');
         } else {
             log_message('info', 'Confirmation email sent to: ' . $data['applicantEmail']);
         }

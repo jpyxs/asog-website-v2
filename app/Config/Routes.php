@@ -81,6 +81,12 @@ $routes->get('/asog-admin', 'Auth::login');
 $routes->post('/asog-admin', 'Auth::authenticate');
 $routes->get('/asog-admin/google', 'Auth::google');
 $routes->get('/asog-admin/google/callback', 'Auth::googleCallback');
+$routes->group('asog-admin/gmail-api', ['filter' => 'auth'], function ($routes) {
+    $routes->group('', ['filter' => 'role:superadmin'], function ($routes) {
+        $routes->get('connect', 'Admin\GmailApiSetup::connect');
+        $routes->get('callback', 'Admin\GmailApiSetup::callback');
+    });
+});
 $routes->get('/asog-admin/logout', 'Auth::logout');
 $routes->get('/asog-admin/forgot-password', 'Auth::forgotPassword');
 $routes->post('/asog-admin/forgot-password', 'Auth::sendResetLink');
