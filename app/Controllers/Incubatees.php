@@ -137,7 +137,7 @@ class Incubatees extends BaseController
                 ->with('errors', $applicationModel->errors());
         }
 
-        if (! $this->allowDuplicateEmails() && $applicationModel->emailExists($data['applicantEmail'])) {
+        if ($applicationModel->emailExists($data['applicantEmail'])) {
             return $this->renderApplyFormResponse(
                 $data,
                 ['applicantEmail' => $applicationModel->duplicateEmailMessage()],
@@ -317,7 +317,7 @@ class Incubatees extends BaseController
             return $this->response->setJSON(['exists' => false]);
         }
 
-        $exists = ! $this->allowDuplicateEmails() && $this->applicationModel->emailExists($email);
+        $exists = $this->applicationModel->emailExists($email);
 
         return $this->response->setJSON(['exists' => $exists]);
     }

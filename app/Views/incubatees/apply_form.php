@@ -286,7 +286,7 @@
                             Your Startup's Lean Canvas <span class="text-red-400">*</span>
                         </label>
                         <span class="text-[.58rem] text-navy/30 block mb-3">Must be in .docx or PDF &middot; 1 file
-                            &middot; Max 10 MB<?= ($serverUploadMaxFilesize !== '' || $serverPostMaxSize !== '') ? ' &middot; Server cap: ' . esc($serverUploadMaxFilesize !== '' ? $serverUploadMaxFilesize : 'current limit') . '/file' . ($serverPostMaxSize !== '' ? ', ' . esc($serverPostMaxSize) . ' total' : '') : '' ?></span>
+                            &middot; Max 10 MB</span>
                         <div id="leanCanvasChooser" class="inline-flex items-center gap-3">
                             <button type="button" id="leanCanvasButton" class="file-upload-button">
                                 Choose File

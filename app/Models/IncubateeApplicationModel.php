@@ -197,7 +197,18 @@ class IncubateeApplicationModel extends Model
 
     public function emailExists(string $email): bool
     {
-        return $this->getByEmail($email) !== null;
+        $email = strtolower(trim($email));
+        if ($email === '') {
+            return false;
+        }
+
+        return $this->builder()
+            ->select('id')
+            ->where('LOWER(applicantEmail)', $email)
+            ->where('applicationStatus !=', 'rejected')
+            ->limit(1)
+            ->get()
+            ->getRowArray() !== null;
     }
 
     public function duplicateEmailMessage(): string
