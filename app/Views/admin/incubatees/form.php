@@ -224,7 +224,15 @@ $sdgTitles = [
 }
 
 .sdg-check input {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .sdg-tooltip {
@@ -244,6 +252,11 @@ $sdgTitles = [
     transition: opacity .15s;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+
+.sdg-check:focus-within {
+    outline: 2px solid #03558C;
+    outline-offset: 2px;
 }
 
 .sdg-check:hover .sdg-tooltip {
