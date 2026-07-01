@@ -330,17 +330,6 @@ class Incubatees extends BaseController
                 ->with('errors', $applicationModel->errors());
         }
 
-        if (! $this->allowDuplicateEmails() && $applicationModel->emailExistsExcept($data['applicantEmail'], (int) $app['id'])) {
-            return $this->renderRevalidationFormResponse(
-                $token,
-                $app,
-                $data,
-                ['applicantEmail' => $applicationModel->duplicateEmailMessage()],
-                null,
-                422
-            );
-        }
-
         $teamCvUploadError = $this->multipleUploadErrorMessage(
             $this->request->getFileMultiple('teamCv') ?? [],
             'One or more CV files'
