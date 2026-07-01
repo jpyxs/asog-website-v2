@@ -48,7 +48,7 @@ class IncubateeApplicationModel extends Model
         'videoPresentationLink'    => 'required|valid_url|max_length[500]',
         'applicantName'            => 'required|regex_match[/^[A-Za-z\s,\.]+$/]|max_length[255]',
         'applicantEmail'           => 'required|valid_email|max_length[255]',
-        'contactNumber'            => 'required|regex_match[/^[0-9\s\-\+\(\)]+$/]|max_length[20]',
+        'contactNumber'            => 'required|regex_match[/^09[0-9]{9}$/]|max_length[11]',
         'statusRemark'             => 'permit_empty|max_length[2000]',
     ];
 
@@ -81,7 +81,7 @@ class IncubateeApplicationModel extends Model
         'contactNumber' => [
             'required'     => 'Contact number is required.',
             'regex_match'  => 'Please enter a valid contact number.',
-            'max_length'   => 'Contact number cannot exceed 20 characters.',
+            'max_length'   => 'Contact number cannot exceed 11 digits.',
         ],
     ];
 

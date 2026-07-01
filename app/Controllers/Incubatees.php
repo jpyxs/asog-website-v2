@@ -111,7 +111,7 @@ class Incubatees extends BaseController
             'videoPresentationLink' => $this->request->getPost('videoPresentationLink'),
             'applicantName'         => $this->request->getPost('applicantName'),
             'applicantEmail'        => trim((string) $this->request->getPost('applicantEmail')),
-            'contactNumber'         => $this->request->getPost('contactNumber'),
+            'contactNumber'         => preg_replace('/\D+/', '', (string) $this->request->getPost('contactNumber')),
             'privacyAgreement'      => (string) ($this->request->getPost('privacyAgreement') ?? ''),
             'applicationStatus'     => IncubateeApplicationModel::STATUS_PENDING,
         ];
