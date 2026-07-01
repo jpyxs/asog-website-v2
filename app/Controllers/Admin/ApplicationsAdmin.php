@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\LandingSettingModel;
 
 /**
  * ApplicationsAdmin — Review & manage incubatee applications.
@@ -35,6 +36,10 @@ class ApplicationsAdmin extends BaseController
             'pageTitle'    => 'Applications',
             'activePage'   => 'applications',
             'applications' => $this->applicationModel->getFilteredApplications($search, $status, $sort, $direction, $perPage, $offset),
+            'allowDuplicateEmails' => trim((string) (new LandingSettingModel())->getValue(
+                LandingSettingModel::KEY_APPLY_ALLOW_DUPLICATE_EMAILS,
+                '0'
+            )) === '1',
             'counts'       => $this->applicationModel->getCounts(),
             'search'       => $search,
             'status'       => $status,
@@ -49,6 +54,25 @@ class ApplicationsAdmin extends BaseController
         return view('admin/layout/header', $data)
              . view('admin/applications/index', $data)
              . view('admin/layout/footer');
+    }
+
+    public function updateSettings()
+    {
+        $allowDuplicateEmails = $this->request->getPost('allowDuplicateEmails') === '1';
+
+        $saved = (new LandingSettingModel())->setValue(
+            LandingSettingModel::KEY_APPLY_ALLOW_DUPLICATE_EMAILS,
+            $allowDuplicateEmails ? '1' : '0'
+        );
+
+        if (! $saved) {
+            setToast('error', 'Unable to save the application submission rule.');
+            return redirect()->back()->withInput();
+        }
+
+        setToast('success', 'Application submission rule updated.');
+
+        return redirect()->to(site_url('admin/applications'));
     }
 
     /**
