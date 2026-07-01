@@ -34,6 +34,8 @@ $routes->get('/apply/form', 'Incubatees::applyForm');
 $routes->post('/apply/form', 'Incubatees::applyFormStore');
 $routes->get('/apply/form/check-email', 'Incubatees::checkEmail');
 $routes->get('/apply/form/thank-you', 'Incubatees::applyFormThankYou');
+$routes->get('/apply/revalidate/(:segment)', 'Incubatees::revalidateForm/$1');
+$routes->post('/apply/revalidate/(:segment)', 'Incubatees::revalidateFormStore/$1');
 
 // Legacy apply paths: keep working but redirect to canonical /apply URLs
 $routes->addRedirect('/incubatees/apply', '/apply', 301);

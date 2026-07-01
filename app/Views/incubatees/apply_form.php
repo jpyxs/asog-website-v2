@@ -16,6 +16,11 @@
             $privacyAccepted = $inputValue('privacyAgreement') === '1';
             $serverPostMaxSize = trim((string) ($serverPostMaxSize ?? ''));
             $serverUploadMaxFilesize = trim((string) ($serverUploadMaxFilesize ?? ''));
+            $isRevalidation = ! empty($isRevalidation);
+            $formAction = $isRevalidation ? ($revalidationAction ?? current_url()) : site_url('apply/form');
+            $existingTeamCvPath = trim((string) ($existingTeamCvPath ?? ''));
+            $existingLeanCanvasPath = trim((string) ($existingLeanCanvasPath ?? ''));
+            $existingTeamCvCount = $existingTeamCvPath !== '' ? count(array_filter(array_map('trim', explode(',', $existingTeamCvPath)))) : 0;
         ?>
 
         <?php if ($formError): ?>
@@ -25,9 +30,26 @@
             </div>
         <?php endif; ?>
 
-        <form id="applyForm" action="<?= site_url('apply/form') ?>" method="post" enctype="multipart/form-data"
-            data-check-url="<?= site_url('apply/form/check-email') ?>">
+        <form id="applyForm" action="<?= esc($formAction) ?>" method="post" enctype="multipart/form-data"
+            data-check-url="<?= site_url('apply/form/check-email') ?>"
+            data-skip-duplicate-email="<?= $isRevalidation ? '1' : '0' ?>">
             <?= csrf_field() ?>
+
+            <?php if ($isRevalidation): ?>
+                <div class="mb-8 rounded-md border border-orange-200 bg-orange-50 p-5 md:p-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="block w-[18px] h-[2px] bg-orange-500"></span>
+                        <span class="text-[.56rem] font-bold tracking-[.18em] uppercase text-orange-700">For Revalidation</span>
+                    </div>
+                    <p class="text-[.84rem] font-semibold text-dark mb-2">Please update your existing application using the remarks below.</p>
+                    <?php if (! empty($revalidationRemark)): ?>
+                        <p class="text-[.8rem] text-dark/80 leading-[1.7] whitespace-pre-line mb-3"><?= esc($revalidationRemark) ?></p>
+                    <?php endif; ?>
+                    <?php if (! empty($revalidationExpiresAt)): ?>
+                        <p class="text-[.66rem] text-orange-700/80 m-0">This private update link is valid until <?= esc(date('M j, Y g:i A', strtotime((string) $revalidationExpiresAt))) ?>.</p>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
             <!-- ═══════════════════════════════════════════════════════
                  WELCOME INTRO
@@ -37,9 +59,8 @@
                     <span class="block w-[18px] h-[2px] bg-gold"></span>
                     <span class="text-[.52rem] font-bold tracking-[.2em] uppercase text-gold">ASOG TBI</span>
                 </div>
-                <h2 class="font-display text-[1.4rem] md:text-[1.7rem] text-dark leading-snug mb-2">Startup Application
-                    Form</h2>
-                <p class="text-[.92rem] font-medium text-dark/85 mb-3">Welcome, Future Innovator!</p>
+                <h2 class="font-display text-[1.4rem] md:text-[1.7rem] text-dark leading-snug mb-2"><?= $isRevalidation ? 'Update Your Startup Application' : 'Startup Application Form' ?></h2>
+                <p class="text-[.92rem] font-medium text-dark/85 mb-3"><?= $isRevalidation ? 'Welcome back, Future Innovator!' : 'Welcome, Future Innovator!' ?></p>
                 <p class="text-[.84rem] font-normal leading-[1.65] text-black max-w-[640px] mb-2 text-justify">
                     Thank you for your interest in joining the ASOG Technology Business Incubator (TBI). We're excited
                     to support passionate startups like yours in turning bold ideas into real-world solutions —
@@ -224,6 +245,9 @@
                                 <span id="teamCvStatus" class="text-[.78rem] text-dark/60">No file chosen</span>
                                 <input type="file" id="teamCv" name="teamCv[]" multiple accept=".pdf" class="hidden">
                             </div>
+                            <?php if ($isRevalidation && $existingTeamCvPath !== ''): ?>
+                                <p class="text-[.62rem] text-navy/50 mt-2 mb-0">Current upload<?= $existingTeamCvCount === 1 ? '' : 's' ?>: <?= esc((string) $existingTeamCvCount) ?> CV file<?= $existingTeamCvCount === 1 ? '' : 's' ?>. Leave blank to keep <?= $existingTeamCvCount === 1 ? 'it' : 'them' ?>.</p>
+                            <?php endif; ?>
                             <!-- File preview list -->
                             <ul id="teamCvList" class="mt-3 space-y-2.5 list-none p-0 m-0 hidden"></ul>
                             <span id="teamCvNotice" class="text-[.62rem] text-red-500 block mt-1.5 hidden"></span>
@@ -296,6 +320,9 @@
                                 accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                 class="hidden">
                         </div>
+                        <?php if ($isRevalidation && $existingLeanCanvasPath !== ''): ?>
+                            <p class="text-[.62rem] text-navy/50 mt-2 mb-0">A Lean Canvas file is already on record. Leave blank to keep it.</p>
+                        <?php endif; ?>
                         <!-- File preview -->
                         <div id="leanCanvasPreview" class="hidden"></div>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1.5 hidden"
@@ -311,7 +338,7 @@
                 <div class="flex items-center gap-3">
                     <button type="button" id="btnPreview"
                         class="font-body text-[.62rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm border-none cursor-pointer transition-all duration-200 hover:bg-dark">
-                        Review &amp; Submit →
+                        <?= $isRevalidation ? 'Review &amp; Update' : 'Review &amp; Submit →' ?>
                     </button>
                     <button type="button" data-open-guidelines
                         class="font-body text-[.6rem] font-bold tracking-[.13em] uppercase text-navy/50 bg-transparent px-4 py-3.5 rounded-sm border border-navy/15 cursor-pointer transition-all duration-200 hover:text-navy hover:border-navy/30">
@@ -341,8 +368,8 @@
         <!-- Header -->
         <div class="sticky top-0 bg-white z-10 px-7 py-5 border-b border-navy/10 flex items-center justify-between">
             <div>
-                <h3 class="font-display text-[1.25rem] text-dark m-0">Review Your Application</h3>
-                <p class="text-[.68rem] text-dark/40 mt-0.5">Please confirm the details below before submitting.</p>
+                <h3 class="font-display text-[1.25rem] text-dark m-0"><?= $isRevalidation ? 'Review Your Updates' : 'Review Your Application' ?></h3>
+                <p class="text-[.68rem] text-dark/40 mt-0.5"><?= $isRevalidation ? 'Please confirm the updates below before resubmitting.' : 'Please confirm the details below before submitting.' ?></p>
             </div>
             <button id="btnClosePreview"
                 class="w-8 h-8 rounded-full bg-off flex items-center justify-center text-dark/40 hover:text-dark hover:bg-navy/10 transition-colors cursor-pointer border-none">
@@ -461,7 +488,7 @@
             </button>
             <button id="btnConfirmSubmit"
                 class="font-body text-[.62rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm border-none cursor-pointer transition-all duration-200 hover:bg-dark">
-                Confirm &amp; Submit
+                <?= $isRevalidation ? 'Confirm &amp; Update' : 'Confirm &amp; Submit' ?>
             </button>
         </div>
     </div>
@@ -539,8 +566,10 @@
   /* ── Async duplicate-email check ── */
   let emailTimer = null;
   const emailField = document.getElementById('applicantEmail');
+  const shouldSkipDuplicateEmail = document.querySelector('form')?.dataset.skipDuplicateEmail === '1';
   if(emailField){
     const checkDupe = () => {
+      if(shouldSkipDuplicateEmail) return;
       if(!validate(emailField)) return;           // skip if basic validation fails
       const val = emailField.value.trim();
       if(!val) return;
@@ -608,8 +637,16 @@
       if(files.length > 0){
         pvCv.textContent = Array.from(files).map(f => f.name).join(', ');
       } else {
-        pvCv.textContent = 'None uploaded';
+        pvCv.textContent = <?= json_encode($isRevalidation && $existingTeamCvCount > 0 ? 'Keeping existing CV file' . ($existingTeamCvCount === 1 ? '' : 's') : 'None uploaded') ?>;
       }
+    }
+
+    const leanInput = document.getElementById('leanCanvas');
+    const pvLean = document.getElementById('pv_leanCanvas');
+    if(leanInput && pvLean){
+      pvLean.textContent = leanInput.files.length > 0
+        ? leanInput.files[0].name
+        : <?= json_encode($isRevalidation && $existingLeanCanvasPath !== '' ? 'Keeping existing Lean Canvas file' : 'No file uploaded') ?>;
     }
 
     // Show

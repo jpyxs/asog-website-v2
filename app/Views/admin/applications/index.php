@@ -30,7 +30,11 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
     </div>
     <div class="stat">
         <div class="n" id="statPending"><?= $counts['pending'] ?></div>
-        <div class="t">Under Review</div>
+        <div class="t">For Review</div>
+    </div>
+    <div class="stat">
+        <div class="n" id="statForRevalidation"><?= $counts['forRevalidation'] ?? 0 ?></div>
+        <div class="t">For Revalidation</div>
     </div>
     <div class="stat">
         <div class="n" id="statAccepted"><?= $counts['accepted'] ?></div>
@@ -61,7 +65,8 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
                 <button type="button" class="scm-item" data-smart="all">All</button>
                 <button type="button" class="scm-item" data-smart="none">None</button>
                 <div class="scm-sep"></div>
-                <button type="button" class="scm-item" data-smart="pending">Under Review</button>
+                <button type="button" class="scm-item" data-smart="pending">For Review</button>
+                <button type="button" class="scm-item" data-smart="for_revalidation">For Revalidation</button>
                 <button type="button" class="scm-item" data-smart="accepted">Accepted</button>
                 <button type="button" class="scm-item" data-smart="rejected">Rejected</button>
                 <button type="button" class="scm-item" data-smart="archived">Archived</button>
@@ -81,7 +86,8 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
         </div>
         <select name="status" class="app-select-filter">
             <option value="active"   <?= $currentStatus === 'active'   ? 'selected' : '' ?>>Active</option>
-            <option value="pending"  <?= $currentStatus === 'pending'  ? 'selected' : '' ?>>Under Review</option>
+            <option value="pending"  <?= $currentStatus === 'pending'  ? 'selected' : '' ?>>For Review</option>
+            <option value="for_revalidation" <?= $currentStatus === 'for_revalidation' ? 'selected' : '' ?>>For Revalidation</option>
             <option value="accepted" <?= $currentStatus === 'accepted' ? 'selected' : '' ?>>Accepted</option>
             <option value="rejected" <?= $currentStatus === 'rejected' ? 'selected' : '' ?>>Rejected</option>
             <option value="archived" <?= $currentStatus === 'archived' ? 'selected' : '' ?>>Archived</option>
@@ -102,7 +108,7 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Mark as Under Review
+            Mark as For Review
         </button>
         <button type="button" class="bulk-act-btn bulk-act-accept"    data-action="accepted">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -173,7 +179,7 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
         </thead>
         <tbody>
             <?php
-            $statusLabels = ['pending' => 'Under Review', 'accepted' => 'Accepted', 'rejected' => 'Rejected'];
+            $statusLabels = ['pending' => 'For Review', 'for_revalidation' => 'For Revalidation', 'accepted' => 'Accepted', 'rejected' => 'Rejected'];
             foreach ($applications as $app):
             ?>
             <tr data-id="<?= esc($app['id']) ?>" data-archived="<?= (int) $app['isArchived'] ?>">
@@ -283,7 +289,7 @@ $baseUrl = site_url('admin/applications') . '?' . http_build_query([
                 <label class="modal-status-label" for="statusRemarkInput">Remark For Applicant</label>
                 <textarea id="statusRemarkInput" class="modal-status-input" rows="3" maxlength="2000"
                     placeholder="Optional note to include in the status notification email."></textarea>
-                <p class="modal-status-help">Optional. This will be included in the notification email sent for the selected status.</p>
+                <p class="modal-status-help">Required for For Revalidation. This will be included in the notification email sent for the selected status.</p>
             </div>
             <button class="btn-arch-modal" id="btnArchModal" style="display:none">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -323,7 +329,8 @@ $baseUrl = site_url('admin/applications') . '?' . http_build_query([
                         <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div class="status-picker-menu" id="statusPickerMenu">
-                        <button type="button" class="spm-item" data-value="pending">Under Review</button>
+                        <button type="button" class="spm-item" data-value="pending">For Review</button>
+                        <button type="button" class="spm-item" data-value="for_revalidation">For Revalidation</button>
                         <button type="button" class="spm-item" data-value="accepted">Accepted</button>
                         <button type="button" class="spm-item" data-value="rejected">Rejected</button>
                     </div>
