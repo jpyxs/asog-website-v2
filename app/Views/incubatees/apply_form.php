@@ -326,13 +326,6 @@
                 </div>
             </div>
         </form>
-
-        <div class="mt-8 text-center">
-            <a href="<?= site_url('apply') ?>"
-                class="text-[.6rem] font-semibold tracking-[.13em] uppercase text-dark/35 no-underline hover:text-gold transition-colors duration-200">
-                ← Back to application overview
-            </a>
-        </div>
     </div>
 </section>
 

@@ -250,7 +250,7 @@
                     </div>
                 </div>
                 <a href="<?= $navIncubatees ?>"
-                    class="nl nav-link lo text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 no-underline items-center border-b-2 border-transparent -mb-0.5 whitespace-nowrap hover:text-off hover:border-gold<?= $activeClass($isIncubatees) ?>"
+                   class="nl nav-link text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 no-underline px-4 border-b-2 border-transparent -mb-0.5 whitespace-nowrap transition-all duration-200 hover:text-off hover:border-gold<?= $activeClass($isIncubatees) ?>"
                     data-order="3">Incubatees</a>
             </div>
 

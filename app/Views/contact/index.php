@@ -13,7 +13,7 @@
 <section class="relative overflow-hidden bg-off py-16 md:py-20 px-6 md:px-10 lg:px-14">
     <div class="max-w-[1400px] mx-auto relative z-[2]">
 
-        <!-- ═══════ CENTERED HEADER ═══════ -->
+        <!-- ═══════ CENTERED HEADER ═══════
         <div class="text-center mb-10 md:mb-14 reveal">
             <div class="flex items-center justify-center gap-2 mb-3">
                 <span class="block w-[18px] h-[1.5px] bg-gold"></span>
@@ -23,7 +23,7 @@
             <h2 class="font-display text-3xl md:text-[2.4rem] leading-[1.12] text-dark">
                 Reach <em class="italic text-gold">our Team</em>
             </h2>
-        </div>
+        </div> -->
 
         <!-- ═══════ MAP LEFT (wider) + FORM RIGHT ═══════ -->
         <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-12">
@@ -47,21 +47,21 @@
                     <?= csrf_field() ?>
                     <div>
                         <label
-                            class="text-[.54rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Name</label>
+                            class="text-[.62rem] font-bold tracking-[.16em] uppercase text-dark/60 block mt-.5 mb-2">Name</label>
                         <input type="text" name="name"
                             class="w-full bg-white border border-dark/[.12] rounded-sm px-4 py-3 text-[.85rem] text-dark font-light outline-none transition-colors duration-200 focus:border-gold/50 focus:shadow-sm focus:shadow-gold/10 placeholder:text-dark/30"
                             placeholder="Your full name" required>
                     </div>
                     <div>
                         <label
-                            class="text-[.54rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Email</label>
+                            class="text-[.62rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Email</label>
                         <input type="email" name="email"
                             class="w-full bg-white border border-dark/[.12] rounded-sm px-4 py-3 text-[.85rem] text-dark font-light outline-none transition-colors duration-200 focus:border-gold/50 focus:shadow-sm focus:shadow-gold/10 placeholder:text-dark/30"
                             placeholder="your@email.com" required>
                     </div>
                     <div>
                         <label
-                            class="text-[.54rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Message</label>
+                            class="text-[.62rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Message</label>
                         <textarea rows="5" name="message"
                             class="w-full bg-white border border-dark/[.12] rounded-sm px-4 py-3 text-[.85rem] text-dark font-light outline-none resize-none transition-colors duration-200 focus:border-gold/50 focus:shadow-sm focus:shadow-gold/10 placeholder:text-dark/30"
                             placeholder="How can we help?" required></textarea>

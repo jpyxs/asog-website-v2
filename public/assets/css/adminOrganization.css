@@ -1,0 +1,79 @@
+.org-admin-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.org-admin-count{display:block;font-size:.78rem;font-weight:700;color:#1e293b}
+.org-admin-toolbar p{margin:.2rem 0 0;font-size:.72rem;color:#64748b;max-width:520px}
+.org-admin-toolbar-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.org-admin-tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.85rem}
+.org-admin-tab{display:inline-flex;align-items:center;gap:.35rem;border:1px solid #e4e2dd;background:#fff;color:#64748b;font-size:.66rem;font-weight:600;padding:.42rem .7rem;border-radius:.3rem;text-decoration:none}
+.org-admin-tab span{background:#f1f5f9;color:#64748b;border-radius:99px;padding:.05rem .4rem;font-size:.58rem}
+.org-admin-tab.on,.org-admin-tab:hover{border-color:#03558C;color:#03558C;background:#edf5fc}
+.org-admin-tab.on span{background:#03558C;color:#fff}
+.org-admin-empty{border:1px dashed #e2e8f0;border-radius:12px;padding:2rem;text-align:center;color:#94a3b8;display:grid;gap:.25rem}
+.org-admin-list{display:grid;gap:.65rem}
+.org-admin-item{border:1px solid #eceae6;border-radius:10px;background:#fff;padding:.75rem .85rem}
+.org-drag-row[draggable="true"]{cursor:grab}
+.org-drag-row.is-dragging{opacity:.75;cursor:grabbing}
+.org-drag-row.org-drag-over{outline:2px solid rgba(3,85,140,.22);outline-offset:2px}
+.org-drag-handle{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #e4e2dd;border-radius:.3rem;background:#fff;color:#64748b;font-size:1rem;line-height:1;user-select:none}
+.org-drag-handle:hover{border-color:#03558C;color:#03558C;background:#edf5fc}
+.org-admin-item-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.org-admin-item-meta{display:flex;align-items:center;gap:.65rem;min-width:0}
+.org-admin-item-meta strong{display:block;font-size:.82rem;color:#1e293b}
+.org-admin-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover;border:1px solid #eceae6;flex-shrink:0}
+.org-admin-thumb-empty{display:inline-flex;align-items:center;justify-content:center;background:#f8fafc;color:#94a3b8;font-size:.7rem}
+.org-admin-status{display:inline-block;font-size:.56rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:.15rem}
+.org-admin-status.is-live{color:#03558C}
+.org-admin-status.is-hidden{color:#94a3b8}
+.org-admin-badge{display:inline-block;margin-left:.35rem;font-size:.56rem;font-weight:700;color:#b45309;background:#fff7ed;border-radius:99px;padding:.1rem .4rem}
+.org-admin-meta{display:block;font-size:.68rem;color:#64748b;margin-top:.1rem}
+.org-admin-item-actions{display:flex;align-items:center;gap:.35rem}
+.org-admin-item-actions form{margin:0}
+.acts{display:flex;align-items:center;gap:.35rem}
+.acts form{margin:0}
+.act-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:.35rem;border:1px solid #e4e2dd;background:#fff;color:#64748b;cursor:pointer;transition:all .15s;text-decoration:none}
+.act-btn svg{width:15px;height:15px;stroke:currentColor}
+.act-btn.edit:hover{color:#03558C;border-color:#03558C;background:#edf5fc}
+.act-btn.delete{color:#be123c;border-color:#f5c2cd}
+.act-btn.delete:hover{color:#be123c;border-color:#be123c;background:#fff1f2}
+.act-btn:focus-visible{outline:2px solid #03558C;outline-offset:1px}
+.org-admin-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #e4e2dd;border-radius:.3rem;background:#fff;color:#64748b;font-size:.78rem;cursor:pointer;text-decoration:none}
+.org-admin-icon-btn:hover:not(:disabled){border-color:#03558C;color:#03558C}
+.org-admin-icon-btn:disabled{opacity:.35;cursor:not-allowed}
+.org-admin-form-wrap{max-width:640px}
+.org-admin-form-head{display:grid;gap:.35rem;margin-bottom:1rem}
+.org-admin-back{font-size:.72rem;color:#64748b;text-decoration:none}
+.org-admin-form-head h2{margin:0;font-size:1.1rem;color:#0f172a}
+.org-admin-form{display:grid;gap:.75rem}
+.org-admin-field{display:grid;gap:.28rem}
+.org-admin-field .csel{display:block;width:100%}
+.org-admin-field span{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
+.org-admin-field input,.org-admin-field select{font-family:inherit;font-size:.8rem;color:#1e293b;border:1px solid #e4e2dd;border-radius:.3rem;padding:.5rem .65rem;background:#fff}
+.org-admin-field input:focus,.org-admin-field select:focus{outline:none;border-color:#03558C}
+.org-admin-field-static{font-family:inherit;font-size:.8rem;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:.3rem;padding:.5rem .65rem;line-height:1.4}
+.org-admin-publish{display:flex;align-items:flex-start;gap:.55rem;font-size:.78rem;color:#1e293b}
+.org-admin-publish small{display:block;color:#64748b;font-size:.68rem;margin-top:.1rem}
+.org-admin-photo-preview{display:flex;align-items:center;gap:.65rem}
+.org-admin-photo-preview img{width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid #eceae6}
+.org-admin-photo-preview span{font-size:.68rem;color:#64748b}
+.org-admin-form-actions{display:flex;justify-content:flex-end;gap:.65rem;padding-top:.4rem}
+.org-admin-form-actions .btn{min-width:122px;justify-content:center}
+.org-admin-modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:1rem}
+.org-admin-modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.5)}
+.org-admin-modal-dialog{position:relative;z-index:1;width:min(100%,720px);max-height:calc(100vh - 2rem);overflow:auto;border:1px solid #e2e8f0;border-radius:16px;background:#fff;box-shadow:0 24px 60px -24px rgba(15,23,42,.45);padding:1rem 1rem 1.15rem}
+.org-admin-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.org-admin-modal-head h2{margin:.2rem 0 0;font-size:1.1rem;color:#0f172a}
+.org-admin-modal-close{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid #e4e2dd;border-radius:999px;background:#fff;color:#64748b;text-decoration:none;font-size:1.2rem;line-height:1}
+.org-admin-modal-close:hover{border-color:#03558C;color:#03558C;background:#edf5fc}
+.org-admin-modal-form{margin:0}
+.org-admin-modal .csel-ctx--lf-select .csel-trigger{font-size:.8rem;padding:.5rem .65rem}
+.org-admin-modal .csel-ctx--lf-select .csel-opt{font-size:.8rem;padding:.48rem .7rem}
+.org-admin-errors{display:grid;gap:.3rem;border:1px solid #fecaca;background:#fff1f2;color:#9f1239;border-radius:.5rem;padding:.55rem .7rem;margin-bottom:.85rem;font-size:.72rem}
+.org-admin-mentor-groups{display:grid;gap:1rem}
+.org-admin-mentor-group{border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:.9rem 1rem;scroll-margin-top:1rem}
+.org-admin-mentor-group.is-focused{box-shadow:0 0 0 2px rgba(3,85,140,.12);border-color:#03558C}
+.org-admin-mentor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.7rem;flex-wrap:wrap}
+.org-admin-mentor-kicker{display:block;font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8}
+.org-admin-mentor-head h3{margin:.15rem 0 0;font-size:.95rem;color:#0f172a}
+.org-admin-empty-compact{padding:1rem;font-size:.75rem}
+.org-modal-open{overflow:hidden}
+.is-hidden{display:none !important}
+.org-admin-toast{position:fixed;top:1.1rem;right:1.1rem;z-index:9999;padding:.55rem .9rem;border-radius:.3rem;font-size:.78rem;font-family:'DM Sans',sans-serif;max-width:340px}

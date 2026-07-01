@@ -2,30 +2,12 @@
      ║  FACILITIES — Full-Page Showcase                                    ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 
-<!-- ── Intro ── -->
-<section class="relative bg-off py-20 md:py-28">
-    <div class="max-w-[900px] mx-auto px-6 md:px-10 text-center">
-        <div class="flex items-center justify-center gap-2 mb-4">
-            <span class="block w-[18px] h-[1.5px] bg-navy"></span>
-            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy">Infrastructure</span>
-            <span class="block w-[18px] h-[1.5px] bg-navy"></span>
-        </div>
-        <!-- <h2 class="font-display text-[2rem] md:text-[2.8rem] leading-[1.12] text-dark mb-6">State-of-the-Art <em
-                class="italic text-gold">Facilities</em></h2> -->
-        <h2 class="font-display text-[2rem] md:text-[2.8rem] leading-[1.12] text-dark mb-6">World-Class Spaces <em
-                class="italic text-gold">to Build Your Venture</em></h2>
-        <p class="text-[.95rem] font-normal leading-[1.85] text-black max-w-[680px] mx-auto">ASOG TBI incubatees have
-            access to CSPC's extensive 8-hectare campus facilities, featuring cutting-edge labs and equipment designed
-            to support engineering and AI-driven innovation.</p>
-    </div>
-</section>
-
 <!-- ── Facility Showcase Blocks ── -->
 
 <!-- 1 · The Co-Lab -->
-<section id="co-lab" class="scroll-mt-28 bg-white">
+<section id="co-lab" class="scroll-mt-28 bg-off">
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[420px] facility-row">
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -87,7 +69,7 @@
                 <li class="flex gap-2 items-start"><span class="text-gold mt-0.5">✦</span> Meeting facilities</li>
             </ul>
         </div>
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -109,9 +91,9 @@
 </section>
 
 <!-- 3 · AIRCoDe Lab -->
-<section id="aircode" class="scroll-mt-28 bg-white">
+<section id="aircode" class="scroll-mt-28 bg-off">
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[420px] facility-row">
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel aircode-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel aircode-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -138,7 +120,7 @@
             </div>
         </div>
         <div class="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-12 lg:py-14 facility-copy">
-            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">AI Research Center</span>
+            <span class="text-[.58rem] font-semibold tracking-[.2em] uppercase text-navy mb-3">Partner Facility</span>
             <h3 class="font-display text-[1.8rem] md:text-[2.2rem] leading-[1.15] text-dark mb-5">AIRCoDe</h3>
             <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-4">AI Research Center for Community Development (AIRCoDe) empowers communities through artificial intelligence. Funded by DOST-PCIEERD under the Infrastructure Development Program in 2021, AIRCoDe conducts AI research projects addressing critical community needs across disaster risk management, agricultural innovation, and environmental preservation.</p>
             <p class="text-[.95rem] font-normal leading-[1.8] text-black mb-6">Incubatees gain access to cutting-edge HPC infrastructure, AI research expertise, and collaborative opportunities to develop AI-driven solutions responsive to the Bicol Region's unique challenges and opportunities.</p>
@@ -171,7 +153,7 @@
                 <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> Electronics workstations</li>
             </ul>
         </div>
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -198,9 +180,9 @@
 </section>
 
 <!-- 5 · Rinconada Food Processing Hub - Shared Service Facility (SSF) -->
-<section id="ssf" class="scroll-mt-28 bg-white">
+<section id="ssf" class="scroll-mt-28 bg-off">
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[420px] facility-row">
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -261,7 +243,7 @@
                 <li class="flex gap-2 items-start"><span class="text-navy mt-0.5">✦</span> Licensing facilitation</li>
             </ul>
         </div>
-        <div class="bg-white h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
+        <div class="bg-off h-[320px] md:h-[360px] lg:h-[420px] relative overflow-hidden order-1 lg:order-2 facility-carousel"
             data-carousel>
             <div class="flex h-full transition-transform duration-500 ease-out facility-carousel-track"
                 data-carousel-track>
@@ -281,8 +263,6 @@
         </div>
     </div>
 </section>
-
-<div class="bg-white h-10 md:h-14 lg:h-16" aria-hidden="true"></div>
 
 <!-- ── Usage Policy ── -->
     <script src="<?= base_url('assets/js/features/carousel/facilitiesCarousel.js') ?>" defer></script>

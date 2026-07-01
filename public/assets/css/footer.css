@@ -121,7 +121,7 @@
     font-weight: 300;
     line-height: 1.8;
     color: rgba(255,255,255,.42);
-    margin: 0 0 1.4rem;
+    margin: 0 0 1.9rem;
     max-width: 300px;
 }
 
@@ -263,22 +263,22 @@
     }
 }
 .ft-copyright {
-    font-size: .54rem;
+    font-size: .6rem;
     font-weight: 500;
     letter-spacing: .09em;
     text-transform: uppercase;
-    color: rgba(255,255,255,.22);
+    color: rgba(255, 255, 255, 0.3);
     transition: color .2s;
 }
 .ft-copyright:hover {
-    color: rgba(255,255,255,.35);
+    color: rgba(255,255,255,.60);
 }
 .ft-funded {
-    font-size: .5rem;
+    font-size: .6rem;
     font-weight: 600;
     letter-spacing: .15em;
     text-transform: uppercase;
-    color: rgba(248,175,33,.32);
+    color: rgba(248,175,33,.55);
     transition: color .2s;
 }
 .ft-funded:hover {

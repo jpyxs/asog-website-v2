@@ -8,28 +8,28 @@
     <div class="max-w-[720px] mx-auto relative z-[2]">
         <!-- Back link -->
         <a href="<?= site_url('news') ?>"
-            class="inline-flex items-center gap-1.5 text-[.65rem] font-semibold tracking-[.1em] uppercase text-dark/30 no-underline mb-8 transition-colors hover:text-gold">
+            class="inline-flex items-center gap-1.5 text-[.65rem] font-semibold tracking-[.1em] uppercase text-dark/30 no-underline mb-10 transition-colors hover:text-gold">
             ← Back to News
         </a>
 
         <!-- Category + Date -->
-        <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-3 mb-3">
             <span
-                class="text-[.55rem] font-semibold tracking-[.18em] uppercase text-gold"><?= esc(ucfirst($post['category'])) ?></span>
+                class="text-[.8rem] font-semibold tracking-[.18em] uppercase text-gold"><?= esc(ucfirst($post['category'])) ?></span>
             <?php if ($post['publishedAt']): ?>
-            <span class="text-[.55rem] text-dark/25">·</span>
+            <span class="text-[.70rem] text-dark/35">·</span>
             <span
-                class="text-[.55rem] font-medium tracking-[.08em] text-dark/30"><?= date('F j, Y', strtotime($post['publishedAt'])) ?></span>
+                class="text-[.84rem] font-medium tracking-[.08em] text-dark/40"><?= date('F j, Y', strtotime($post['publishedAt'])) ?></span>
             <?php endif; ?>
         </div>
 
         <!-- Title -->
-        <h1 class="font-display text-[clamp(1.6rem,3vw,2.6rem)] leading-[1.14] text-dark mb-5">
+        <h1 class="font-display text-[clamp(1.6rem,3vw,2.6rem)] leading-[1.14] text-dark mb-4">
             <?= esc($post['title']) ?></h1>
 
         <!-- Author -->
         <?php if (! empty($post['authorName'])): ?>
-        <div class="text-[.75rem] font-medium text-dark/35 mb-8">By <?= esc($post['authorName']) ?></div>
+        <div class="text-[.95rem] font-medium text-dark/40 mb-8">By <?= esc($post['authorName']) ?></div>
         <?php endif; ?>
 
         <!-- Cover image -->
@@ -61,7 +61,7 @@
             data-share-url="<?= esc($shareUrl, 'attr') ?>" data-share-title="<?= esc($shareTitle, 'attr') ?>"
             data-share-description="<?= esc($shareDescription, 'attr') ?>"
             data-share-image="<?= esc($shareImage, 'attr') ?>">
-            <div class="text-[.56rem] font-semibold tracking-[.16em] uppercase text-dark/45 mb-3">Share This Story</div>
+            <div class="text-[.62rem] font-semibold tracking-[.16em] uppercase text-dark/45 mb-3">Share This Story</div>
             <div class="flex flex-wrap items-center gap-2.5">
                 <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $encodedUrl ?>" target="_blank"
                     rel="noopener noreferrer" aria-label="Share on Facebook" title="Share on Facebook"
