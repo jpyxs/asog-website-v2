@@ -11,6 +11,12 @@
   };
   var minWords = 10;
   var maxWords = 5000;
+  var allowNativeSubmit = false;
+  var recaptchaEnabled = form.dataset.recaptchaEnabled === '1';
+  var recaptchaSiteKey = form.dataset.recaptchaSiteKey || '';
+  var recaptchaAction = form.dataset.recaptchaAction || 'contact_send';
+  var recaptchaTokenField = form.querySelector('[data-recaptcha-token]');
+  var submitButton = form.querySelector('button[type="submit"]');
 
   function escHtml(str) {
     var div = document.createElement('div');
@@ -132,6 +138,40 @@
     return ok;
   }
 
+  function submitNative() {
+    allowNativeSubmit = true;
+    if (window.HTMLFormElement && HTMLFormElement.prototype.submit) {
+      HTMLFormElement.prototype.submit.call(form);
+      return;
+    }
+    form.submit();
+  }
+
+  function setSubmitting(isSubmitting) {
+    if (!submitButton) return;
+    submitButton.disabled = isSubmitting;
+    submitButton.style.opacity = isSubmitting ? '0.72' : '';
+    submitButton.style.cursor = isSubmitting ? 'wait' : '';
+  }
+
+  function getRecaptchaToken() {
+    if (!recaptchaEnabled) {
+      return Promise.resolve('');
+    }
+
+    if (!recaptchaSiteKey || !window.grecaptcha || !window.grecaptcha.enterprise) {
+      return Promise.reject(new Error('recaptcha_unavailable'));
+    }
+
+    return new Promise(function (resolve, reject) {
+      window.grecaptcha.enterprise.ready(function () {
+        window.grecaptcha.enterprise.execute(recaptchaSiteKey, { action: recaptchaAction })
+          .then(resolve)
+          .catch(reject);
+      });
+    });
+  }
+
   if (messageField) {
     updateCounter();
     messageField.addEventListener('input', function () {
@@ -156,9 +196,31 @@
   });
 
   form.addEventListener('submit', function (event) {
+    if (allowNativeSubmit) {
+      allowNativeSubmit = false;
+      return;
+    }
+
+    event.preventDefault();
     updateCounter();
     if (!validateForm()) {
-      event.preventDefault();
+      return;
     }
+
+    setSubmitting(true);
+    getRecaptchaToken()
+      .then(function (token) {
+        if (recaptchaTokenField) {
+          recaptchaTokenField.value = token;
+        }
+        submitNative();
+      })
+      .catch(function () {
+        setError(messageField, 'We could not verify your submission. Please refresh the page and try again.');
+        if (messageField) {
+          messageField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        setSubmitting(false);
+      });
   });
 })();

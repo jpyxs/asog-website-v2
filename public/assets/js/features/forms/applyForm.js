@@ -20,6 +20,10 @@
   var shouldSkipDuplicateEmail = !!(form && form.dataset.skipDuplicateEmail === '1');
   var hasExistingLeanCanvas = !!(form && form.dataset.hasExistingLeanCanvas === '1');
   var existingTeamCvCount = parseInt((form && form.dataset.existingTeamCvCount) || '0', 10) || 0;
+  var recaptchaEnabled = !!(form && form.dataset.recaptchaEnabled === '1');
+  var recaptchaSiteKey = (form && form.dataset.recaptchaSiteKey) || '';
+  var recaptchaAction = (form && form.dataset.recaptchaAction) || (isRevalidationMode ? 'application_revalidate' : 'application_submit');
+  var recaptchaTokenField = form ? form.querySelector('[data-recaptcha-token]') : null;
   var persistIds  = [
     'applicantName', 'applicantEmail', 'contactNumber',
     'startupName', 'startupDescription',
@@ -290,6 +294,7 @@
   var emailTimer    = null;
   var emailField    = document.getElementById('applicantEmail');
   var allowNativeSubmit = false;
+  var isSubmittingFinal = false;
 
   function runDuplicateEmailCheck(showToast) {
     if (shouldSkipDuplicateEmail) {
@@ -630,6 +635,61 @@
     document.removeEventListener('keydown', esc);
   }
 
+  function setFinalSubmitting(isSubmitting) {
+    isSubmittingFinal = isSubmitting;
+    if (!btnConfirm) return;
+    btnConfirm.disabled = isSubmitting;
+    btnConfirm.style.opacity = isSubmitting ? '0.72' : '';
+    btnConfirm.style.cursor = isSubmitting ? 'wait' : '';
+  }
+
+  function submitNative() {
+    if (!form) return;
+    allowNativeSubmit = true;
+    if (window.HTMLFormElement && HTMLFormElement.prototype.submit) {
+      HTMLFormElement.prototype.submit.call(form);
+      return;
+    }
+    form.submit();
+  }
+
+  function getRecaptchaToken() {
+    if (!recaptchaEnabled) {
+      return Promise.resolve('');
+    }
+
+    if (!recaptchaSiteKey || !window.grecaptcha || !window.grecaptcha.enterprise) {
+      return Promise.reject(new Error('recaptcha_unavailable'));
+    }
+
+    return new Promise(function (resolve, reject) {
+      window.grecaptcha.enterprise.ready(function () {
+        window.grecaptcha.enterprise.execute(recaptchaSiteKey, { action: recaptchaAction })
+          .then(resolve)
+          .catch(reject);
+      });
+    });
+  }
+
+  function submitWithRecaptcha() {
+    if (!form || isSubmittingFinal) return;
+
+    setFinalSubmitting(true);
+    getRecaptchaToken()
+      .then(function (token) {
+        if (recaptchaTokenField) {
+          recaptchaTokenField.value = token;
+        }
+        try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        closeModal();
+        submitNative();
+      })
+      .catch(function () {
+        showHeadsUp('We could not verify your submission. Please refresh the page and try again.');
+        setFinalSubmitting(false);
+      });
+  }
+
   // Review & Submit button → validate first, then show modal
   var btnPreview = document.getElementById('btnPreview');
   if (btnPreview) {
@@ -652,14 +712,7 @@
   var btnConfirm = document.getElementById('btnConfirmSubmit');
   if (btnConfirm) {
     btnConfirm.addEventListener('click', function () {
-      try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
-      closeModal();
-      allowNativeSubmit = true;
-      if (form && typeof form.requestSubmit === 'function') {
-        form.requestSubmit();
-        return;
-      }
-      if (form) form.submit();
+      submitWithRecaptcha();
     });
   }
 

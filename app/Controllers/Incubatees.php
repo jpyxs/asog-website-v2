@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\GmailMailer;
+use App\Libraries\RecaptchaVerifier;
 use App\Models\FaqModel;
 use App\Models\IncubateeApplicationModel;
 use App\Models\LandingSettingModel;
@@ -130,6 +131,16 @@ class Incubatees extends BaseController
             return redirect()->back()
                 ->withInput()
                 ->with('errors', ['privacyAgreement' => 'Please confirm your privacy consent before continuing.']);
+        }
+
+        $recaptcha = new RecaptchaVerifier();
+        if (! $recaptcha->verifyRequest('application_submit')) {
+            return $this->renderApplyFormResponse(
+                $data,
+                [],
+                $recaptcha->failureMessage(),
+                422
+            );
         }
 
         // Validate
@@ -323,6 +334,18 @@ class Incubatees extends BaseController
             return redirect()->back()
                 ->withInput()
                 ->with('errors', ['privacyAgreement' => 'Please confirm your privacy consent before continuing.']);
+        }
+
+        $recaptcha = new RecaptchaVerifier();
+        if (! $recaptcha->verifyRequest('application_revalidate')) {
+            return $this->renderRevalidationFormResponse(
+                $token,
+                $app,
+                $data,
+                [],
+                $recaptcha->failureMessage(),
+                422
+            );
         }
 
         if (! $applicationModel->validate($data)) {
