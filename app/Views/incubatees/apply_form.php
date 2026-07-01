@@ -127,9 +127,10 @@
                             class="text-[.52rem] font-bold tracking-[.18em] uppercase text-[#102033]/85 block mb-1.5">
                             Contact Number <span class="text-red-400">*</span>
                         </label>
-                        <input type="tel" id="contactNumber" name="contactNumber" maxlength="20" data-v="required|phone"
+                        <input type="tel" id="contactNumber" name="contactNumber" maxlength="11" inputmode="numeric" pattern="[0-9]*" data-v="required|phone"
                             class="v-field w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none placeholder:text-dark/25"
                             placeholder="09XX XXX XXXX" value="<?= esc($inputValue('contactNumber')) ?>" required>
+                        <!-- <span class="text-[.58rem] text-dark/60 block mt-2">11 digits only, start with 09</span> -->
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
                             data-for="contactNumber"><?= $errs['contactNumber'] ?? '' ?></span>
                     </div>
@@ -167,7 +168,7 @@
                         </label>
                         <textarea id="startupDescription" name="startupDescription" rows="4" maxlength="2000"
                             data-v="required|min:10"
-                            class="v-field w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
+                            class="v-field guidelines-scroll w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
                             placeholder="Describe your solution, target market, and what makes it unique..."
                             required><?= esc($inputValue('startupDescription')) ?></textarea>
                         <span class="v-msg text-[.62rem] text-red-500 block mt-1 hidden"
@@ -181,7 +182,7 @@
                                 Main Risk for Your Startup
                             </label>
                             <textarea id="mainRisk" name="mainRisk" rows="3" maxlength="1000"
-                                class="w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
+                                class="guidelines-scroll w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
                                 placeholder="Describe potential challenges..."><?= esc($inputValue('mainRisk')) ?></textarea>
                         </div>
                         <div class="p-4 md:p-5">
@@ -190,7 +191,7 @@
                                 Short-term Goals (3–5 months)
                             </label>
                             <textarea id="shortTermGoals" name="shortTermGoals" rows="3" maxlength="1000"
-                                class="w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
+                                class="guidelines-scroll w-full bg-transparent border-none p-0 text-[.88rem] text-dark font-normal outline-none resize-none placeholder:text-dark/25"
                                 placeholder="What do you plan to achieve?..."><?= esc($inputValue('shortTermGoals')) ?></textarea>
                         </div>
                     </div>
@@ -215,8 +216,8 @@
                                 class="text-[.52rem] font-bold tracking-[.18em] uppercase text-[#102033]/85 block mb-1.5">
                                 Team Members' CV
                             </label>
-                            <span class="text-[.58rem] text-navy/30 block mb-3">Upload PDFs · Max 10 files · 100 MB
-                                each<?= ($serverUploadMaxFilesize !== '' || $serverPostMaxSize !== '') ? ' · Server cap: ' . esc($serverUploadMaxFilesize !== '' ? $serverUploadMaxFilesize : 'current limit') . '/file' . ($serverPostMaxSize !== '' ? ', ' . esc($serverPostMaxSize) . ' total' : '') : '' ?></span>
+                                <span class="text-[.58rem] text-navy/30 block mb-3">Upload PDFs · Max 10 files · 100 MB
+                                    each</span>
                             <div id="teamCvChooser" class="inline-flex items-center gap-3">
                                 <button type="button" id="teamCvButton" class="file-upload-button">
                                     Choose File
