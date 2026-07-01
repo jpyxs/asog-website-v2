@@ -259,9 +259,10 @@ $sdgTitles = [
     outline-offset: 2px;
 }
 
-.sdg-check:hover .sdg-tooltip {
-    opacity: 1;
-}
+.sdg-check:hover .sdg-tooltip,
+ .sdg-check:has(input:focus-visible) .sdg-tooltip {
+     opacity: 1;
+ }
 
 .sdg-help {
     margin-top: .45rem;
@@ -762,7 +763,7 @@ $sdgTitles = [
                 <div class="sdg-select-grid">
                     <?php for ($sdgId = 1; $sdgId <= 17; $sdgId++): ?>
                     <?php $sdgNum = str_pad((string) $sdgId, 2, '0', STR_PAD_LEFT); ?>
-                    <label class="sdg-check sdg-check-icon">
+                    <label class="sdg-check">
                         <input
                             type="checkbox"
                             name="sdgNumbers[]"
