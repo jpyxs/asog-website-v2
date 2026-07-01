@@ -27,6 +27,9 @@
             $storageKey = $isRevalidation
                 ? 'asog_apply_form_revalidation_' . (string) ($formInput['id'] ?? 'unknown')
                 : 'asog_apply_form_public_v2';
+            $recaptcha = config('Recaptcha');
+            $recaptchaEnabled = $recaptcha->enabled && $recaptcha->siteKey !== '';
+            $recaptchaAction = $isRevalidation ? 'application_revalidate' : 'application_submit';
         ?>
 
         <?php if ($formError): ?>
@@ -42,8 +45,13 @@
             data-form-mode="<?= $isRevalidation ? 'revalidation' : 'public' ?>"
             data-storage-key="<?= esc($storageKey) ?>"
             data-has-existing-lean-canvas="<?= $isRevalidation && $existingLeanCanvasPath !== '' ? '1' : '0' ?>"
-            data-existing-team-cv-count="<?= esc((string) $existingTeamCvCount) ?>">
+            data-existing-team-cv-count="<?= esc((string) $existingTeamCvCount) ?>"
+            data-recaptcha-enabled="<?= $recaptchaEnabled ? '1' : '0' ?>"
+            data-recaptcha-site-key="<?= esc($recaptcha->siteKey) ?>"
+            data-recaptcha-action="<?= esc($recaptchaAction) ?>">
             <?= csrf_field() ?>
+            <input type="hidden" name="recaptchaToken" data-recaptcha-token value="">
+            <input type="hidden" name="recaptchaAction" value="<?= esc($recaptchaAction) ?>">
 
             <!-- ═══════════════════════════════════════════════════════
                  WELCOME INTRO
@@ -513,6 +521,9 @@
     </div>
 </div>
 
+<?php if ($recaptchaEnabled): ?>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= rawurlencode($recaptcha->siteKey) ?>"></script>
+<?php endif; ?>
 <script src="<?= base_url('assets/js/features/forms/applyForm.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/forms/applyForm.js') ?>"></script>
 
 <!-- ═══ GUIDELINES MODAL (reusable) ═══ -->

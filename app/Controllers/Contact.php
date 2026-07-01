@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\GmailMailer;
+use App\Libraries\RecaptchaVerifier;
 
 class Contact extends BaseController
 {
@@ -66,6 +67,12 @@ class Contact extends BaseController
 
         if (! $this->contactModel->validate($data)) {
             setToast('error', 'Please fill in all fields correctly.');
+            return redirect()->back()->withInput();
+        }
+
+        $recaptcha = new RecaptchaVerifier();
+        if (! $recaptcha->verifyRequest('contact_send')) {
+            setToast('error', $recaptcha->failureMessage());
             return redirect()->back()->withInput();
         }
 

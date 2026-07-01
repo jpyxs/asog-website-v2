@@ -10,6 +10,8 @@
     $igUrl        = 'https://www.instagram.com/asogtbi';
     $xUrl         = 'https://x.com/asogtbi';
     $threadsUrl   = 'https://www.threads.com/@asogtbi';
+    $recaptcha = config('Recaptcha');
+    $recaptchaEnabled = $recaptcha->enabled && $recaptcha->siteKey !== '';
 ?>
 <section class="relative overflow-hidden bg-off py-16 md:py-20 px-6 md:px-10 lg:px-14">
     <div class="max-w-[1400px] mx-auto relative z-[2]">
@@ -45,8 +47,13 @@
             <!-- RIGHT — Contact Form -->
             <div class="reveal reveal-d2">
                 <?php $contactErrors = session('errors') ?? []; ?>
-                <form action="<?= site_url('contact/send') ?>" method="post" class="space-y-5" id="contactForm" novalidate>
+                <form action="<?= site_url('contact/send') ?>" method="post" class="space-y-5" id="contactForm" novalidate
+                    data-recaptcha-enabled="<?= $recaptchaEnabled ? '1' : '0' ?>"
+                    data-recaptcha-site-key="<?= esc($recaptcha->siteKey) ?>"
+                    data-recaptcha-action="contact_send">
                     <?= csrf_field() ?>
+                    <input type="hidden" name="recaptchaToken" data-recaptcha-token value="">
+                    <input type="hidden" name="recaptchaAction" value="contact_send">
                     <div>
                         <label
                             class="text-[.62rem] font-bold tracking-[.16em] uppercase text-dark/60 block mt-.5 mb-2">Name</label>
@@ -87,4 +94,7 @@
     </div>
 </section>
 
+<?php if ($recaptchaEnabled): ?>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= rawurlencode($recaptcha->siteKey) ?>"></script>
+<?php endif; ?>
 <script src="<?= base_url('assets/js/features/forms/contactForm.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/forms/contactForm.js') ?>"></script>
