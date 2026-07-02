@@ -13,6 +13,18 @@ $selectedFilter = trim((string) ($landingIncubateesFilter ?? 'all'));
 $headingMain = 'All Cohorts';
 $headingHighlight = null;
 
+$incubateeAnchorId = static function (array $inc): string {
+    $slug = trim((string) ($inc['slug'] ?? ''));
+    if ($slug !== '') {
+        return 'incubatee-' . $slug;
+    }
+
+    $companyName = html_entity_decode((string) ($inc['companyName'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $fallback = trim((string) preg_replace('/[^a-z0-9]+/i', '-', strtolower($companyName)), '-');
+
+    return 'incubatee-' . ($fallback !== '' ? $fallback : 'item');
+};
+
 if ($selectedFilter !== '' && strtolower($selectedFilter) !== 'all') {
     if (preg_match('/^Cohort\s+(.+)$/i', $selectedFilter, $m)) {
         $headingMain = 'Cohort';
@@ -51,7 +63,8 @@ if ($selectedFilter !== '' && strtolower($selectedFilter) !== 'all') {
                 <div class="inc-track">
                     <?php for ($loop = 0; $loop < 2; $loop++): ?>
                     <?php foreach ($all as $inc): ?>
-                    <div class="inc-logo-item"
+                    <a class="inc-logo-item"
+                        href="<?= site_url('incubatees') ?>#<?= esc($incubateeAnchorId($inc)) ?>"
                         title="<?= esc(html_entity_decode($inc['companyName'], ENT_QUOTES, 'UTF-8')) ?>">
                         <?php if (! empty($inc['logoPath'])): ?>
                         <?= responsiveUploadImg($inc['logoPath'], 'incubatees', html_entity_decode($inc['companyName'], ENT_QUOTES, 'UTF-8'), '', true) ?>
@@ -59,7 +72,7 @@ if ($selectedFilter !== '' && strtolower($selectedFilter) !== 'all') {
                         <span
                             class="inc-initials"><?= strtoupper(substr(html_entity_decode($inc['companyName'], ENT_QUOTES, 'UTF-8'), 0, 2)) ?></span>
                         <?php endif; ?>
-                    </div>
+                    </a>
                     <?php endforeach; ?>
                     <?php endfor; ?>
                 </div>

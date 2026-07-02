@@ -8,6 +8,71 @@
 
   if (!tabs.length) return;
 
+  function getTargetCardFromHash() {
+    var hash = window.location.hash;
+    if (!hash || hash.length < 2) return null;
+
+    try {
+      return document.getElementById(decodeURIComponent(hash.slice(1)));
+    } catch (error) {
+      return document.getElementById(hash.slice(1));
+    }
+  }
+
+  function revealCardFromHash() {
+    var target = getTargetCardFromHash();
+    if (!target) return;
+
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
+    var cohort = target.dataset.cohort;
+    if (!cohort) return;
+
+    var activeTab = null;
+    tabs.forEach(function (tab) {
+      if (!activeTab && tab.dataset.cohort === cohort) {
+        activeTab = tab;
+      }
+    });
+
+    if (activeTab) {
+      activeTab.click();
+    }
+
+    function openWhenVisible(attempt) {
+      if (!window.__ibShowcaseReady) {
+        if (attempt < 60) {
+          window.setTimeout(function () {
+            openWhenVisible(attempt + 1);
+          }, 50);
+        }
+        return;
+      }
+
+      var hidden = target.offsetParent === null || window.getComputedStyle(target).display === 'none';
+      if (hidden) {
+        if (attempt < 30) {
+          window.requestAnimationFrame(function () {
+            openWhenVisible(attempt + 1);
+          });
+        }
+        return;
+      }
+
+      window.requestAnimationFrame(function () {
+        target.dispatchEvent(new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        }));
+      });
+    }
+
+    openWhenVisible(0);
+  }
+
   tabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
       tabs.forEach(function (item) {
@@ -58,4 +123,7 @@
       }
     });
   });
+
+  revealCardFromHash();
+  window.addEventListener('hashchange', revealCardFromHash);
 })();
