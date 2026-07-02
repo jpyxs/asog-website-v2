@@ -22,13 +22,6 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
 }
 ?>
 
-<?php
-$duplicateEmailSetting = old('allowDuplicateEmails');
-$allowDuplicateEmails = $duplicateEmailSetting !== null
-    ? $duplicateEmailSetting === '1'
-    : ! empty($allowDuplicateEmails);
-?>
-
 <!-- Stats -->
 <div class="grid-stats">
     <div class="stat">
@@ -56,34 +49,6 @@ $allowDuplicateEmails = $duplicateEmailSetting !== null
         <div class="t">Archived</div>
     </div>
 </div>
-
-<section class="app-settings-card">
-    <div class="app-settings-head">
-        <span>Submission Rule</span>
-        <h2>Application settings</h2>
-        <p>Control whether applicants can submit more than once using the same email address.</p>
-    </div>
-
-    <form method="POST" action="<?= site_url('admin/applications/settings') ?>" class="app-settings-form">
-        <?= csrf_field() ?>
-        <label class="app-rule">
-            <input type="hidden" name="allowDuplicateEmails" value="0">
-            <input type="checkbox" name="allowDuplicateEmails" value="1" <?= $allowDuplicateEmails ? 'checked' : '' ?>>
-            <span>
-                <strong>Allow duplicate applicant emails</strong>
-                <small>
-                    <?= $allowDuplicateEmails
-                        ? 'Applicants can submit more than once with the same email address.'
-                        : 'Applicants will see an email-specific error if that address was already used before.' ?>
-                </small>
-            </span>
-        </label>
-
-        <div class="app-settings-actions">
-            <button type="submit" class="btn btn-p">Save application settings</button>
-        </div>
-    </form>
-</section>
 
 <!-- Combined filter + bulk bar -->
 <div class="app-filter-bar">
