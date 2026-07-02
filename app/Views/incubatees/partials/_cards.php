@@ -1,20 +1,7 @@
 <!-- Card Grid -->
 <div id="ibStack" class="ib-stack flex flex-wrap gap-5 justify-center relative">
-    <?php
-    $incubateeAnchorId = static function (array $inc): string {
-        $slug = trim((string) ($inc['slug'] ?? ''));
-        if ($slug !== '') {
-            return 'incubatee-' . $slug;
-        }
-
-        $companyName = html_entity_decode((string) ($inc['companyName'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $fallback = trim((string) preg_replace('/[^a-z0-9]+/i', '-', strtolower($companyName)), '-');
-
-        return 'incubatee-' . ($fallback !== '' ? $fallback : 'item');
-    };
-    ?>
     <?php foreach ($incubatees as $i => $inc): ?>
-    <div class="ib-card cursor-pointer relative" id="<?= esc($incubateeAnchorId($inc)) ?>" data-ix="<?= $i ?>">
+    <div class="ib-card cursor-pointer relative" id="<?= esc(incubatee_anchor_id($inc)) ?>" data-ix="<?= $i ?>">
         <div class="ib-inner relative w-full h-full rounded-xl">
 
             <!-- Front -->

@@ -3,6 +3,8 @@
      ║  Horizontal cohort tabs · Card grid · Panel detail            ║
      ╚══════════════════════════════════════════════════════════════╝ -->
 <?php
+helper('incubatees');
+
 $cohorts        = $cohorts ?? [];
 $allIncubatees  = $allIncubatees ?? [];
 $hasIncubatees  = ! empty($allIncubatees);
@@ -10,17 +12,6 @@ $hasCohorts     = ! empty($cohorts);
 $sealPath       = 'assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2';
 $sealUrl        = base_url($sealPath . '.webp');
 $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
-$incubateeAnchorId = static function (array $inc): string {
-    $slug = trim((string) ($inc['slug'] ?? ''));
-    if ($slug !== '') {
-        return 'incubatee-' . $slug;
-    }
-
-    $companyName = html_entity_decode((string) ($inc['companyName'] ?? ''), ENT_QUOTES, 'UTF-8');
-    $fallback = trim((string) preg_replace('/[^a-z0-9]+/i', '-', strtolower($companyName)), '-');
-
-    return 'incubatee-' . ($fallback !== '' ? $fallback : 'item');
-};
 ?>
 
 <link rel="stylesheet" href="<?= base_url('assets/css/incubatees.css') ?>">
@@ -45,7 +36,7 @@ $incubateeAnchorId = static function (array $inc): string {
         <!-- ═══════ CARD GRID (all cohorts, filtered by tab) ═══════ -->
         <div id="ibStack" class="ib-stack flex flex-wrap gap-5 justify-center relative">
             <?php foreach ($allIncubatees as $i => $inc): ?>
-            <div class="ib-card cursor-pointer relative" id="<?= esc($incubateeAnchorId($inc)) ?>" data-ix="<?= $i ?>"
+            <div class="ib-card cursor-pointer relative" id="<?= esc(incubatee_anchor_id($inc)) ?>" data-ix="<?= $i ?>"
                 data-cohort="<?= esc($inc['cohort'] ?? '') ?>"
                 <?php if (($inc['cohort'] ?? '') !== $firstCohort): ?>style="display:none" <?php endif; ?>>
                 <div class="ib-inner relative w-full h-full rounded-xl">

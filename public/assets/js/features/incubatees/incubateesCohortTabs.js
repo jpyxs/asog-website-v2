@@ -43,11 +43,11 @@
 
     function openWhenVisible(attempt) {
       if (!window.__ibShowcaseReady) {
-        if (attempt < 60) {
-          window.setTimeout(function () {
-            openWhenVisible(attempt + 1);
-          }, 50);
+        function onReady() {
+           window.removeEventListener('ib:ready', onReady);
+           openWhenVisible(attempt);
         }
+        window.addEventListener('ib:ready', onReady);
         return;
       }
 
@@ -62,11 +62,7 @@
       }
 
       window.requestAnimationFrame(function () {
-        target.dispatchEvent(new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-          view: window
-        }));
+        target.click();
       });
     }
 
