@@ -93,7 +93,7 @@ $errors = $formErrors ?? [];
                 </label>
                 <?php if ($isEdit && ! empty($modalMember['photoPath'])): ?>
                     <div class="org-admin-photo-preview">
-                        <img src="<?= esc(org_photo_url($modalMember['photoPath'])) ?>" alt="Current photo">
+                        <?= responsiveStaticImg((string) ($modalMember['photoPath'] ?? ''), 'team-org', 'Current photo', 'org-admin-thumb') ?>
                         <span>Current photo</span>
                     </div>
                 <?php endif; ?>
