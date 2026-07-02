@@ -77,7 +77,7 @@
             <link rel="stylesheet" href="<?= esc($css) ?>">
         <?php endforeach; ?>
     <?php endif; ?>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="<?= base_url('assets/loader/vendor/gsap.min.js') ?>"></script>
     <?php if (empty($hideSiteHeader)): ?>
     <script src="<?= base_url('assets/js/features/layout/header.js') ?>" defer></script>
     <?php endif; ?>
@@ -138,6 +138,7 @@
     $isProgramsPage  = $seg1 === 'programs';
     $isLandingPage   = ! empty($isLanding);
     $hideSiteHeader  = ! empty($hideSiteHeader);
+    $showAsogLoader  = ($showAsogLoader ?? null) !== false;
 
     $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact', 'incubatees'], true)
         || str_starts_with($uriPath, 'apply');
@@ -147,6 +148,10 @@
     $activeClass = static fn(bool $isActive): string => $isActive ? ' is-active' : '';
     ?>
     <a class="sr-only focus:not-sr-only" href="#main">Skip to content</a>
+
+    <?php if ($isLandingPage && ! $hideSiteHeader && $showAsogLoader): ?>
+        <?= view('components/asog_loader') ?>
+    <?php endif; ?>
 
     <?php if (! $hideSiteHeader): ?>
 
