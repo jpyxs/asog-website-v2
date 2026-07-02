@@ -5,6 +5,8 @@
      ╚══════════════════════════════════════════════════════════════════════╝
 -->
 <?php
+helper('incubatees');
+
 $all = $incubatees ?? [];
 $hasIncubatees = ! empty($all);
 $fallbackIncubateeImage = base_url('assets/img/incubatees.webp');
@@ -51,7 +53,8 @@ if ($selectedFilter !== '' && strtolower($selectedFilter) !== 'all') {
                 <div class="inc-track">
                     <?php for ($loop = 0; $loop < 2; $loop++): ?>
                     <?php foreach ($all as $inc): ?>
-                    <div class="inc-logo-item"
+                    <a class="inc-logo-item"
+                        href="<?= site_url('incubatees') ?>#<?= esc(incubatee_anchor_id($inc)) ?>"
                         title="<?= esc(html_entity_decode($inc['companyName'], ENT_QUOTES, 'UTF-8')) ?>">
                         <?php if (! empty($inc['logoPath'])): ?>
                         <?= responsiveUploadImg($inc['logoPath'], 'incubatees', html_entity_decode($inc['companyName'], ENT_QUOTES, 'UTF-8'), '', true) ?>
@@ -59,7 +62,7 @@ if ($selectedFilter !== '' && strtolower($selectedFilter) !== 'all') {
                         <span
                             class="inc-initials"><?= strtoupper(substr(html_entity_decode($inc['companyName'], ENT_QUOTES, 'UTF-8'), 0, 2)) ?></span>
                         <?php endif; ?>
-                    </div>
+                    </a>
                     <?php endforeach; ?>
                     <?php endfor; ?>
                 </div>
