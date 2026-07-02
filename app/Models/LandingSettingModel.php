@@ -15,6 +15,8 @@ class LandingSettingModel extends Model
     public const KEY_APPLY_FAQ_TITLE = 'apply_faq_title';
     public const KEY_APPLY_FAQ_INTRO = 'apply_faq_intro';
     public const KEY_APPLY_ALLOW_DUPLICATE_EMAILS = 'apply_allow_duplicate_emails';
+    public const KEY_APPLY_START_DATE = 'apply_start_date';
+    public const KEY_APPLY_END_DATE = 'apply_end_date';
 
     protected $table            = 'landing_settings';
     protected $primaryKey       = 'id';

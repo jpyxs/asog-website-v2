@@ -121,7 +121,6 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         // Incubatee Applications
         $routes->get('applications', 'Admin\ApplicationsAdmin::index');
         $routes->get('applications/(:num)', 'Admin\ApplicationsAdmin::show/$1');
-        $routes->post('applications/settings', 'Admin\ApplicationsAdmin::updateSettings');
         $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
         $routes->put('applications/(:num)/toggle-archive', 'Admin\ApplicationsAdmin::toggleArchive/$1');
         $routes->post('applications/bulk', 'Admin\ApplicationsAdmin::bulk');
@@ -180,6 +179,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->post('settings/guess-startup/availability', 'Admin\SettingsAdmin::updateGuessStartupAvailability');
         $routes->post('settings/interns-visibility', 'Admin\SettingsAdmin::updateInternsVisibility');
         $routes->post('settings/homepage-incubatees-filter', 'Admin\SettingsAdmin::updateLandingFilter');
+        $routes->post('settings/applications', 'Admin\SettingsAdmin::updateApplicationSettings');
 
         // Account Management
         $routes->get('accounts', 'Admin\AdminsManagement::index');

@@ -1,6 +1,76 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/adminSettings.css') ?>">
 
+<?php
+$duplicateEmailSetting = old('allowDuplicateEmails');
+$allowDuplicateEmails = $duplicateEmailSetting !== null
+    ? $duplicateEmailSetting === '1'
+    : ! empty($allowDuplicateEmails);
+$applicationStartDate = old('applicationStartDate', $applicationStartDate ?? '');
+$applicationEndDate = old('applicationEndDate', $applicationEndDate ?? '');
+$windowStatus = $applicationWindowStatus ?? [
+    'label' => 'Always open',
+    'description' => 'No application timeline is currently configured.',
+    'state' => 'open',
+];
+?>
+
 <div class="settings-stack">
+    <div class="settings-card">
+        <div class="settings-head">
+            <p class="settings-kicker">Application Control</p>
+            <h2>Application Settings</h2>
+            <p class="settings-copy">Set when new public applications can be submitted and control whether applicants can reuse an email address.</p>
+        </div>
+
+        <form method="POST" action="<?= site_url('admin/settings/applications') ?>" class="settings-form">
+            <?= csrf_field() ?>
+
+            <div class="settings-status-row settings-status-<?= esc((string) ($windowStatus['state'] ?? 'open')) ?>">
+                <div>
+                    <strong><?= esc((string) ($windowStatus['label'] ?? 'Always open')) ?></strong>
+                    <span><?= esc((string) ($windowStatus['description'] ?? 'No application timeline is currently configured.')) ?></span>
+                </div>
+            </div>
+
+            <div class="settings-date-grid">
+                <label class="settings-field" for="applicationStartDate">
+                    <span>Start date</span>
+                    <input id="applicationStartDate" type="date" name="applicationStartDate" value="<?= esc((string) $applicationStartDate) ?>">
+                </label>
+                <label class="settings-field" for="applicationEndDate">
+                    <span>End date</span>
+                    <input id="applicationEndDate" type="date" name="applicationEndDate" value="<?= esc((string) $applicationEndDate) ?>">
+                </label>
+            </div>
+
+            <div class="settings-toggle-row">
+                <div class="settings-toggle-copy">
+                    <strong>Allow Duplicate Applicant Emails</strong>
+                    <span><?= $allowDuplicateEmails
+                        ? 'Applicants can submit more than once with the same email address.'
+                        : 'Applicants will see an email-specific error if that address was already used before.' ?></span>
+                </div>
+
+                <label class="settings-switch" for="allowDuplicateEmails">
+                    <input type="hidden" name="allowDuplicateEmails" value="0">
+                    <input
+                        id="allowDuplicateEmails"
+                        type="checkbox"
+                        name="allowDuplicateEmails"
+                        value="1"
+                        <?= $allowDuplicateEmails ? 'checked' : '' ?>
+                    >
+                    <span class="settings-slider" aria-hidden="true"></span>
+                    <span class="settings-switch-label"><?= $allowDuplicateEmails ? 'ON' : 'OFF' ?></span>
+                </label>
+            </div>
+
+            <div class="settings-actions">
+                <button type="submit" class="btn btn-p">Save Application Settings</button>
+            </div>
+        </form>
+    </div>
+
     <div class="settings-card">
         <div class="settings-head">
             <p class="settings-kicker">Landing & Gameplay Control</p>
