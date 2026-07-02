@@ -29,7 +29,7 @@
         </p>
         <a href="<?= site_url('apply') ?>"
             class="inline-block font-body text-[.72rem] font-medium tracking-[.14em] uppercase text-white bg-sky border border-sky px-8 md:px-10 py-4 rounded-sm no-underline transition-all duration-200 hover:bg-sky/80 hover:-translate-y-0.5">
-            Back to Apply Page
+            Application overview
         </a>
     </div>
 </section>

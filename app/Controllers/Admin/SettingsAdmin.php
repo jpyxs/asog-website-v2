@@ -13,6 +13,8 @@ class SettingsAdmin extends BaseController
 
         $guessStartupRaw = trim((string) $settingModel->getValue(LandingSettingModel::KEY_GUESS_STARTUP_ENABLED, '1'));
         $isGuessStartupEnabled = $guessStartupRaw !== '0';
+        $guessStartupVisibleRaw = trim((string) $settingModel->getValue(LandingSettingModel::KEY_GUESS_STARTUP_VISIBLE, '1'));
+        $isGuessStartupVisible = $guessStartupVisibleRaw !== '0';
 
         $internsRaw = trim((string) $settingModel->getValue(LandingSettingModel::KEY_SHOW_INTERNS, '1'));
         $showInternsSection = $internsRaw !== '0';
@@ -45,6 +47,7 @@ class SettingsAdmin extends BaseController
             'pageTitle'             => 'Settings',
             'activePage'            => 'settings',
             'isGuessStartupEnabled' => $isGuessStartupEnabled,
+            'isGuessStartupVisible' => $isGuessStartupVisible,
             'showInternsSection'    => $showInternsSection,
             'landingFilterOptions'  => $activeCohortNames,
             'selectedLandingFilter' => $selectedLandingFilter,
@@ -63,14 +66,17 @@ class SettingsAdmin extends BaseController
     {
         $settingModel = new LandingSettingModel();
         $enabled = $this->request->getPost('guessStartupEnabled') === '1';
+        $visible = $this->request->getPost('guessStartupVisible') === '1';
 
-        if (! $settingModel->setValue(LandingSettingModel::KEY_GUESS_STARTUP_ENABLED, $enabled ? '1' : '0')) {
-            setToast('error', 'Unable to save game availability setting.');
+        $saved = $settingModel->setValue(LandingSettingModel::KEY_GUESS_STARTUP_ENABLED, $enabled ? '1' : '0');
+        $saved = $settingModel->setValue(LandingSettingModel::KEY_GUESS_STARTUP_VISIBLE, $visible ? '1' : '0') && $saved;
+
+        if (! $saved) {
+            setToast('error', 'Unable to save game settings.');
             return redirect()->to(site_url('admin/settings'));
         }
 
-        $status = $enabled ? 'enabled' : 'disabled';
-        setToast('success', 'Guess the Startup game is now ' . $status . '.');
+        setToast('success', 'Guess the Startup settings updated.');
 
         return redirect()->to(site_url('admin/settings'));
     }

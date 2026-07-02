@@ -32,7 +32,7 @@ $windowStatus = $applicationWindowStatus ?? [
                 </div>
             </div>
 
-            <div class="settings-date-grid">
+            <div class="settings-field-grid">
                 <label class="settings-field" for="applicationStartDate">
                     <span>Start date</span>
                     <input id="applicationStartDate" type="date" name="applicationStartDate" value="<?= esc((string) $applicationStartDate) ?>">
@@ -75,7 +75,7 @@ $windowStatus = $applicationWindowStatus ?? [
         <div class="settings-head">
             <p class="settings-kicker">Landing & Gameplay Control</p>
             <h2>Guess The Startup Availability</h2>
-            <p class="settings-copy">Use this switch to pause or resume public gameplay. When disabled, visitors can still view the lobby and leaderboard, but they cannot start a new round or submit answers.</p>
+            <p class="settings-copy">Control whether the game is visible on the landing page and whether visitors can start a new round.</p>
         </div>
 
         <form method="POST" action="<?= site_url('admin/settings/guess-startup/availability') ?>" class="settings-form" data-toggle-form>
@@ -101,8 +101,30 @@ $windowStatus = $applicationWindowStatus ?? [
                 </label>
             </div>
 
+            <div class="settings-toggle-row">
+                <div class="settings-toggle-copy">
+                    <strong>Show On Landing Page</strong>
+                    <span><?= ! empty($isGuessStartupVisible)
+                        ? 'Game card and public routes are currently accessible.'
+                        : 'Game card is hidden and public game routes are blocked.' ?></span>
+                </div>
+
+                <label class="settings-switch" for="guessStartupVisible">
+                    <input type="hidden" name="guessStartupVisible" value="0">
+                    <input
+                        id="guessStartupVisible"
+                        type="checkbox"
+                        name="guessStartupVisible"
+                        value="1"
+                        <?= ! empty($isGuessStartupVisible) ? 'checked' : '' ?>
+                    >
+                    <span class="settings-slider" aria-hidden="true"></span>
+                    <span class="settings-switch-label"><?= ! empty($isGuessStartupVisible) ? 'ON' : 'OFF' ?></span>
+                </label>
+            </div>
+
             <div class="settings-actions">
-                <button type="submit" class="btn btn-p">Save Availability</button>
+                <button type="submit" class="btn btn-p">Save Game Settings</button>
             </div>
         </form>
     </div>
@@ -143,18 +165,22 @@ $windowStatus = $applicationWindowStatus ?? [
         </form>
     </div>
 
-    <div class="settings-card lf-panel">
-        <div class="lf-wrap">
-            <div class="lf-copy">
-                <p class="lf-kicker">Homepage Incubatees</p>
-                <h3 class="lf-title">Display Filter</h3>
-                <p class="lf-desc">Choose one cohort or all cohorts for the landing section. If the selected cohort has no published startups yet, the site shows "Will be announced soon".</p>
-            </div>
-            <form method="POST" action="<?= site_url('admin/settings/homepage-incubatees-filter') ?>" class="lf-form">
-                <?= csrf_field() ?>
-                <div class="lf-field">
-                    <label class="lf-label" for="landingCohortFilter">Cohort</label>
-                    <select id="landingCohortFilter" name="landingCohortFilter" class="lf-select">
+    <div class="settings-card">
+        <div class="settings-head">
+            <p class="settings-kicker">Homepage Incubatees</p>
+            <h2>Display Filter</h2>
+            <p class="settings-copy">Choose one cohort or all cohorts for the landing section. If the selected cohort has no published startups yet, the site shows "Will be announced soon".</p>
+        </div>
+
+        <form method="POST" action="<?= site_url('admin/settings/homepage-incubatees-filter') ?>" class="settings-form">
+            <?= csrf_field() ?>
+            <div class="settings-control-row">
+                <div class="settings-control-copy">
+                    <strong>Landing Cohort</strong>
+                    <span>Controls which published incubatees appear on the public homepage.</span>
+                </div>
+                <div class="settings-field settings-field-compact">
+                    <select id="landingCohortFilter" name="landingCohortFilter" class="settings-select">
                         <option value="all" <?= ($selectedLandingFilter ?? 'all') === 'all' ? 'selected' : '' ?>>All Cohorts</option>
                         <?php foreach (($landingFilterOptions ?? []) as $cohortName): ?>
                             <option value="<?= esc($cohortName) ?>" <?= ($selectedLandingFilter ?? 'all') === $cohortName ? 'selected' : '' ?>>
@@ -163,27 +189,32 @@ $windowStatus = $applicationWindowStatus ?? [
                         <?php endforeach; ?>
                     </select>
                 </div>
+            </div>
+
+            <div class="settings-actions">
                 <button type="submit" class="btn btn-p">Save</button>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
 (() => {
     document.querySelectorAll('[data-toggle-form]').forEach((form) => {
-        const checkbox = form.querySelector('input[type="checkbox"]');
-        const stateLabel = form.querySelector('.settings-switch-label');
-        if (!checkbox || !stateLabel) {
-            return;
-        }
+        form.querySelectorAll('.settings-switch').forEach((switchEl) => {
+            const checkbox = switchEl.querySelector('input[type="checkbox"]');
+            const stateLabel = switchEl.querySelector('.settings-switch-label');
+            if (!checkbox || !stateLabel) {
+                return;
+            }
 
-        const updateLabel = () => {
-            stateLabel.textContent = checkbox.checked ? 'ON' : 'OFF';
-        };
+            const updateLabel = () => {
+                stateLabel.textContent = checkbox.checked ? 'ON' : 'OFF';
+            };
 
-        checkbox.addEventListener('change', updateLabel);
-        updateLabel();
+            checkbox.addEventListener('change', updateLabel);
+            updateLabel();
+        });
     });
 })();
 </script>
