@@ -19,7 +19,7 @@ if (! empty($member['roleSecondary'])) {
                 <span class="org-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
             <?php endif; ?>
             <?php if (! $isMentor && ! empty($member['photoPath'])): ?>
-                <img src="<?= esc(org_photo_url($member['photoPath'])) ?>" alt="" class="org-admin-thumb">
+                <?= responsiveStaticImg((string) ($member['photoPath'] ?? ''), 'team-org', '', 'org-admin-thumb') ?>
             <?php elseif (! $isMentor): ?>
                 <span class="org-admin-thumb org-admin-thumb-empty">-</span>
             <?php endif; ?>
