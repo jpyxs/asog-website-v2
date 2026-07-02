@@ -20,6 +20,7 @@
     if (slides.length < 2) return;
 
     var mobileRectQuery = window.matchMedia('(max-width: 767px)');
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var cur   = 0;
     var DELAY = 5500;
     var timer;
@@ -242,7 +243,14 @@
     syncHeroPageIndicator();
     syncHeroViewportHeight();
     syncStackHeights();
-    startTimer();
+    
+    if (prefersReducedMotion) {
+        autoplayPaused = true;
+        updateToggleButton();
+    } else {
+        startTimer();
+    }
+    
     preloadNextSlide();
 
     window.addEventListener('resize', syncHeroViewportHeight);
