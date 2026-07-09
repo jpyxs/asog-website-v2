@@ -1123,7 +1123,8 @@
     gap: .55rem
 }
 
-.btn-arch-row {
+.btn-arch-row,
+.btn-delete-row {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1145,7 +1146,19 @@
     background: #f4f3f0
 }
 
-.btn-arch-row svg {
+.btn-delete-row {
+    border-color: #fecdd3;
+    color: #dc2626
+}
+
+.btn-delete-row:hover {
+    border-color: #dc2626;
+    color: #dc2626;
+    background: #fee2e2
+}
+
+.btn-arch-row svg,
+.btn-delete-row svg {
     width: 15px;
     height: 15px
 }

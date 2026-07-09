@@ -85,10 +85,15 @@
 
 <div class="filter-bar">
     <div class="filter-btns" id="cohortFilterBtns">
-        <button type="button" class="filter-btn active" data-filter="all">All cohorts</button>
+        <button type="button" class="filter-btn active" data-filter="all">
+            All cohorts
+            <span class="filter-count"><?= count($incubatees ?? []) ?></span>
+        </button>
         <?php foreach (($cohorts ?? []) as $cohort): ?>
+            <?php $cohortCount = (int) (($cohortStartupCounts[$cohort['name']] ?? 0)); ?>
             <button type="button" class="filter-btn" data-filter="<?= esc($cohort['name']) ?>">
                 <?= esc($cohort['name']) ?>
+                <span class="filter-count"><?= $cohortCount ?></span>
             </button>
         <?php endforeach; ?>
     </div>
@@ -97,27 +102,47 @@
     </div>
 </div>
 
+<div class="inc-table-shell">
 <table class="inc-tbl" id="incubateeTable">
+    <colgroup>
+        <col class="inc-col-drag">
+        <col class="inc-col-logo">
+        <col class="inc-col-company">
+        <col class="inc-col-founders">
+        <col class="inc-col-cohort">
+        <col class="inc-col-status">
+        <col class="inc-col-actions">
+    </colgroup>
     <thead>
         <tr>
             <th class="drag-col"></th>
             <th>Logo</th>
             <th>Company</th>
+            <th>Founders</th>
             <th>Cohort</th>
             <th>Status</th>
-            <th>Action</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
     <?php if (empty($incubatees)): ?>
         <tr>
-            <td colspan="6" class="empty-row" style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;font-size:.82rem">
+            <td colspan="7" class="empty-row" style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;font-size:.82rem">
                 No incubatees yet.
                 <a href="<?= site_url('admin/incubatees/create') ?>">Add one.</a>
             </td>
         </tr>
     <?php else: ?>
         <?php foreach ($incubatees as $inc): ?>
+            <?php
+                $founders = [];
+                if (! empty($inc['teamMembers'])) {
+                    $decodedFounders = json_decode((string) $inc['teamMembers'], true);
+                    $founders = is_array($decodedFounders) ? array_values(array_filter($decodedFounders, static function ($founder): bool {
+                        return is_array($founder) && trim((string) ($founder['name'] ?? '')) !== '';
+                    })) : [];
+                }
+            ?>
             <tr class="drag-row" data-id="<?= (int) $inc['id'] ?>" data-cohort="<?= esc((string) ($inc['cohort'] ?? '')) ?>">
                 <td class="drag-cell">
                     <span class="drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</span>
@@ -133,6 +158,34 @@
                     <span class="tbl-name"><?= esc($inc['companyName']) ?></span>
                 </td>
                 <td>
+                    <?php if ($founders === []): ?>
+                        <span class="founders-empty">No founders</span>
+                    <?php else: ?>
+                        <span class="founder-stack" aria-label="<?= count($founders) ?> founder<?= count($founders) === 1 ? '' : 's' ?>">
+                            <?php foreach (array_slice($founders, 0, 7) as $founder): ?>
+                                <?php
+                                    $founderName = trim((string) ($founder['name'] ?? 'Founder'));
+                                    $founderPhoto = trim((string) ($founder['photo'] ?? ''));
+                                    $nameParts = preg_split('/\s+/', $founderName) ?: [];
+                                    $initials = '';
+                                    foreach (array_slice(array_filter($nameParts), 0, 2) as $part) {
+                                        $initials .= mb_substr($part, 0, 1);
+                                    }
+                                    $initials = $initials !== '' ? mb_strtoupper($initials) : 'F';
+                                ?>
+                                <?php if ($founderPhoto !== ''): ?>
+                                    <img class="founder-avatar" src="<?= site_url($founderPhoto) ?>" alt="<?= esc($founderName, 'attr') ?>" title="<?= esc($founderName, 'attr') ?>">
+                                <?php else: ?>
+                                    <span class="founder-avatar founder-avatar-empty" title="<?= esc($founderName, 'attr') ?>"><?= esc($initials) ?></span>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            <?php if (count($founders) > 7): ?>
+                                <span class="founder-avatar founder-avatar-more">+<?= count($founders) - 7 ?></span>
+                            <?php endif; ?>
+                        </span>
+                    <?php endif; ?>
+                </td>
+                <td>
                     <?php if (! empty($inc['cohort'])): ?>
                         <span class="tag tag-cohort"><?= esc($inc['cohort']) ?></span>
                     <?php else: ?>
@@ -145,10 +198,7 @@
                 <td>
                     <div class="acts">
                         <a href="<?= site_url('admin/incubatees/' . $inc['id'] . '/edit') ?>" class="act-btn edit" title="Edit" aria-label="Edit incubatee">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
-                            </svg>
+                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 7.125L16.862 4.487"/><path stroke-linecap="round" stroke-linejoin="round" d="M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                         </a>
                         <form action="<?= site_url('admin/incubatees/' . $inc['id'] . '/delete') ?>" method="POST" data-admin-delete-confirm data-confirm-title="Delete incubatee?" data-confirm-message="This removes <?= esc($inc['companyName'], 'attr') ?> from the incubatee records and the public Incubatees page. This action cannot be undone.">
                             <?= csrf_field() ?>
@@ -166,10 +216,11 @@
             </tr>
         <?php endforeach; ?>
         <tr id="cohortEmptyState" style="display:none">
-            <td colspan="6" class="empty-row" style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;font-size:.82rem">
+            <td colspan="7" class="empty-row" style="padding:2.5rem 1rem;text-align:center;color:#94a3b8;font-size:.82rem">
                 No incubatees in this cohort yet.
             </td>
         </tr>
     <?php endif; ?>
     </tbody>
 </table>
+</div>

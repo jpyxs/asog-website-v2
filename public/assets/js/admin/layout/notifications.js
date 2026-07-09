@@ -8,11 +8,15 @@
   var countEl = root.querySelector('[data-admin-notifications-count]');
   var unreadLabel = root.querySelector('[data-admin-notifications-unread-label]');
   var readAllBtn = root.querySelector('[data-admin-notifications-read-all]');
+  var loadMoreBtn = root.querySelector('[data-admin-notifications-load-more]');
+  var hasLoadedHistory = false;
+  var isLoadingMore = false;
 
   function refreshRefs() {
     countEl = root.querySelector('[data-admin-notifications-count]');
     unreadLabel = root.querySelector('[data-admin-notifications-unread-label]');
     readAllBtn = root.querySelector('[data-admin-notifications-read-all]');
+    loadMoreBtn = root.querySelector('[data-admin-notifications-load-more]');
     list = root.querySelector('.admin-notifications-list');
   }
 
@@ -94,6 +98,27 @@
     });
   }
 
+  function sendListRequest(offset) {
+    var url = root.getAttribute('data-list-url');
+    if (!url) return Promise.resolve(null);
+
+    var separator = url.indexOf('?') === -1 ? '?' : '&';
+    return fetch(url + separator + 'offset=' + encodeURIComponent(offset), {
+      method: 'GET',
+      cache: 'no-store',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }).then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    }).catch(function () {
+      return null;
+    });
+  }
+
   function createNotificationItem(notification) {
     var item = document.createElement('a');
     var type = String(notification.type || 'system_update').replace(/[^a-z0-9_-]/gi, '');
@@ -132,25 +157,66 @@
     return item;
   }
 
-  function renderNotifications(payload) {
+  function getRenderedItemCount() {
+    refreshRefs();
+    return root.querySelectorAll('[data-admin-notification-item]').length;
+  }
+
+  function updateLoadMoreButton(payload) {
+    refreshRefs();
+    if (!loadMoreBtn) return;
+
+    var hasMore = !!(payload && payload.hasMore);
+    var nextOffset = payload && typeof payload.nextOffset !== 'undefined'
+      ? Number(payload.nextOffset)
+      : getRenderedItemCount();
+
+    loadMoreBtn.hidden = !hasMore;
+    if (loadMoreBtn.parentElement) {
+      loadMoreBtn.parentElement.hidden = !hasMore;
+    }
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = 'Load more';
+    loadMoreBtn.setAttribute('data-next-offset', String(nextOffset > 0 ? nextOffset : getRenderedItemCount()));
+  }
+
+  function renderNotifications(payload, options) {
     refreshRefs();
     if (!list || !payload) return;
 
+    options = options || {};
     var items = Array.isArray(payload.items) ? payload.items : [];
-    list.textContent = '';
+
+    if (!options.append && hasLoadedHistory && root.classList.contains('is-open')) {
+      ensureReadAllButton(getRenderedItemCount() > 0);
+      setUnreadCount(Number(payload.unreadCount || 0));
+      return;
+    }
+
+    if (!options.append) {
+      list.textContent = '';
+      hasLoadedHistory = false;
+    } else {
+      var empty = list.querySelector('.admin-notifications-empty');
+      if (empty) empty.remove();
+      hasLoadedHistory = true;
+    }
 
     if (!items.length) {
-      var empty = document.createElement('div');
-      empty.className = 'admin-notifications-empty';
-      empty.textContent = 'No notifications yet.';
-      list.appendChild(empty);
+      if (!options.append && getRenderedItemCount() === 0) {
+        var emptyState = document.createElement('div');
+        emptyState.className = 'admin-notifications-empty';
+        emptyState.textContent = 'No notifications yet.';
+        list.appendChild(emptyState);
+      }
     } else {
       items.forEach(function (notification) {
         list.appendChild(createNotificationItem(notification || {}));
       });
     }
 
-    ensureReadAllButton(items.length > 0);
+    ensureReadAllButton(getRenderedItemCount() > 0);
+    updateLoadMoreButton(payload);
     setUnreadCount(Number(payload.unreadCount || 0));
   }
 
@@ -163,6 +229,7 @@
   function handleNotificationAction(event) {
     var item = event.target.closest('[data-admin-notification-item]');
     var readAll = event.target.closest('[data-admin-notifications-read-all]');
+    var loadMore = event.target.closest('[data-admin-notifications-load-more]');
 
     if (item && root.contains(item)) {
       var href = item.getAttribute('href');
@@ -190,6 +257,28 @@
       sendReadRequest(readAllUrl).then(function (data) {
         if (data && typeof data.unreadCount === 'number') {
           setUnreadCount(data.unreadCount);
+        }
+      });
+      return;
+    }
+
+    if (loadMore && root.contains(loadMore)) {
+      event.preventDefault();
+      if (isLoadingMore || loadMore.hidden) return;
+
+      isLoadingMore = true;
+      loadMore.disabled = true;
+      loadMore.textContent = 'Loading...';
+
+      sendListRequest(Number(loadMore.getAttribute('data-next-offset') || getRenderedItemCount())).then(function (data) {
+        if (data && Array.isArray(data.items)) {
+          renderNotifications(data, { append: true });
+        }
+      }).finally(function () {
+        isLoadingMore = false;
+        if (!loadMore.hidden) {
+          loadMore.disabled = false;
+          loadMore.textContent = 'Load more';
         }
       });
     }

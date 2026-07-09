@@ -81,10 +81,13 @@ abstract class BaseController extends Controller
             if ($adminId > 0 && in_array($role, ['editor', 'admin', 'superadmin'], true)) {
                 try {
                     $sharedData['adminUnreadNotificationCount'] = $this->adminNotificationModel->countUnreadForAdmin($adminId, $role);
-                    $sharedData['adminNotifications'] = $this->adminNotificationModel->getLatestForAdmin($adminId, $role, 8);
+                    $adminNotifications = $this->adminNotificationModel->getLatestForAdmin($adminId, $role, 9);
+                    $sharedData['adminHasMoreNotifications'] = count($adminNotifications) > 8;
+                    $sharedData['adminNotifications'] = array_slice($adminNotifications, 0, 8);
                 } catch (\Throwable $e) {
                     $sharedData['adminUnreadNotificationCount'] = 0;
                     $sharedData['adminNotifications'] = [];
+                    $sharedData['adminHasMoreNotifications'] = false;
                 }
             }
         }

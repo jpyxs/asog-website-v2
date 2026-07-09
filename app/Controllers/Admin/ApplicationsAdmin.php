@@ -181,6 +181,30 @@ class ApplicationsAdmin extends BaseController
     }
 
     /**
+     * Permanently delete an application record.
+     */
+    public function delete(int $id)
+    {
+        $app = $this->applicationModel->find($id);
+
+        if (! $app) {
+            return $this->response->setStatusCode(404)->setJSON(['error' => 'Application not found.']);
+        }
+
+        if (! $this->applicationModel->delete($id)) {
+            return $this->response->setStatusCode(422)->setJSON(['error' => 'Unable to delete application.']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'id' => $id,
+            'status' => (string) ($app['applicationStatus'] ?? 'pending'),
+            'isArchived' => (int) ($app['isArchived'] ?? 0),
+            'message' => 'Application deleted.',
+        ]);
+    }
+
+    /**
      * Perform a bulk action on selected applications.
      *
      * Accepts: ids (array), action (pending|accepted|rejected|archive|unarchive)

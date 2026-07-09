@@ -67,26 +67,14 @@ class Dashboard extends BaseController
         if ($adminId > 0 && in_array($role, ['editor', 'admin', 'superadmin'], true)) {
             try {
                 $unreadNotifications = $this->adminNotificationModel->countUnreadForAdmin($adminId, $role);
-                $notifications = array_map(static function (array $notification): array {
-                    $notificationId = (int) ($notification['id'] ?? 0);
-                    $created = (string) ($notification['createdAt'] ?? '');
-
-                    return [
-                        'id'        => $notificationId,
-                        'type'      => (string) ($notification['type'] ?? 'system_update'),
-                        'title'     => (string) ($notification['title'] ?? 'Notification'),
-                        'body'      => (string) ($notification['body'] ?? ''),
-                        'link'      => (string) ($notification['link'] ?? site_url('admin')),
-                        'isRead'    => ! empty($notification['userReadAt']),
-                        'timeLabel' => $created !== '' && strtotime($created) !== false
-                            ? date('M j, g:i A', strtotime($created))
-                            : '',
-                        'readUrl'   => site_url('admin/notifications/' . $notificationId . '/read'),
-                    ];
-                }, $this->adminNotificationModel->getLatestForAdmin($adminId, $role, 8));
+                $notificationRows = $this->adminNotificationModel->getLatestForAdmin($adminId, $role, 9);
+                $hasMoreNotifications = count($notificationRows) > 8;
+                $notificationRows = array_slice($notificationRows, 0, 8);
+                $notifications = NotificationsAdmin::formatNotifications($notificationRows);
             } catch (\Throwable $e) {
                 $unreadNotifications = 0;
                 $notifications = [];
+                $hasMoreNotifications = false;
             }
         }
 
@@ -117,6 +105,8 @@ class Dashboard extends BaseController
                 'notifications' => [
                     'items'       => $notifications,
                     'unreadCount' => $unreadNotifications,
+                    'hasMore'     => $hasMoreNotifications ?? false,
+                    'nextOffset'  => count($notifications),
                 ],
                 'nav' => [
                     'allowed' => $nav,

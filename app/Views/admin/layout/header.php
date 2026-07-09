@@ -124,9 +124,13 @@
                     $canViewNotifications = in_array($sessionRole ?? '', ['editor', 'admin', 'superadmin'], true);
                     $notifications = $adminNotifications ?? [];
                     $unreadNotifications = (int) ($adminUnreadNotificationCount ?? 0);
+                    $hasMoreNotifications = ! empty($adminHasMoreNotifications);
                 ?>
                 <?php if ($canViewNotifications): ?>
-                <div class="admin-notifications" data-admin-notifications data-read-all-url="<?= site_url('admin/notifications/read-all') ?>">
+                <div class="admin-notifications"
+                    data-admin-notifications
+                    data-read-all-url="<?= site_url('admin/notifications/read-all') ?>"
+                    data-list-url="<?= site_url('admin/notifications') ?>">
                     <button type="button"
                         class="admin-notifications-trigger"
                         data-admin-notifications-trigger
@@ -186,6 +190,14 @@
                                     </a>
                                 <?php endforeach; ?>
                             <?php endif; ?>
+                        </div>
+                        <div class="admin-notifications-foot" <?= $hasMoreNotifications ? '' : 'hidden' ?>>
+                            <button type="button"
+                                data-admin-notifications-load-more
+                                data-next-offset="<?= count($notifications) ?>"
+                                <?= $hasMoreNotifications ? '' : 'hidden' ?>>
+                                Load more
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -122,7 +122,7 @@ function sortClass(string $col, string $currentSort, string $currentDir): string
                         Last Login <span class="sort-icon"></span>
                     </a>
                 </th>
-                <th></th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>

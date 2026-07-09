@@ -381,6 +381,27 @@ body.is-admin-shell-loading .body::before {
 .admin-notifications-list {
   max-height: 370px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #b8d1e3 #f5f2ed;
+}
+
+.admin-notifications-list::-webkit-scrollbar {
+  width: 9px;
+}
+
+.admin-notifications-list::-webkit-scrollbar-track {
+  background: #f5f2ed;
+  border-left: 1px solid #eceae6;
+}
+
+.admin-notifications-list::-webkit-scrollbar-thumb {
+  border: 2px solid #f5f2ed;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #03558c 0%, #2e7aac 100%);
+}
+
+.admin-notifications-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #024772 0%, #03558c 100%);
 }
 
 .admin-notifications-empty {
@@ -472,6 +493,41 @@ body.is-admin-shell-loading .body::before {
 
 .admin-notification-item.is-read .admin-notification-copy {
   opacity: 0.72;
+}
+
+.admin-notifications-foot {
+  padding: 0.65rem 0.85rem;
+  border-top: 1px solid #eceae6;
+  background: #fff;
+}
+
+.admin-notifications-foot button {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #c7ddeb;
+  border-radius: 0.32rem;
+  background: #f5fafe;
+  color: #03558c;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.admin-notifications-foot button:hover:not(:disabled) {
+  border-color: #03558c;
+  background: #edf5fc;
+}
+
+.admin-notifications-foot button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.admin-notifications-foot button[hidden] {
+  display: none;
 }
 
 .bar-r a {

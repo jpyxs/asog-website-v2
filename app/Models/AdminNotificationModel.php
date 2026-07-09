@@ -42,7 +42,7 @@ class AdminNotificationModel extends Model
         'superadmin' => 3,
     ];
 
-    public function getLatestForAdmin(int $adminId, string $role, int $limit = 8): array
+    public function getLatestForAdmin(int $adminId, string $role, int $limit = 8, int $offset = 0): array
     {
         return $this->select($this->table . '.*, notification_reads.readAt AS userReadAt')
             ->join(
@@ -62,7 +62,7 @@ class AdminNotificationModel extends Model
                 ->groupEnd()
             ->groupEnd()
             ->orderBy($this->table . '.createdAt', 'DESC')
-            ->findAll($limit);
+            ->findAll($limit, $offset);
     }
 
     public function countUnreadForAdmin(int $adminId, string $role): int
