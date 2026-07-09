@@ -89,6 +89,20 @@
             });
         });
 
+        document.querySelectorAll('.btn-delete-row').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = this.dataset.id;
+                showConfirm({
+                    title: 'Delete Application',
+                    message: 'This permanently deletes the application record. This action cannot be undone.',
+                    color: 'red',
+                    icon: 'x',
+                    onConfirm: function () { sendDeleteApplication(id); }
+                });
+            });
+        });
+
         document.querySelectorAll('.row-select').forEach(function (chk) {
             chk.addEventListener('change', function () {
                 var row = this.closest('tr');
@@ -676,6 +690,41 @@
        SECTION 5 — Bulk Selection & Direct Action Buttons
        ══════════════════════════════════════════════════ */
 
+    function sendDeleteApplication(id) {
+        var row = document.querySelector('tr[data-id="' + id + '"]');
+        var chk = row ? row.querySelector('.row-select') : null;
+        var appStatus = chk ? chk.dataset.status : null;
+        var isArchived = chk ? chk.dataset.isArchived === '1' : (row ? row.dataset.archived === '1' : false);
+
+        fetch(siteUrl('admin/applications/' + id), {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data.success) {
+                    showConfirm({ title: 'Error', message: data.error || 'Unable to delete application.', color: 'red', icon: 'x', onConfirm: function () { } });
+                    return;
+                }
+
+                if (row) {
+                    row.style.transition = 'opacity .25s';
+                    row.style.opacity = '0';
+                    setTimeout(function () {
+                        row.remove();
+                        if (!document.querySelector('.tbl tbody tr')) window.location.reload();
+                    }, 250);
+                }
+
+                decrementDeletedApplicationCounts(isArchived ? 'archived' : (appStatus || 'pending'));
+                refreshBulkBar();
+                showToast(data.message || 'Application deleted.', 'success');
+            })
+            .catch(function () {
+                showConfirm({ title: 'Network Error', message: 'Could not reach the server.', color: 'red', icon: 'x', onConfirm: function () { } });
+            });
+    }
+
     function refreshBulkBar() {
         var checked = document.querySelectorAll('.row-select:checked');
         var total = document.querySelectorAll('.row-select').length;
@@ -995,6 +1044,37 @@
             nudge(elMap.total,     +1);
             nudge(elMap[to],       +1);
         }
+    }
+
+    function decrementDeletedApplicationCounts(status) {
+        var elMap = {
+            pending: document.getElementById('statPending'),
+            for_revalidation: document.getElementById('statForRevalidation'),
+            accepted: document.getElementById('statAccepted'),
+            rejected: document.getElementById('statRejected'),
+            archived: document.getElementById('statArchived'),
+            total: document.getElementById('statTotal')
+        };
+
+        function nudge(el) {
+            if (!el) return;
+            var n = parseInt(el.textContent, 10) || 0;
+            el.textContent = Math.max(0, n - 1);
+            el.style.transition = 'none';
+            el.style.transform = 'scale(1.25)';
+            setTimeout(function () {
+                el.style.transition = 'transform .2s ease';
+                el.style.transform = 'scale(1)';
+            }, 0);
+        }
+
+        if (status === 'archived') {
+            nudge(elMap.archived);
+            return;
+        }
+
+        nudge(elMap[status] || elMap.pending);
+        nudge(elMap.total);
     }
 
     function showToast(html, type) {

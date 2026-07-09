@@ -111,6 +111,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('settings', 'Admin\SettingsAdmin::index');
     $routes->post('settings/password', 'Admin\SettingsAdmin::updatePassword');
     $routes->get('sidebar/status', 'Admin\Dashboard::sidebarStatus');
+    $routes->get('notifications', 'Admin\NotificationsAdmin::index');
     $routes->put('notifications/(:num)/read', 'Admin\NotificationsAdmin::markRead/$1');
     $routes->put('notifications/read-all', 'Admin\NotificationsAdmin::markAllRead');
 
@@ -162,6 +163,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
         $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
         $routes->put('applications/(:num)/remark', 'Admin\ApplicationsAdmin::updateRemark/$1');
         $routes->put('applications/(:num)/toggle-archive', 'Admin\ApplicationsAdmin::toggleArchive/$1');
+        $routes->delete('applications/(:num)', 'Admin\ApplicationsAdmin::delete/$1');
         $routes->post('applications/bulk', 'Admin\ApplicationsAdmin::bulk');
 
         // Contact Messages

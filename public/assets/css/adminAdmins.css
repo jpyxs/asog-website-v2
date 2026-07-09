@@ -920,6 +920,11 @@
   background: #f1f5f9;
 }
 
+.acts button.del {
+  border-color: #fecdd3;
+  color: #dc2626;
+}
+
 .acts button.del:hover {
   border-color: #dc2626;
   color: #dc2626;
