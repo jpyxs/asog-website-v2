@@ -52,7 +52,7 @@ class ContactMessageModel extends Model
         $read     = $this->where('isRead', 1)->where('isArchived', 0)->countAllResults();
         $archived = $this->where('isArchived', 1)->countAllResults();
 
-        return ['total' => $inbox, 'unread' => $unread, 'read' => $read, 'archived' => $archived];
+        return ['all' => $inbox + $archived, 'total' => $inbox, 'unread' => $unread, 'read' => $read, 'archived' => $archived];
     }
 
     public function getAll(): array
@@ -87,9 +87,11 @@ class ContactMessageModel extends Model
         return $this->update($id, ['isRead' => 1]);
     }
 
-    public function getFiltered(int $isArchived, string $search = '', string $dateFilter = 'all', int $page = 1, int $perPage = 10): array
+    public function getFiltered(?int $isArchived, string $search = '', string $dateFilter = 'all', int $page = 1, int $perPage = 10): array
     {
-        $this->where('isArchived', $isArchived);
+        if ($isArchived !== null) {
+            $this->where('isArchived', $isArchived);
+        }
 
         if ($search !== '') {
             $this->groupStart()
@@ -104,8 +106,6 @@ class ContactMessageModel extends Model
                  ->where('createdAt <=', date('Y-m-d') . ' 23:59:59');
         } elseif ($dateFilter === 'week') {
             $this->where('createdAt >=', date('Y-m-d H:i:s', strtotime('-7 days')));
-        } elseif ($dateFilter === 'month') {
-            $this->where('createdAt >=', date('Y-m-d H:i:s', strtotime('-30 days')));
         }
 
         $total   = $this->countAllResults(false);

@@ -12,6 +12,23 @@
         var selectAll = null;
         var smartCaretBtn = null;
         var smartChkMenu = null;
+        var actionConfirm = null;
+        var actionConfirmBackdrop = null;
+        var actionConfirmIcon = null;
+        var actionConfirmSvg = null;
+        var actionConfirmTitle = null;
+        var actionConfirmMsg = null;
+        var actionConfirmOk = null;
+        var actionConfirmCancel = null;
+        var actionConfirmResolver = null;
+        var actionConfirmLastFocus = null;
+        var actionConfirmBound = false;
+        var pageRoot = scope && scope.nodeType === 1 ? scope : document.querySelector('[data-admin-page="messages"]');
+
+        var archiveIconPath = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>';
+        var restoreIconPath = '<path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 10l6 6m-6-6l6-6"/>';
+        var readIconPath = '<path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>';
+        var unreadIconPath = '<path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>';
 
         function lockListScroll() {
             document.documentElement.classList.add('admin-messages-list-lock');
@@ -25,6 +42,24 @@
             selectAll = document.getElementById('selectAll');
             smartCaretBtn = document.getElementById('smartCaretBtn');
             smartChkMenu = document.getElementById('smartChkMenu');
+            actionConfirm = document.getElementById('msgActionConfirm');
+            actionConfirmBackdrop = document.getElementById('msgActionConfirmBackdrop');
+            actionConfirmIcon = document.getElementById('msgActionConfirmIcon');
+            actionConfirmSvg = document.getElementById('msgActionConfirmSvg');
+            actionConfirmTitle = document.getElementById('msgActionConfirmTitle');
+            actionConfirmMsg = document.getElementById('msgActionConfirmMessage');
+            actionConfirmOk = document.getElementById('msgActionConfirmOk');
+            actionConfirmCancel = document.getElementById('msgActionConfirmCancel');
+        }
+
+        function setReaderMode(isOpen) {
+            if (pageRoot) pageRoot.classList.toggle('messages-reader-open', isOpen);
+            document.documentElement.classList.toggle('admin-messages-reader-open', isOpen);
+
+            var filterBar = document.querySelector('.msg-filter-bar');
+            var inbox = document.getElementById('inbox');
+            if (filterBar) filterBar.style.display = isOpen ? 'none' : '';
+            if (inbox) inbox.style.display = isOpen ? 'none' : '';
         }
 
         function updateHistory(url) {
@@ -51,14 +86,17 @@
             setTimeout(function () { t.classList.remove('show'); }, 2600);
         }
 
-        function formatDate(str) {
+        function formatDateParts(str) {
             var d = new Date(str);
             var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             var h = d.getHours();
             var m = d.getMinutes();
             var ampm = h >= 12 ? 'PM' : 'AM';
             h = h % 12 || 12;
-            return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ', ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+            return {
+                date: months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(),
+                time: h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm
+            };
         }
 
         function updateInboxCount() {
@@ -103,8 +141,17 @@
 
             var btnRead = document.querySelector('.bulk-act-read');
             var btnUnread = document.querySelector('.bulk-act-unread');
+            var btnArchive = document.querySelector('.bulk-act-archive');
             if (btnRead) btnRead.disabled = !hasUnread;
             if (btnUnread) btnUnread.disabled = !hasRead;
+            if (btnArchive) {
+                var hasInboxSelected = false;
+                selectedIds.forEach(function (id) {
+                    var row = document.querySelector('.msg-row[data-id="' + id + '"]');
+                    if (row && row.getAttribute('data-archived') !== '1') hasInboxSelected = true;
+                });
+                btnArchive.disabled = !hasInboxSelected;
+            }
         }
 
         function onRowCheck(checkbox, id) {
@@ -161,8 +208,8 @@
                     var dateInp = document.getElementById('dateInput');
                     if (!viewInp || !dateInp) return;
 
-                    if (val === 'archived') {
-                        viewInp.value = 'archived';
+                    if (val === 'archived' || val === 'all' || val === 'inbox') {
+                        viewInp.value = val;
                         dateInp.value = 'all';
                     } else {
                         var parts = val.split('-');
@@ -183,6 +230,26 @@
                     loadPage(msgBaseUrl + '?' + params.toString());
                 }, { signal: signal });
             }
+
+            var clearBtn = document.querySelector('.app-btn-clear');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    loadPage(clearBtn.getAttribute('href'));
+                }, { signal: signal });
+            }
+
+            if (!actionConfirmBound && actionConfirmCancel) {
+                actionConfirmCancel.addEventListener('click', function () { closeActionConfirm(false); }, { signal: signal });
+            }
+            if (!actionConfirmBound && actionConfirmBackdrop) {
+                actionConfirmBackdrop.addEventListener('click', function () { closeActionConfirm(false); }, { signal: signal });
+            }
+            if (!actionConfirmBound && actionConfirmOk) {
+                actionConfirmOk.addEventListener('click', function () { closeActionConfirm(true); }, { signal: signal });
+            }
+            if (actionConfirmCancel && actionConfirmBackdrop && actionConfirmOk) actionConfirmBound = true;
         }
 
         function bindInboxEvents() {
@@ -212,29 +279,111 @@
                 .then(function (response) { return response.text(); })
                 .then(function (html) {
                     var doc = new DOMParser().parseFromString(html, 'text/html');
+                    setReaderMode(false);
+
                     var newStats = doc.querySelector('.grid-stats');
                     var oldStats = document.querySelector('.grid-stats');
                     if (newStats && oldStats) oldStats.replaceWith(newStats);
+
+                    var newFilterBar = doc.querySelector('.msg-filter-bar');
+                    var oldFilterBar = document.querySelector('.msg-filter-bar');
+                    if (newFilterBar && oldFilterBar) oldFilterBar.replaceWith(newFilterBar);
+                    if (newFilterBar && window.AdminCustomSelect && typeof window.AdminCustomSelect.init === 'function') {
+                        window.AdminCustomSelect.init(newFilterBar);
+                    }
 
                     var newInbox = doc.querySelector('.inbox-wrap');
                     var oldInbox = document.querySelector('.inbox-wrap');
                     if (newInbox && oldInbox) oldInbox.replaceWith(newInbox);
 
-                    var newClear = doc.querySelector('.app-btn-clear');
-                    var oldClear = document.querySelector('.app-btn-clear');
-                    if (newClear && oldClear) oldClear.replaceWith(newClear);
-                    else if (!newClear && oldClear) oldClear.remove();
-                    else if (newClear) {
-                        var filterSlot = document.querySelector('.filter-slot');
-                        if (filterSlot) filterSlot.appendChild(newClear);
-                    }
-
                     selectedIds.clear();
                     refreshRefs();
+                    bindStaticControls();
                     bindInboxEvents();
                     updateBulkState();
                     updateHistory(url);
                 });
+        }
+
+        function actionIconPath(action) {
+            if (action === 'mark_read') return readIconPath;
+            if (action === 'mark_unread') return unreadIconPath;
+            if (action === 'archive') return archiveIconPath;
+            if (action === 'unarchive') return restoreIconPath;
+            return readIconPath;
+        }
+
+        function actionConfirmCopy(action, count) {
+            var plural = count !== 1 ? 's' : '';
+            if (action === 'mark_read') {
+                return {
+                    title: 'Mark selected as read?',
+                    message: 'This will mark ' + count + ' selected message' + plural + ' as read.',
+                    confirmLabel: 'Mark Read',
+                    tone: 'blue'
+                };
+            }
+            if (action === 'mark_unread') {
+                return {
+                    title: 'Mark selected as unread?',
+                    message: 'This will mark ' + count + ' selected message' + plural + ' as unread.',
+                    confirmLabel: 'Mark Unread',
+                    tone: 'gray'
+                };
+            }
+            if (action === 'archive') {
+                return {
+                    title: 'Archive selected messages?',
+                    message: 'This will move ' + count + ' selected message' + plural + ' out of the inbox.',
+                    confirmLabel: 'Archive',
+                    tone: 'gray'
+                };
+            }
+            return {
+                title: 'Restore selected messages?',
+                message: 'This will move ' + count + ' selected archived message' + plural + ' back to the inbox.',
+                confirmLabel: 'Restore to Inbox',
+                tone: 'blue'
+            };
+        }
+
+        function askActionConfirm(action, count) {
+            if (!actionConfirm) {
+                return Promise.resolve(confirm(actionConfirmCopy(action, count).message));
+            }
+
+            var copy = actionConfirmCopy(action, count);
+            actionConfirmTitle.textContent = copy.title;
+            actionConfirmMsg.textContent = copy.message;
+            actionConfirmOk.textContent = copy.confirmLabel;
+            actionConfirmOk.className = 'btn msg-action-confirm-ok ' + copy.tone;
+            actionConfirmIcon.className = 'msg-action-confirm-icon ' + copy.tone;
+            actionConfirmSvg.innerHTML = actionIconPath(action);
+
+            actionConfirmLastFocus = document.activeElement;
+            actionConfirm.classList.add('is-open');
+            actionConfirm.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('msg-action-confirm-open');
+            window.setTimeout(function () { actionConfirmOk.focus(); }, 30);
+
+            return new Promise(function (resolve) {
+                actionConfirmResolver = resolve;
+            });
+        }
+
+        function closeActionConfirm(result) {
+            if (!actionConfirm || !actionConfirm.classList.contains('is-open')) return;
+            actionConfirm.classList.remove('is-open');
+            actionConfirm.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('msg-action-confirm-open');
+
+            var resolver = actionConfirmResolver;
+            actionConfirmResolver = null;
+            if (resolver) resolver(!!result);
+
+            if (actionConfirmLastFocus && typeof actionConfirmLastFocus.focus === 'function') {
+                window.setTimeout(function () { actionConfirmLastFocus.focus(); }, 30);
+            }
         }
 
         function runBulkAction(action, ids) {
@@ -251,11 +400,11 @@
                     }
 
                     if (action === 'delete' || action === 'archive' || action === 'unarchive') {
-                        ids.forEach(function (id) {
-                            var row = document.querySelector('.msg-row[data-id="' + id + '"]');
-                            if (row) row.remove();
-                        });
-                        updateInboxCount();
+                        selectedIds.clear();
+                        updateBulkState();
+                        showToast(data.message);
+                        loadPage(window.location.href);
+                        return;
                     } else {
                         var isRead = action === 'mark_read';
                         ids.forEach(function (id) {
@@ -295,7 +444,9 @@
                 return;
             }
 
-            runBulkAction(action, ids);
+            askActionConfirm(action, ids.length).then(function (confirmed) {
+                if (confirmed) runBulkAction(action, ids);
+            });
         }
 
         function archiveSingle() {
@@ -314,11 +465,9 @@
                         showToast(data.error || 'Something went wrong.');
                         return;
                     }
-                    var row = document.querySelector('.msg-row[data-id="' + currentMsg.id + '"]');
-                    if (row) row.remove();
-                    updateInboxCount();
                     backToInbox();
                     showToast(data.message);
+                    loadPage(window.location.href);
                 });
         }
 
@@ -337,23 +486,34 @@
                     }
 
                     currentMsg = data;
-                    document.getElementById('rSubject').textContent = 'Message from ' + data.name;
                     document.getElementById('rAvatar').textContent = data.name.charAt(0);
                     document.getElementById('rName').textContent = data.name;
-                    document.getElementById('rEmail').innerHTML = '<a href="mailto:' + data.email + '">' + data.email + '</a>';
-                    document.getElementById('rDate').textContent = formatDate(data.createdAt);
+                    var senderEmail = document.querySelector('.sender-email');
+                    if (senderEmail) {
+                        senderEmail.textContent = '';
+                        var senderLink = document.createElement('a');
+                        senderLink.href = 'mailto:' + data.email;
+                        senderLink.textContent = data.email;
+                        senderEmail.appendChild(senderLink);
+                    }
+                    var dateParts = formatDateParts(data.createdAt);
+                    document.getElementById('rDate').textContent = dateParts.date;
+                    document.getElementById('rTime').textContent = dateParts.time;
                     document.getElementById('rBody').textContent = data.message;
                     document.getElementById('rReply').href = 'mailto:' + encodeURIComponent(data.email) + '?subject=' + encodeURIComponent('Re: Your message to ASOG TBI');
                     document.getElementById('toggleLabel').textContent = data.isRead == 1 ? 'Mark unread' : 'Mark read';
 
                     var archiveBtn = document.getElementById('btnArchive');
                     var archiveLabel = document.getElementById('archiveLabel');
+                    var archiveIcon = document.getElementById('archiveIcon');
                     if (data.isArchived == 1) {
                         archiveBtn.setAttribute('data-action', 'unarchive');
-                        archiveLabel.textContent = 'Move to Inbox';
+                        archiveLabel.textContent = 'Restore to Inbox';
+                        if (archiveIcon) archiveIcon.innerHTML = restoreIconPath;
                     } else {
                         archiveBtn.setAttribute('data-action', 'archive');
                         archiveLabel.textContent = 'Archive';
+                        if (archiveIcon) archiveIcon.innerHTML = archiveIconPath;
                     }
 
                     if (row) {
@@ -366,18 +526,17 @@
                         }
                     }
 
-                    document.getElementById('inbox').style.display = 'none';
                     document.getElementById('reader').classList.add('open');
-                    unlockListScroll();
+                    setReaderMode(true);
+                    lockListScroll();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
         }
 
         function backToInbox() {
             var reader = document.getElementById('reader');
-            var inbox = document.getElementById('inbox');
             if (reader) reader.classList.remove('open');
-            if (inbox) inbox.style.display = '';
+            setReaderMode(false);
             lockListScroll();
             currentMsg = null;
             getRows().forEach(function (row) { row.classList.remove('active'); });
@@ -406,6 +565,7 @@
                         }
                     }
                     showToast(data.message);
+                    backToInbox();
                 });
         }
 
@@ -452,6 +612,10 @@
 
         document.addEventListener('keydown', function (event) {
             var reader = document.getElementById('reader');
+            if (event.key === 'Escape' && actionConfirm && actionConfirm.classList.contains('is-open')) {
+                closeActionConfirm(false);
+                return;
+            }
             if (event.key === 'Escape' && reader && reader.classList.contains('open')) {
                 backToInbox();
             }
@@ -474,6 +638,8 @@
         return function () {
             controller.abort();
             unlockListScroll();
+            setReaderMode(false);
+            closeActionConfirm(false);
             delete window.bulkDo;
             delete window.openMsg;
             delete window.backToInbox;

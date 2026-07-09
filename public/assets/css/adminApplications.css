@@ -148,16 +148,17 @@
     font-weight: 600;
     padding: .42rem .8rem;
     border-radius: .3rem;
-    border: 1px solid #e4e2dd;
-    background: #fff;
-    color: #64748b;
+    border: 1px solid #bae6fd;
+    background: #f0f9ff;
+    color: #0284c7;
     cursor: pointer;
     transition: all .15s
 }
 
 .btn-review:hover {
-    border-color: #03558C;
-    color: #03558C
+    border-color: #38bdf8;
+    background: #e0f2fe;
+    color: #0369a1
 }
 
 .btn-review svg {
@@ -174,32 +175,35 @@
 }
 
 /* ── Modal backdrop ─────────────────────── */
-.modal-bg {
+.app-review-modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, .4);
-    backdrop-filter: blur(3px);
     z-index: 900;
+    align-items: center;
     justify-content: center;
-    align-items: flex-start;
-    padding: 2.5rem 1rem
+    padding: 2.5rem 1rem;
+    background: rgba(15, 23, 42, .48);
+    backdrop-filter: blur(2px)
 }
 
-.modal-bg.open {
+.app-review-modal.open {
     display: flex
 }
 
 /* ── Modal card ─────────────────────────── */
-.modal {
+.app-review-modal-dialog {
+    position: relative;
+    z-index: 1;
     background: #fff;
-    border-radius: .55rem;
-    width: 100%;
-    max-width: 760px;
+    border: 1px solid #e4e2dd;
+    border-radius: .65rem;
+    width: min(100%, 760px);
     max-height: 82vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+    overflow: hidden;
+    box-shadow: 0 24px 60px -26px rgba(15, 23, 42, .45);
     animation: modalIn .22s ease
 }
 
@@ -215,44 +219,52 @@
     }
 }
 
-.modal-head {
+.app-review-modal-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: .9rem;
-    padding: 1rem 1.4rem;
+    gap: 1rem;
+    padding: 1rem 1.05rem .9rem;
     border-bottom: 1px solid #eceae6;
+    background: #fff;
     flex-shrink: 0
 }
 
-.modal-head h2 {
+.app-review-modal-head h2 {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: .42rem;
     font-family: 'DM Sans', sans-serif;
-    font-size: .95rem;
+    font-size: .92rem;
     font-weight: 700;
     color: #1e293b;
+    margin: 0;
     min-width: 0;
-    line-height: 1.35;
+    line-height: 1.2;
     overflow-wrap: anywhere
 }
 
-.modal-head h2 span {
+.app-review-modal-head h2 span {
+    display: inline;
     font-family: 'DM Sans', sans-serif;
-    font-size: .74rem;
+    font-size: .62rem;
     font-weight: 700;
-    letter-spacing: .12em;
-    color: #64748b
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: #94a3b8
 }
 
-.modal-head h2 strong {
+.app-review-modal-head h2 strong {
     display: inline-block;
-    margin-left: .42rem;
     font-family: 'DM Serif Display', serif;
+    font-size: 1.08rem;
     font-style: italic;
     font-weight: 700;
     color: #F8AF21
 }
 
-.modal-close {
+.app-review-modal-close {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -268,52 +280,53 @@
     flex-shrink: 0
 }
 
-.modal-close:hover {
+.app-review-modal-close:hover {
     color: #03558C;
     border-color: #03558C;
     background: #edf5fc
 }
 
-.modal-close svg {
-    width: 18px;
-    height: 18px
+.app-review-modal-close svg {
+    width: 17px;
+    height: 17px
 }
 
 /* ── Scrollable body with custom scrollbar ── */
-.modal-scroll {
+.app-review-modal-scroll {
     flex: 1;
     overflow-y: auto;
     min-height: 0
 }
 
-.modal-scroll::-webkit-scrollbar {
+.app-review-modal-scroll::-webkit-scrollbar {
     width: 5px
 }
 
-.modal-scroll::-webkit-scrollbar-track {
+.app-review-modal-scroll::-webkit-scrollbar-track {
     background: transparent
 }
 
-.modal-scroll::-webkit-scrollbar-thumb {
+.app-review-modal-scroll::-webkit-scrollbar-thumb {
     background: #ddd8d0;
     border-radius: 99px
 }
 
-.modal-scroll::-webkit-scrollbar-thumb:hover {
+.app-review-modal-scroll::-webkit-scrollbar-thumb:hover {
     background: #c5c0b8
 }
 
-.modal-body {
-    padding: 1.15rem 1.25rem;
+.app-review-modal-body {
+    padding: 1rem;
+    background: #faf9f7;
     display: grid;
     gap: .85rem
 }
 
-.modal-body .field {
+.app-review-modal-body .field {
     margin-bottom: .9rem
 }
 
-.modal-body .field-label {
+.app-review-modal-body .field-label {
     font-size: .52rem;
     font-weight: 700;
     letter-spacing: .14em;
@@ -322,7 +335,7 @@
     margin-bottom: .2rem
 }
 
-.modal-body .field-value {
+.app-review-modal-body .field-value {
     font-size: .8rem;
     color: #1e293b;
     line-height: 1.6;
@@ -330,13 +343,13 @@
     overflow-wrap: anywhere
 }
 
-.modal-body .field-value a {
+.app-review-modal-body .field-value a {
     color: #03558C;
     text-decoration: none;
     font-weight: 500
 }
 
-.modal-body .field-value a:hover {
+.app-review-modal-body .field-value a:hover {
     text-decoration: underline
 }
 
@@ -360,7 +373,7 @@
 .app-review-section {
     border: 1px solid #eceae6;
     border-radius: .45rem;
-    background: #faf9f7;
+    background: #fff;
     padding: .9rem .95rem;
     min-width: 0
 }
@@ -369,14 +382,14 @@
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.55fr) minmax(120px, .7fr);
     gap: .65rem;
-    background: #faf9f7
+    background: #fff
 }
 
 .app-review-status-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: .65rem;
-    background: #faf9f7
+    background: #fff
 }
 
 .app-review-stat {
@@ -487,20 +500,20 @@
     align-items: center;
     gap: .4rem;
     max-width: 100%;
-    background: #fff;
-    border: 1px solid #eceae6;
+    background: #f7fbfe;
+    border: 1px solid #cceaf8;
     border-radius: .3rem;
-    padding: .35rem .6rem;
+    padding: .4rem .62rem;
     font-size: .7rem;
-    color: #1e293b;
+    color: #03558C;
     text-decoration: none;
     transition: all .15s;
     cursor: pointer
 }
 
 .file-card:hover {
-    border-color: #03558C;
-    background: #edf5fc;
+    border-color: #43A7DB;
+    background: #f8fbfd;
     color: #03558C
 }
 
@@ -508,7 +521,7 @@
     width: 14px;
     height: 14px;
     flex-shrink: 0;
-    opacity: .5
+    opacity: .62
 }
 
 .file-card:hover svg {
@@ -516,13 +529,13 @@
 }
 
 .file-card span {
-    font-weight: 500;
+    font-weight: 600;
     min-width: 0;
     overflow-wrap: anywhere
 }
 
 .app-review-remarks {
-    background: #faf9f7
+    background: #fff
 }
 
 .remark-preview,
@@ -563,17 +576,17 @@
     font-weight: 700;
     padding: .38rem .75rem;
     border-radius: .28rem;
-    border: 1px solid #e4e2dd;
+    border: 1px solid #F8AF21;
     background: #fff;
-    color: #64748b;
+    color: #8a5a00;
     cursor: pointer;
     transition: border-color .15s, background .15s, color .15s
 }
 
 .remark-btn:hover {
-    border-color: #03558C;
-    background: #edf5fc;
-    color: #03558C
+    border-color: #d9920c;
+    background: #fff8e8;
+    color: #6f4800
 }
 
 .remark-btn.primary {
@@ -589,7 +602,15 @@
 }
 
 .remark-btn.subtle {
+    border-color: #e4e2dd;
+    background: #fff;
     color: #64748b
+}
+
+.remark-btn.subtle:hover {
+    border-color: #c9c3b8;
+    background: #f4f3f0;
+    color: #334155
 }
 
 /* ── Divider ────────────────────────────── */
@@ -599,13 +620,14 @@
     margin: .3rem 0 .9rem
 }
 
-.modal-foot {
+.app-review-modal-foot {
     display: flex;
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: .5rem;
-    padding: .9rem 1.4rem;
+    padding: .9rem 1.05rem;
     border-top: 1px solid #eceae6;
+    background: #fff;
     flex-shrink: 0
 }
 
@@ -653,7 +675,7 @@
     color: #64748b
 }
 
-.modal-foot .btn-revalidate {
+.app-review-modal-foot .btn-revalidate {
     display: inline-flex;
     align-items: center;
     gap: .3rem;
@@ -668,7 +690,7 @@
     transition: background .15s
 }
 
-.modal-foot .btn-accept {
+.app-review-modal-foot .btn-accept {
     display: inline-flex;
     align-items: center;
     gap: .3rem;
@@ -683,35 +705,35 @@
     transition: all .15s
 }
 
-.modal-foot .btn-accept:hover {
+.app-review-modal-foot .btn-accept:hover {
     background: #dcfce7;
     border-color: #86efac
 }
 
-.modal-foot #btnSaveStatus {
+.app-review-modal-foot #btnSaveStatus {
     border-color: #03558C;
     background: #03558C;
     color: #fff
 }
 
-.modal-foot #btnSaveStatus:hover {
+.app-review-modal-foot #btnSaveStatus:hover {
     border-color: #024470;
     background: #024470;
     color: #fff
 }
 
-.modal-foot .btn-revalidate {
+.app-review-modal-foot .btn-revalidate {
     background: #fff7ed;
     color: #c2410c;
     border: 1px solid #fed7aa
 }
 
-.modal-foot .btn-revalidate:hover {
+.app-review-modal-foot .btn-revalidate:hover {
     background: #ffedd5;
     border-color: #fdba74
 }
 
-.modal-foot .btn-reject {
+.app-review-modal-foot .btn-reject {
     display: inline-flex;
     align-items: center;
     gap: .3rem;
@@ -727,19 +749,19 @@
     transition: all .15s
 }
 
-.modal-foot .btn-reject:hover {
+.app-review-modal-foot .btn-reject:hover {
     background: #fee2e2;
     border-color: #fca5a5
 }
 
-.modal-foot .btn-accept svg,
-.modal-foot .btn-reject svg,
-.modal-foot .btn-revalidate svg {
+.app-review-modal-foot .btn-accept svg,
+.app-review-modal-foot .btn-reject svg,
+.app-review-modal-foot .btn-revalidate svg {
     width: 14px;
     height: 14px
 }
 
-.modal-foot .btn-change {
+.app-review-modal-foot .btn-change {
     display: inline-flex;
     align-items: center;
     gap: .3rem;
@@ -754,17 +776,18 @@
     transition: all .15s
 }
 
-.modal-foot .btn-change:hover {
-    border-color: #03558C;
-    color: #03558C
+.app-review-modal-foot .btn-change:hover {
+    border-color: #38bdf8;
+    background: #e0f2fe;
+    color: #0369a1
 }
 
-.modal-foot .btn-change svg {
+.app-review-modal-foot .btn-change svg {
     width: 13px;
     height: 13px
 }
 
-.modal-foot .status-select {
+.app-review-modal-foot .status-select {
     font-family: 'DM Sans', sans-serif;
     font-size: .72rem;
     height: 100%;
@@ -781,127 +804,149 @@
     box-sizing: border-box
 }
 
-.modal-foot .status-select:focus {
+.app-review-modal-foot .status-select:focus {
     border-color: #03558C;
     box-shadow: 0 0 0 2px rgba(3,85,140,.15)
 }
 
 /* ── Universal Confirm Dialog ──────────── */
-.confirm-bg {
+/* ── Filter bar ─────────────────────────── */
+/* Application action confirm dialog */
+.app-action-confirm {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, .45);
-    backdrop-filter: blur(2px);
     z-index: 950;
+    align-items: center;
     justify-content: center;
-    align-items: center
+    padding: 1rem
 }
 
-.confirm-bg.open {
+.app-action-confirm.is-open {
     display: flex
 }
 
-.confirm-box {
+.app-action-confirm-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    background: rgba(15, 23, 42, .48);
+    backdrop-filter: blur(2px);
+    cursor: default
+}
+
+.app-action-confirm-dialog {
+    position: relative;
+    z-index: 1;
     background: #fff;
-    border-radius: .5rem;
-    width: 340px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, .18);
+    border: 1px solid #e4e2dd;
+    border-radius: .55rem;
+    width: min(100%, 420px);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .22);
     animation: modalIn .18s ease;
     overflow: hidden
 }
 
-.confirm-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+.app-action-confirm-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto .6rem
-}
-
-.confirm-icon.green {
+    margin: 0 auto .75rem;
+    border: 1px solid #bbf7d0;
     background: #ecfdf5;
     color: #065f46
 }
 
-.confirm-icon.red {
+.app-action-confirm-icon.green {
+    background: #ecfdf5;
+    color: #065f46;
+    border-color: #bbf7d0
+}
+
+.app-action-confirm-icon.red {
     background: #fef2f2;
-    color: #991b1b
+    color: #991b1b;
+    border-color: #fecaca
 }
 
-.confirm-icon svg {
-    width: 20px;
-    height: 20px
+.app-action-confirm-icon.amber {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a
 }
 
-.confirm-body {
-    padding: 1.4rem 1.4rem .8rem;
+.app-action-confirm-icon svg {
+    width: 22px;
+    height: 22px
+}
+
+.app-action-confirm-body {
+    padding: 1.3rem 1.45rem 1.15rem;
     text-align: center
 }
 
-.confirm-body h3 {
-    font-size: .85rem;
-    font-weight: 600;
+.app-action-confirm-body h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    line-height: 1.15;
+    font-weight: 400;
     color: #1e293b;
-    margin: 0 0 .3rem
+    margin: 0
 }
 
-.confirm-body p {
-    font-size: .74rem;
+.app-action-confirm-body p {
+    font-size: .78rem;
     color: #64748b;
-    margin: 0;
-    line-height: 1.5
+    margin: .55rem 0 0;
+    line-height: 1.6
 }
 
-.confirm-actions {
+.app-action-confirm-actions {
     display: flex;
-    border-top: 1px solid #eceae6
+    justify-content: flex-end;
+    gap: .55rem;
+    padding: .95rem 1.05rem;
+    border-top: 1px solid #eceae6;
+    background: #fafaf9
 }
 
-.confirm-actions button {
-    flex: 1;
-    padding: .7rem;
-    font-size: .72rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: background .12s;
-    font-family: inherit
-}
-
-.confirm-actions .c-cancel {
-    background: #fff;
-    color: #64748b;
-    border-right: 1px solid #eceae6
-}
-
-.confirm-actions .c-cancel:hover {
-    background: #f4f3f0
-}
-
-.confirm-actions .c-ok {
+.app-action-confirm-ok {
     color: #fff
 }
 
-.confirm-actions .c-ok.green {
+.app-action-confirm-ok.green {
     background: #065f46
 }
 
-.confirm-actions .c-ok.green:hover {
+.app-action-confirm-ok.green:hover {
     background: #047857
 }
 
-.confirm-actions .c-ok.red {
+.app-action-confirm-ok.red {
     background: #991b1b
 }
 
-.confirm-actions .c-ok.red:hover {
+.app-action-confirm-ok.red:hover {
     background: #7f1d1d
 }
 
-/* ── Filter bar ─────────────────────────── */
+.app-action-confirm-ok.amber {
+    background: #b45309
+}
+
+.app-action-confirm-ok.amber:hover {
+    background: #92400e
+}
+
+.app-review-modal-open,
+.app-action-confirm-open {
+    overflow: hidden
+}
+
 .app-filter-bar {
     display: flex;
     align-items: center;
@@ -1397,8 +1442,8 @@
 }
 
 /* ── Modal footer archive / restore buttons ── */
-.modal-foot .btn-arch-modal,
-.modal-foot .btn-restore-modal {
+.app-review-modal-foot .btn-arch-modal,
+.app-review-modal-foot .btn-restore-modal {
     display: inline-flex;
     align-items: center;
     gap: .3rem;
@@ -1411,30 +1456,30 @@
     font-family: inherit
 }
 
-.modal-foot .btn-arch-modal {
+.app-review-modal-foot .btn-arch-modal {
     background: #fff;
     color: #64748b;
     border: 1px solid #e4e2dd
 }
 
-.modal-foot .btn-arch-modal:hover {
+.app-review-modal-foot .btn-arch-modal:hover {
     background: #f4f3f0;
     border-color: #94a3b8;
     color: #1e293b
 }
 
-.modal-foot .btn-restore-modal {
+.app-review-modal-foot .btn-restore-modal {
     background: #fff;
     color: #03558C;
     border: 1px solid #bfdbfe
 }
 
-.modal-foot .btn-restore-modal:hover {
+.app-review-modal-foot .btn-restore-modal:hover {
     background: #edf5fc
 }
 
-.modal-foot .btn-arch-modal svg,
-.modal-foot .btn-restore-modal svg {
+.app-review-modal-foot .btn-arch-modal svg,
+.app-review-modal-foot .btn-restore-modal svg {
     width: 14px;
     height: 14px
 }
@@ -1612,22 +1657,22 @@
 }
 
 @media (max-width: 760px) {
-    .modal-bg {
+    .app-review-modal {
         padding: 1rem .75rem
     }
 
-    .modal {
+    .app-review-modal-dialog {
         max-height: calc(100vh - 2rem)
     }
 
-    .modal-head,
-    .modal-body,
-    .modal-foot {
+    .app-review-modal-head,
+    .app-review-modal-body,
+    .app-review-modal-foot {
         padding-left: 1rem;
         padding-right: 1rem
     }
 
-    .modal-foot {
+    .app-review-modal-foot {
         align-items: stretch
     }
 
@@ -1637,11 +1682,11 @@
         grid-template-columns: 1fr
     }
 
-    .modal-foot {
+    .app-review-modal-foot {
         justify-content: stretch
     }
 
-    .modal-foot > button,
+    .app-review-modal-foot > button,
     #statusChangeWrap {
         width: 100%;
         justify-content: center

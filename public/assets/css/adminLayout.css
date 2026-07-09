@@ -566,7 +566,9 @@ body.is-admin-shell-loading[data-admin-shell-target-page="messages"] {
 html.admin-shell-lock-scroll,
 html.admin-shell-lock-scroll body,
 html.admin-messages-list-lock,
-html.admin-messages-list-lock body {
+html.admin-messages-list-lock body,
+html.admin-messages-reader-open,
+html.admin-messages-reader-open body {
   overflow-y: hidden !important;
 }
 

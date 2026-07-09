@@ -43,6 +43,14 @@
             color: #fff
         }
 
+        .brand img {
+            display: block;
+            width: 160px;
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1.4rem
+        }
+
         .brand h1 {
             font-family: 'DM Serif Display', serif;
             font-size: 1.7rem;

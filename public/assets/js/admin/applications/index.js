@@ -36,13 +36,14 @@
     var btnRestoreModal = document.getElementById('btnRestoreModal');
     var btnRequestRevalidation = document.getElementById('btnRequestRevalidation');
 
-    var confirmBg = document.getElementById('confirmDialog');
-    var confirmIcon = document.getElementById('confirmIcon');
-    var confirmSvg = document.getElementById('confirmSvg');
-    var confirmTitle = document.getElementById('confirmTitle');
-    var confirmMsg = document.getElementById('confirmMsg');
-    var confirmOk = document.getElementById('confirmOk');
-    var confirmCancel = document.getElementById('confirmCancel');
+    var actionConfirm = document.getElementById('appActionConfirm');
+    var actionConfirmBackdrop = document.getElementById('appActionConfirmBackdrop');
+    var actionConfirmIcon = document.getElementById('appActionConfirmIcon');
+    var actionConfirmSvg = document.getElementById('appActionConfirmSvg');
+    var actionConfirmTitle = document.getElementById('appActionConfirmTitle');
+    var actionConfirmMsg = document.getElementById('appActionConfirmMessage');
+    var actionConfirmOk = document.getElementById('appActionConfirmOk');
+    var actionConfirmCancel = document.getElementById('appActionConfirmCancel');
 
     var selectAll = document.getElementById('selectAll');
     var smartCaretBtn = document.getElementById('smartCaretBtn');
@@ -61,10 +62,12 @@
     }
 
     var currentId = null;
-    var confirmCb = null;
+    var actionConfirmResolver = null;
+    var actionConfirmLastFocus = null;
     var currentAppData = null;
     var statusPickerValue = null;
     var remarkEditValue = '';
+    var modalRequestSeq = 0;
 
     function bindTableEvents() {
         document.querySelectorAll('.btn-review').forEach(function (btn) {
@@ -82,8 +85,8 @@
                 showConfirm({
                     title: isArchived ? 'Restore Application' : 'Archive Application',
                     message: isArchived ? 'Restore this application to active status?' : 'Move this application to the archive?',
-                    color: isArchived ? 'green' : 'red',
-                    icon: isArchived ? 'check' : 'x',
+                    color: isArchived ? 'green' : 'amber',
+                    icon: isArchived ? 'check' : 'archive',
                     onConfirm: function () { sendToggleArchive(id); }
                 });
             });
@@ -93,12 +96,12 @@
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var id = this.dataset.id;
-                showConfirm({
+                askDeleteConfirm({
                     title: 'Delete Application',
                     message: 'This permanently deletes the application record. This action cannot be undone.',
-                    color: 'red',
-                    icon: 'x',
-                    onConfirm: function () { sendDeleteApplication(id); }
+                    confirmLabel: 'Delete'
+                }).then(function (confirmed) {
+                    if (confirmed) sendDeleteApplication(id);
                 });
             });
         });
@@ -239,33 +242,84 @@
        SECTION 1 — Universal Confirm Dialog
        ══════════════════════════════════════════════════ */
 
+    function askDeleteConfirm(opts) {
+        if (window.AdminDeleteConfirm && typeof window.AdminDeleteConfirm.ask === 'function') {
+            return window.AdminDeleteConfirm.ask(opts || {});
+        }
+        return Promise.resolve(window.confirm((opts && opts.message) || 'Delete this application?'));
+    }
+
+    function applicationActionIcon(icon) {
+        if (icon === 'x') {
+            return '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>';
+        }
+        if (icon === 'archive') {
+            return '<path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>';
+        }
+        if (icon === 'return') {
+            return '<path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 10l6 6m-6-6l6-6"/>';
+        }
+        return '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>';
+    }
+
+    function askApplicationActionConfirm(opts) {
+        opts = opts || {};
+        if (!actionConfirm) {
+            return Promise.resolve(window.confirm(opts.message || opts.title || 'Confirm this action?'));
+        }
+
+        var tone = opts.color || 'green';
+        actionConfirmTitle.textContent = opts.title || 'Confirm action?';
+        actionConfirmMsg.textContent = opts.message || '';
+        actionConfirmIcon.className = 'app-action-confirm-icon ' + tone;
+        actionConfirmSvg.innerHTML = applicationActionIcon(opts.icon);
+        actionConfirmOk.textContent = opts.confirmLabel || 'Confirm';
+        actionConfirmOk.className = 'btn app-action-confirm-ok ' + tone;
+
+        actionConfirmLastFocus = document.activeElement;
+        actionConfirm.classList.add('is-open');
+        actionConfirm.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('app-action-confirm-open');
+        window.setTimeout(function () { actionConfirmOk.focus(); }, 30);
+
+        return new Promise(function (resolve) {
+            actionConfirmResolver = resolve;
+        });
+    }
+
+    function closeApplicationActionConfirm(result) {
+        if (!actionConfirm || !actionConfirm.classList.contains('is-open')) return;
+        actionConfirm.classList.remove('is-open');
+        actionConfirm.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('app-action-confirm-open');
+
+        var resolver = actionConfirmResolver;
+        actionConfirmResolver = null;
+        if (resolver) resolver(!!result);
+
+        if (actionConfirmLastFocus && typeof actionConfirmLastFocus.focus === 'function') {
+            window.setTimeout(function () { actionConfirmLastFocus.focus(); }, 30);
+        }
+    }
+
     function showConfirm(opts) {
-        confirmTitle.textContent = opts.title || 'Are you sure?';
-        confirmMsg.textContent = opts.message || '';
-        confirmIcon.className = 'confirm-icon ' + (opts.color || 'green');
-
-        confirmSvg.innerHTML = opts.icon === 'x'
-            ? '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>'
-            : '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>';
-
-        confirmOk.className = 'c-ok ' + (opts.color || 'green');
-        confirmCb = opts.onConfirm || null;
-        confirmBg.classList.add('open');
+        return askApplicationActionConfirm(opts).then(function (confirmed) {
+            if (confirmed && opts && typeof opts.onConfirm === 'function') {
+                opts.onConfirm();
+            }
+            return confirmed;
+        });
     }
 
-    function hideConfirm() {
-        confirmBg.classList.remove('open');
-        confirmCb = null;
+    if (actionConfirmCancel) {
+        actionConfirmCancel.addEventListener('click', function () { closeApplicationActionConfirm(false); });
     }
-
-    confirmCancel.addEventListener('click', hideConfirm);
-    confirmOk.addEventListener('click', function () {
-        if (typeof confirmCb === 'function') confirmCb();
-        hideConfirm();
-    });
-    confirmBg.addEventListener('click', function (e) {
-        if (e.target === confirmBg) hideConfirm();
-    });
+    if (actionConfirmBackdrop) {
+        actionConfirmBackdrop.addEventListener('click', function () { closeApplicationActionConfirm(false); });
+    }
+    if (actionConfirmOk) {
+        actionConfirmOk.addEventListener('click', function () { closeApplicationActionConfirm(true); });
+    }
 
     /* ══════════════════════════════════════════════════
        SECTION 2 — Review Modal
@@ -274,14 +328,22 @@
     // Handled dynamically in bindTableEvents()
 
     function openModal(id) {
+        var requestId = ++modalRequestSeq;
+        currentId = id;
+        currentAppData = null;
+        remarkEditValue = '';
         modalTitle.innerHTML = '<span>APPLICATION OVERVIEW</span>';
         modalBody.innerHTML = '<p style="color:#94a3b8;font-size:.78rem;padding:2rem 0;text-align:center">Loading\u2026</p>';
+        hideAllFooterButtons();
         hideChangeMode();
         modalBg.classList.add('open');
+        modalBg.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('app-review-modal-open');
 
         fetch(siteUrl('admin/applications/' + id), { headers: { 'Accept': 'application/json' } })
             .then(function (res) { return res.json(); })
             .then(function (data) {
+                if (requestId !== modalRequestSeq || currentId !== id) return;
                 if (data.error) {
                     modalBody.innerHTML = '<p style="color:#991b1b;font-size:.78rem;padding:1rem">' + escHtml(data.error) + '</p>';
                     hideAllFooterButtons();
@@ -291,6 +353,7 @@
                 renderModal(data);
             })
             .catch(function () {
+                if (requestId !== modalRequestSeq || currentId !== id) return;
                 modalBody.innerHTML = '<p style="color:#991b1b;font-size:.78rem;padding:1rem">Failed to load application.</p>';
                 hideAllFooterButtons();
             });
@@ -422,13 +485,16 @@
     });
     shellOn(document, 'keydown', function (e) {
         if (e.key === 'Escape') {
-            if (confirmBg.classList.contains('open')) { hideConfirm(); return; }
+            if (actionConfirm && actionConfirm.classList.contains('is-open')) { closeApplicationActionConfirm(false); return; }
             if (modalBg.classList.contains('open')) { closeModal(); }
         }
     });
 
     function closeModal() {
+        modalRequestSeq++;
         modalBg.classList.remove('open');
+        modalBg.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('app-review-modal-open');
         currentId = null;
         currentAppData = null;
         remarkEditValue = '';
@@ -470,8 +536,8 @@
             showConfirm({
                 title: 'Return for Revalidation',
                 message: 'Send this application back to the applicant for updates?',
-                color: 'green',
-                icon: 'check',
+                color: 'amber',
+                icon: 'return',
                 onConfirm: function () { sendStatus('for_revalidation'); }
             });
         });
@@ -522,11 +588,14 @@
             return;
         }
 
+        var isRejectedStatus = newStatus === 'rejected';
+        var isRevalidationStatus = newStatus === 'for_revalidation';
+
         showConfirm({
             title: 'Change Status',
             message: 'Change this application to "' + statusLabel(newStatus) + '"?',
-            color: newStatus === 'rejected' ? 'red' : 'green',
-            icon: newStatus === 'rejected' ? 'x' : 'check',
+            color: isRejectedStatus ? 'red' : (isRevalidationStatus ? 'amber' : 'green'),
+            icon: isRejectedStatus ? 'x' : (isRevalidationStatus ? 'return' : 'check'),
             onConfirm: function () { sendStatus(newStatus); }
         });
     });
@@ -587,8 +656,8 @@
             showConfirm({
                 title: 'Archive Application',
                 message: 'This application will be moved to the archive. Continue?',
-                color: 'red',
-                icon: 'x',
+                color: 'amber',
+                icon: 'archive',
                 onConfirm: function () { sendToggleArchive(currentId); }
             });
         });
@@ -867,12 +936,13 @@
             if (!ids.length) return;
 
             var label = this.textContent.trim();
-            var isDestructive = action === 'rejected' || action === 'archive';
+            var isRejectAction = action === 'rejected';
+            var isArchiveAction = action === 'archive';
             showConfirm({
                 title: 'Bulk Action',
                 message: 'Apply \u201c' + label + '\u201d to ' + ids.length + ' application(s)?',
-                color: isDestructive ? 'red' : 'green',
-                icon: isDestructive ? 'x' : 'check',
+                color: isRejectAction ? 'red' : (isArchiveAction ? 'amber' : 'green'),
+                icon: isRejectAction ? 'x' : (isArchiveAction ? 'archive' : 'check'),
                 onConfirm: function () { sendBulkAction(ids, action); }
             });
         });
@@ -1119,11 +1189,14 @@
 
     return function () {
         if (modalBg) modalBg.classList.remove('open');
-        if (confirmBg) confirmBg.classList.remove('open');
+        if (modalBg) modalBg.setAttribute('aria-hidden', 'true');
+        if (actionConfirm) actionConfirm.classList.remove('is-open');
+        if (actionConfirm) actionConfirm.setAttribute('aria-hidden', 'true');
         if (statusPickerMenu) statusPickerMenu.classList.remove('open');
-        document.body.classList.remove('modal-open');
+        document.body.classList.remove('app-review-modal-open');
+        document.body.classList.remove('app-action-confirm-open');
         currentId = null;
-        confirmCb = null;
+        actionConfirmResolver = null;
         currentAppData = null;
     };
     }
