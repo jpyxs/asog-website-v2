@@ -274,22 +274,22 @@ $baseUrl = site_url('admin/applications') . '?' . http_build_query([
 <?php endif; ?>
 
 <!-- Review Modal -->
-<div class="modal-bg" id="reviewModal">
-    <div class="modal">
-        <div class="modal-head">
+<div class="app-review-modal" id="reviewModal" aria-hidden="true">
+    <div class="app-review-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="app-review-modal-head">
             <h2 id="modalTitle"><span>APPLICATION OVERVIEW</span></h2>
-            <button class="modal-close" id="modalClose">
+            <button type="button" class="app-review-modal-close" id="modalClose" aria-label="Close review modal">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
-        <div class="modal-scroll">
-            <div class="modal-body" id="modalBody">
+        <div class="app-review-modal-scroll">
+            <div class="app-review-modal-body" id="modalBody">
                 <!-- Populated by JS -->
             </div>
         </div>
-        <div class="modal-foot" id="modalFoot">
+        <div class="app-review-modal-foot" id="modalFoot">
             <button class="btn-arch-modal" id="btnArchModal" style="display:none">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
@@ -352,19 +352,20 @@ $baseUrl = site_url('admin/applications') . '?' . http_build_query([
     </div>
 </div>
 
-<!-- Universal Confirm Dialog -->
-<div class="confirm-bg" id="confirmDialog">
-    <div class="confirm-box">
-        <div class="confirm-body">
-            <div class="confirm-icon" id="confirmIcon">
-                <svg id="confirmSvg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"></svg>
+<!-- Application Action Confirm Modal -->
+<div class="app-action-confirm" id="appActionConfirm" aria-hidden="true">
+    <button type="button" class="app-action-confirm-backdrop" id="appActionConfirmBackdrop" aria-label="Cancel action" tabindex="-1"></button>
+    <div class="app-action-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="appActionConfirmTitle" aria-describedby="appActionConfirmMessage">
+        <div class="app-action-confirm-body">
+            <div class="app-action-confirm-icon" id="appActionConfirmIcon" aria-hidden="true">
+                <svg id="appActionConfirmSvg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"></svg>
             </div>
-            <h3 id="confirmTitle"></h3>
-            <p id="confirmMsg"></p>
+            <h3 id="appActionConfirmTitle">Confirm action?</h3>
+            <p id="appActionConfirmMessage"></p>
         </div>
-        <div class="confirm-actions">
-            <button class="c-cancel" id="confirmCancel">Cancel</button>
-            <button class="c-ok" id="confirmOk">Confirm</button>
+        <div class="app-action-confirm-actions">
+            <button type="button" class="btn btn-o" id="appActionConfirmCancel">Cancel</button>
+            <button type="button" class="btn app-action-confirm-ok" id="appActionConfirmOk">Confirm</button>
         </div>
     </div>
 </div>

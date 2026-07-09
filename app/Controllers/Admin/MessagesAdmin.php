@@ -9,14 +9,20 @@ class MessagesAdmin extends BaseController
     public function index()
     {
         $view   = $this->request->getGet('view') ?? 'inbox';
-        $view   = in_array($view, ['inbox', 'archived'], true) ? $view : 'inbox';
+        $view   = in_array($view, ['inbox', 'all', 'archived'], true) ? $view : 'inbox';
         $search = trim($this->request->getGet('search') ?? '');
         $date   = $this->request->getGet('date') ?? 'all';
-        $date   = in_array($date, ['all', 'today', 'week', 'month'], true) ? $date : 'all';
+        $date   = in_array($date, ['all', 'today', 'week'], true) ? $date : 'all';
         $page   = max(1, (int) ($this->request->getGet('page') ?? 1));
 
+        $archiveFilter = match ($view) {
+            'archived' => 1,
+            'all'      => null,
+            default    => 0,
+        };
+
         $result = $this->contactModel->getFiltered(
-            $view === 'archived' ? 1 : 0,
+            $archiveFilter,
             $search,
             $date,
             $page,
@@ -101,6 +107,25 @@ class MessagesAdmin extends BaseController
         $validActions = ['mark_read', 'mark_unread', 'delete', 'archive', 'unarchive'];
         if (empty($ids) || ! in_array($action, $validActions, true)) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'error' => 'Invalid request.']);
+        }
+
+        if ($action === 'archive' || $action === 'unarchive') {
+            $targetArchived = $action === 'archive' ? 0 : 1;
+            $messages = $this->contactModel
+                ->select('id')
+                ->whereIn('id', $ids)
+                ->where('isArchived', $targetArchived)
+                ->findAll();
+            $ids = array_map(static fn (array $message): int => (int) $message['id'], $messages);
+
+            if (empty($ids)) {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'success' => false,
+                    'error'   => $action === 'archive'
+                        ? 'Selected messages are already archived.'
+                        : 'Selected messages are already in the inbox.',
+                ]);
+            }
         }
 
         $count = count($ids);

@@ -9,7 +9,7 @@ $total         = $total         ?? 0;
 $perPage       = $perPage       ?? 10;
 $activeView    = $activeView    ?? 'inbox';
 
-$filterValue = $activeView === 'archived' ? 'archived' : 'inbox-' . $currentDate;
+$filterValue = $activeView === 'inbox' && $currentDate !== 'all' ? 'inbox-' . $currentDate : $activeView;
 
 $baseUrl = site_url('admin/messages') . '?' . http_build_query([
     'view'   => $activeView,
@@ -19,6 +19,10 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
 ?>
 
 <div class="grid-stats">
+    <div class="stat stat-all">
+        <div class="n"><?= $counts['all'] ?></div>
+        <div class="t">All</div>
+    </div>
     <div class="stat stat-inbox">
         <div class="n"><?= $counts['total'] ?></div>
         <div class="t">Inbox</div>
@@ -66,25 +70,25 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
                     value="<?= esc($currentSearch) ?>">
             </div>
             <select id="filterSelect" class="app-select-filter">
+                <optgroup label="View">
+                    <option value="inbox"       <?= $filterValue === 'inbox'       ? 'selected' : '' ?>>Inbox</option>
+                    <option value="all"         <?= $filterValue === 'all'         ? 'selected' : '' ?>>All</option>
+                    <option value="archived"    <?= $filterValue === 'archived'    ? 'selected' : '' ?>>Archived</option>
+                </optgroup>
                 <optgroup label="Date">
-                    <option value="inbox-all"   <?= $filterValue === 'inbox-all'   ? 'selected' : '' ?>>All</option>
                     <option value="inbox-today" <?= $filterValue === 'inbox-today'  ? 'selected' : '' ?>>Today</option>
                     <option value="inbox-week"  <?= $filterValue === 'inbox-week'   ? 'selected' : '' ?>>This Week</option>
-                    <option value="inbox-month" <?= $filterValue === 'inbox-month'  ? 'selected' : '' ?>>This Month</option>
-                </optgroup>
-                <optgroup label="View">
-                    <option value="archived"    <?= $filterValue === 'archived'     ? 'selected' : '' ?>>Archived</option>
                 </optgroup>
             </select>
             <button type="submit" class="app-btn-search">Search</button>
-            <?php if ($currentSearch !== '' || $currentDate !== 'all' || $activeView === 'archived'): ?>
+            <?php if ($currentSearch !== '' || $currentDate !== 'all' || $activeView !== 'inbox'): ?>
                 <a href="<?= site_url('admin/messages') ?>" class="app-btn-clear">Clear</a>
             <?php endif; ?>
         </form>
         <div class="bulk-actions-bar" id="bulkActionsBar">
             <span class="bulk-count-label"><span id="bulkCount">0</span> selected</span>
             <div class="bulk-bar-sep"></div>
-            <?php if ($activeView === 'inbox'): ?>
+            <?php if ($activeView !== 'archived'): ?>
             <button type="button" class="bulk-act-btn bulk-act-read" onclick="bulkDo('mark_read')">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 Mark Read
@@ -97,23 +101,23 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
                 Archive
             </button>
-            <?php else: ?>
-            <button type="button" class="bulk-act-btn bulk-act-unarchive" onclick="bulkDo('unarchive')">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                Move to Inbox
-            </button>
-            <?php endif; ?>
             <button type="button" class="bulk-act-btn bulk-act-delete" onclick="bulkDo('delete')">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 Delete
             </button>
+            <?php else: ?>
+            <button type="button" class="bulk-act-btn bulk-act-unarchive" onclick="bulkDo('unarchive')">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 10l6 6m-6-6l6-6"/></svg>
+                Restore to Inbox
+            </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <div class="inbox-wrap" id="inbox">
     <div class="inbox-bar">
-        <span class="bar-label"><?= $activeView === 'archived' ? 'Archived' : 'Inbox' ?></span>
+        <span class="bar-label"><?= $activeView === 'archived' ? 'Archived' : ($activeView === 'all' ? 'All Messages' : 'Inbox') ?></span>
         <span class="bar-count" id="barCount">
             <?php if (empty($messages)): ?>
                 0 messages
@@ -129,6 +133,9 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
             <?php if ($activeView === 'archived'): ?>
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2" style="width:36px;height:36px;color:#d4d2ce;margin-bottom:.6rem"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
                 <div><?= $currentSearch !== '' ? 'No archived messages match your search.' : 'No archived messages.' ?></div>
+            <?php elseif ($activeView === 'all'): ?>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2" style="width:36px;height:36px;color:#d4d2ce;margin-bottom:.6rem"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <div><?= $currentSearch !== '' ? 'No messages match your search.' : 'No messages yet.' ?></div>
             <?php else: ?>
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2" style="width:36px;height:36px;color:#d4d2ce;margin-bottom:.6rem"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 <div><?= ($currentSearch !== '' || $currentDate !== 'all') ? 'No messages match your search.' : 'No messages yet. When visitors submit the contact form, their messages will appear here.' ?></div>
@@ -140,6 +147,7 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
             data-id="<?= $m['id'] ?>"
             data-date="<?= date('Y-m-d', strtotime($m['createdAt'])) ?>"
             data-read="<?= (int) $m['isRead'] ?>"
+            data-archived="<?= (int) $m['isArchived'] ?>"
             onclick="openMsg(<?= $m['id'] ?>)">
             <label class="msg-chk-cell" onclick="event.stopPropagation()">
                 <input type="checkbox" class="row-select" data-id="<?= $m['id'] ?>" onchange="onRowCheck(this, <?= $m['id'] ?>)">
@@ -206,7 +214,7 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
             <span id="toggleLabel">Mark unread</span>
         </button>
         <button class="r-btn" id="btnArchive" onclick="archiveSingle()">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+            <svg id="archiveIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
             <span id="archiveLabel">Archive</span>
         </button>
         <button class="r-btn danger" onclick="confirmDelete()">
@@ -214,23 +222,40 @@ $baseUrl = site_url('admin/messages') . '?' . http_build_query([
             Delete
         </button>
     </div>
-    <div class="reader-head">
-        <h1 class="rh-subject" id="rSubject">Message</h1>
-    </div>
     <div class="sender-row">
         <div class="sender-avatar" id="rAvatar">?</div>
         <div class="sender-info">
-            <div class="sender-name" id="rName">—</div>
-            <div class="sender-email">to me &lt;<span id="rEmail">—</span>&gt;</div>
+            <div class="sender-name" id="rName">&mdash;</div>
+            <div class="sender-email">&mdash;</div>
         </div>
-        <div class="sender-date" id="rDate">—</div>
+        <div class="sender-meta">
+            <div class="sender-date" id="rDate">&mdash;</div>
+            <div class="sender-time" id="rTime">&mdash;</div>
+        </div>
     </div>
-    <div class="reader-body" id="rBody">—</div>
-    <div class="reply-strip">
+    <div class="reader-body" id="rBody">&mdash;</div>
+    <div class="reader-footer">
         <a class="reply-btn" id="rReply" href="#">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v4M3 10l6 6M3 10l6-6"/></svg>
-            Reply
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            Email Sender
         </a>
+    </div>
+</div>
+
+<div class="msg-action-confirm" id="msgActionConfirm" aria-hidden="true">
+    <button type="button" class="msg-action-confirm-backdrop" id="msgActionConfirmBackdrop" aria-label="Cancel action"></button>
+    <div class="msg-action-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="msgActionConfirmTitle" aria-describedby="msgActionConfirmMessage">
+        <div class="msg-action-confirm-body">
+            <div class="msg-action-confirm-icon" id="msgActionConfirmIcon" aria-hidden="true">
+                <svg id="msgActionConfirmSvg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9"></svg>
+            </div>
+            <h3 id="msgActionConfirmTitle">Confirm action?</h3>
+            <p id="msgActionConfirmMessage">Apply this action to the selected messages?</p>
+        </div>
+        <div class="msg-action-confirm-actions">
+            <button type="button" class="btn btn-o" id="msgActionConfirmCancel">Cancel</button>
+            <button type="button" class="btn msg-action-confirm-ok" id="msgActionConfirmOk">Confirm</button>
+        </div>
     </div>
 </div>
 
