@@ -9,40 +9,83 @@
     $appIsOpen     = ($appState === 'open');
     $appIsUpcoming = ($appState === 'upcoming');
     $appIsClosed   = ($appState === 'closed');
-    $showBanner    = ($appIsUpcoming || $appIsClosed);
+    $showStatusModal = ($appIsUpcoming || $appIsClosed);
 
-    if ($showBanner):
-        if ($appIsUpcoming) {
-            $__bannerStatus = 'CURRENTLY CLOSED';
-            $__bannerDesc   = 'We\'re not accepting applications at the moment. Stay tuned — we\'ll welcome new incubatees soon!';
-            $__bannerMod    = 'settings-notice-upcoming';
-        } else {
-            $__bannerStatus = 'CLOSED';
-            $__bannerDesc   = 'The application period has ended. You may send an expression of interest through the contact form or wait for the next application period.';
-            $__bannerMod    = 'settings-notice-closed';
+    if ($showStatusModal):
+        $statusModalTone = $appIsUpcoming ? 'upcoming' : 'closed';
+        $statusModalTitle = $appIsUpcoming
+            ? 'Applications are not yet open'
+            : 'Applications are closed';
+        $statusModalDateLine = '';
+        if (! empty($showApplicationDates)) {
+            if ($appIsUpcoming && ! empty($applicationStartLabel)) {
+                $statusModalDateLine = 'Starts ' . (string) $applicationStartLabel;
+            } elseif ($appIsClosed && ! empty($applicationDeadlineLabel)) {
+                $statusModalDateLine = 'Ended ' . (string) $applicationDeadlineLabel;
+            }
         }
+        $statusModalMessage = $appIsUpcoming
+            ? 'Read the application guidelines to check eligibility, evaluation criteria, process, and benefits before submissions begin.'
+            : 'Submissions are paused for now. The application guidelines can help your team prepare for the next application period.';
+        $statusDismissKey = 'asog_apply_status_modal_' . md5(
+            (string) $appState . '|' . (string) ($applicationStartLabel ?? '') . '|' . (string) ($applicationDeadlineLabel ?? '')
+        );
 ?>
-<div class="apply-status-wrap">
-    <div class="settings-notice <?= esc($__bannerMod) ?>" role="status" aria-live="polite">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h.01"></path>
-        </svg>
-        <div>
-            <strong><span><?= esc($__bannerStatus) ?></span></strong>
-            <p><?= esc($__bannerDesc) ?></p>
+<div class="apply-status-modal apply-status-modal--<?= esc($statusModalTone, 'attr') ?>"
+    data-apply-status-modal
+    data-dismiss-key="<?= esc($statusDismissKey, 'attr') ?>"
+    data-overview-target="#application-overview"
+    aria-hidden="true">
+    <button type="button" class="apply-status-modal__backdrop" data-apply-status-close aria-label="Close application status notice" tabindex="-1"></button>
+    <section class="apply-status-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="applyStatusModalTitle"
+        aria-describedby="applyStatusModalDesc"
+        tabindex="-1">
+        <button type="button" class="apply-status-modal__close" data-apply-status-close aria-label="Close application status notice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"></path>
+            </svg>
+        </button>
+
+        <div class="apply-status-modal__mark" aria-hidden="true">
+            <?php if ($appIsUpcoming): ?>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 3.75h10M7 20.25h10"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 3.75v4.4c0 .72.3 1.4.82 1.9L11.25 12l-1.93 1.95a2.68 2.68 0 00-.82 1.9v4.4"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.5 3.75v4.4c0 .72-.3 1.4-.82 1.9L12.75 12l1.93 1.95c.52.5.82 1.18.82 1.9v4.4"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 16.5h4"></path>
+                </svg>
+            <?php else: ?>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 10.75V8a4 4 0 018 0v2.75"></path>
+                    <rect x="5.25" y="10.75" width="13.5" height="9" rx="2.1"></rect>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14.15v2.2"></path>
+                </svg>
+            <?php endif; ?>
         </div>
-    </div>
+
+        <div class="apply-status-modal__body">
+            <h2 id="applyStatusModalTitle"><?= esc($statusModalTitle) ?></h2>
+            <?php if ($statusModalDateLine !== ''): ?>
+                <p class="apply-status-modal__date">
+                    <?= esc($statusModalDateLine) ?>
+                </p>
+            <?php endif; ?>
+            <p id="applyStatusModalDesc"><?= esc($statusModalMessage) ?></p>
+        </div>
+
+        <div class="apply-status-modal__actions">
+            <button type="button" class="apply-status-modal__primary" data-apply-status-overview>Read application guidelines</button>
+        </div>
+    </section>
 </div>
-<?php endif; // $showBanner ?>
+<?php endif; ?>
 <link rel="stylesheet" href="<?= base_url('assets/css/apply-status-banner.css') ?>">
 
 <!-- ── 1 · Eligibility — open typography, no containers ── -->
-<section class="relative bg-off <?= $showBanner
-    ? 'pt-12 pb-16 md:pt-16 md:pb-28'
-    : 'py-20 md:py-28' ?> 
-    px-6 md:px-10 lg:px-14 overflow-hidden">
+<section id="application-overview" class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
     <div class="ai-grid"></div>
     <div class="ai-grid-fade"></div>
 
@@ -405,7 +448,7 @@ $faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
                     <svg class="w-4 h-4 flex-none text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/>
                     </svg>
-                    Application ends on
+                    Ends
                     <strong class="text-gold font-bold"><?= esc((string) $applicationDeadlineLabel) ?></strong>
                 </p>
             <?php elseif ($appIsUpcoming && ! empty($applicationStartLabel)): ?>
@@ -413,7 +456,7 @@ $faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
                     <svg class="w-4 h-4 flex-none text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/>
                     </svg>
-                    Application starts on
+                    Starts
                     <strong class="text-gold font-bold"><?= esc((string) $applicationStartLabel) ?></strong>
                 </p>
             <?php elseif ($appIsClosed && ! empty($applicationDeadlineLabel)): ?>
@@ -421,7 +464,7 @@ $faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
                     <svg class="w-4 h-4 flex-none text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/>
                     </svg>
-                    Application closed on
+                    Ended
                     <strong class="text-gold font-bold"><?= esc((string) $applicationDeadlineLabel) ?></strong>
                 </p>
             <?php endif; ?>
