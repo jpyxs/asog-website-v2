@@ -103,7 +103,8 @@ $sdgTitles = [
     background: #fff;
     border: 1px solid #eceae6;
     border-radius: .4rem;
-    padding: 1.4rem
+    padding: 1.4rem;
+    margin-bottom: 52px;
 }
 
 .form-grid {
@@ -709,9 +710,15 @@ $sdgTitles = [
     gap: .55rem;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 1rem;
-    padding-top: .8rem;
-    border-top: 1px solid #eceae6
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 220px;
+    z-index: 950;
+    height: 52px;
+    padding: 0 32px;
+    background: #fff;
+    border-top: 1px solid #eceae6;
 }
 
 .form-actions .btn-p,
@@ -963,19 +970,19 @@ $sdgTitles = [
                     Publish
                 </label>
             </div>
-
-            <div class="form-actions">
-                <a href="<?= site_url('admin/incubatees') ?>" class="btn-o">← Back to incubatees</a>
-                <span style="flex:1"></span>
-                <button type="submit" class="btn-p">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <?= $isEdit ? 'Save changes' : 'Add incubatee' ?>
-                </button>
-            </div>
         </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="<?= site_url('admin/incubatees') ?>" class="btn-o">← Back to incubatees</a>
+        <span style="flex:1"></span>
+        <button type="submit" class="btn-p">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <?= $isEdit ? 'Save changes' : 'Add incubatee' ?>
+        </button>
     </div>
 </form>
 

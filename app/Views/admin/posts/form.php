@@ -122,48 +122,6 @@ $formUrl = $isEdit
                     <span>Featured <span style="font-size:.65rem;color:#94a3b8;font-weight:400">(up to 5 show in hero)</span></span>
                 </div>
             </div>
-
-            <div class="form-actions">
-                <a href="<?= site_url('admin/posts') ?>" class="btn-o">← Back to posts</a>
-
-                <span style="flex:1"></span>
-
-                <?php if ($isEdit && $post['isPublished']): ?>
-
-                    <button type="submit" name="action" value="draft" class="btn-p">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
-                        </svg>
-                        Unpublish
-                    </button>
-
-                    <button type="submit" name="action" value="publish" class="btn-o">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Save Changes
-                    </button>
-
-                <?php else: ?>
-
-                    <button type="submit" name="action" value="draft" class="btn-o">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 3h7l5 5v13H7z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 3v5h5" />
-                        </svg>
-                        Save as Draft
-                    </button>
-
-                    <button type="submit" name="action" value="publish" class="btn-p">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <?= $isEdit ? 'Publish' : 'Publish Post' ?>
-                    </button>
-
-                <?php endif; ?>
-
-            </div>
             <div id="previewError" class="preview-error-msg" style="display:none; color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem; text-align: right;"></div>
         </div>
     </div>
@@ -187,6 +145,48 @@ $formUrl = $isEdit
     </div>
 </div>
 <?php endif; ?>
+
+<div class="form-actions">
+    <a href="<?= site_url('admin/posts') ?>" class="btn-o">← Back to posts</a>
+
+    <span style="flex:1"></span>
+
+    <?php if ($isEdit && $post['isPublished']): ?>
+
+        <button type="submit" name="action" value="draft" class="btn-p">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+            </svg>
+            Unpublish
+        </button>
+
+        <button type="submit" name="action" value="publish" class="btn-o">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Save Changes
+        </button>
+
+    <?php else: ?>
+
+        <button type="submit" name="action" value="draft" class="btn-o">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 3h7l5 5v13H7z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 3v5h5" />
+            </svg>
+            Save as Draft
+        </button>
+
+        <button type="submit" name="action" value="publish" class="btn-p">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <?= $isEdit ? 'Publish' : 'Publish Post' ?>
+        </button>
+
+    <?php endif; ?>
+
+</div>
 </form>
 
 <div class="ql-image-dialog-overlay" id="qlImageDialogOverlay" hidden>

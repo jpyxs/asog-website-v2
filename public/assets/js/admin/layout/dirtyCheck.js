@@ -86,7 +86,14 @@
             form.dataset.dirtyCheckBound = '1';
 
             var btnSelector = form.dataset.dirtyBtn || 'button[type="submit"]';
+
+            // 1. Try finding the button INSIDE the form first
             var buttons = Array.from(form.querySelectorAll(btnSelector));
+            // 2. If not found inside, search the WHOLE document (for external action bars)
+            if (!buttons.length) {
+                buttons = Array.from(document.querySelectorAll(btnSelector));
+            }
+            // 3. If STILL no buttons found, abort
             if (!buttons.length) return;
 
             var tracker = watch(form, { buttons: buttons });

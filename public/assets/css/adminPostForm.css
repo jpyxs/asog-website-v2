@@ -31,7 +31,8 @@
     background: #fff;
     border: 1px solid #eceae6;
     border-radius: .4rem;
-    padding: 1.4rem
+    padding: 1.4rem;
+    margin-bottom: 52px;
 }
 
 .form-grid {
@@ -455,9 +456,15 @@
     gap: .55rem;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 1rem;
-    padding-top: .8rem;
-    border-top: 1px solid #eceae6
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 220px;
+    z-index: 950;
+    height: 52px;
+    padding: 0 32px;
+    background: #fff;
+    border-top: 1px solid #eceae6;
 }
 
 .form-actions .btn-p,
