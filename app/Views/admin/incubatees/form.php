@@ -326,35 +326,21 @@ $sdgTitles = [
 }
 
 .upload-zone.upload-zone-white {
-    background: #03355a;
-    border: 1.5px solid transparent;
-    background-image:
-        linear-gradient(#03355a, #03355a),
-        repeating-linear-gradient(
-            135deg,
-            rgba(255,255,255,.42) 0 8px,
-            rgba(127,179,209,.48) 8px 16px
-        );
-    background-origin: border-box;
-    background-clip: padding-box, border-box
+    background: #fff;
+    border-color: #d4d0ca
 }
 
 .upload-zone.upload-zone-white:hover {
-    background-image:
-        linear-gradient(#044066, #044066),
-        repeating-linear-gradient(
-            135deg,
-            rgba(255,255,255,.6) 0 8px,
-            rgba(147,197,253,.7) 8px 16px
-        )
+    border-color: #03558C;
+    background: #fafcff
 }
 
 .upload-zone.upload-zone-white .label {
-    color: rgba(255,255,255,.72)
+    color: #94a3b8
 }
 
 .upload-zone.upload-zone-white .label strong {
-    color: #fff
+    color: #03558C
 }
 
 .upload-preview {
@@ -369,13 +355,17 @@ $sdgTitles = [
 }
 
 .upload-preview.upload-preview-white {
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
-    background: #03355a;
+    background: linear-gradient(170deg, #04406b, #03355a 40%, #022a48);
     padding: .5rem;
     border-radius: .3rem;
     border: 1px solid rgba(255,255,255,.16)
+}
+
+.upload-preview.upload-preview-white.has-preview {
+    display: inline-flex
 }
 
 .upload-preview.upload-preview-white img {
@@ -897,7 +887,7 @@ $sdgTitles = [
                 <div class="upload-zone upload-zone-white" id="uploadZoneWhite">
                     <input type="file" name="logoWhite" id="logoWhiteInput" accept="image/*" data-max-bytes="<?= esc((string) ($logoUploadMaxBytes ?? 1048576)) ?>" data-max-label="<?= esc($logoUploadMaxLabel ?? '1 MB') ?>">
                     <div class="label" id="uploadLabelWhite"><strong>Click to upload</strong> white version of the logo</div>
-                    <div class="upload-preview upload-preview-white" id="uploadPreviewWhite">
+                    <div class="upload-preview upload-preview-white<?= ($isEdit && ! empty($incubatee['logoWhitePath'])) ? ' has-preview' : '' ?>" id="uploadPreviewWhite">
                         <?php if ($isEdit && ! empty($incubatee['logoWhitePath'])): ?>
                         <img class="upload-preview-white-logo" src="<?= site_url($incubatee['logoWhitePath']) ?>" alt="">
                         <?php endif; ?>

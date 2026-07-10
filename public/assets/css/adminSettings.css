@@ -275,11 +275,17 @@
     gap: 0.8rem;
 }
 
+.settings-window-date-grid {
+    grid-template-columns: minmax(240px, 280px) minmax(240px, 280px) minmax(360px, 1fr);
+    align-items: start;
+}
+
 .settings-field {
     display: grid;
     gap: 0.35rem;
 }
 
+.settings-field label,
 .settings-field span,
 .settings-field-label {
     color: #64748b;
@@ -331,6 +337,101 @@
 .settings-select:focus {
     border-color: #03558c;
     box-shadow: 0 0 0 3px rgba(3, 85, 140, 0.12);
+}
+
+.settings-deadline-extend {
+    min-width: 0;
+}
+
+.settings-deadline-extend-row {
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+    min-width: 0;
+    min-height: 38px;
+    border: 1px solid #e4e2dd;
+    border-radius: 0.35rem;
+    background: #fff;
+    padding: 0.2rem 0.3rem 0.2rem 0.55rem;
+}
+
+.settings-deadline-unit {
+    color: #64748b;
+    flex: 0 0 auto;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.settings-deadline-extend-row input {
+    width: 58px;
+    min-height: 30px;
+    padding: 0.32rem 0.42rem;
+    text-align: center;
+}
+
+.settings-deadline-extend-row input:focus {
+    border-color: #03558c;
+    box-shadow: 0 0 0 3px rgba(3, 85, 140, 0.12);
+}
+
+.settings-deadline-presets {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.settings-deadline-presets button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    min-width: 42px;
+    border: 1px solid #e4e2dd;
+    border-radius: 0.3rem;
+    background: #fff;
+    color: #475569;
+    font: inherit;
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.settings-deadline-presets button:hover,
+.settings-deadline-presets button:focus-visible {
+    border-color: rgba(248, 175, 33, 0.72);
+    background: #fffaf0;
+    color: #102033;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(248, 175, 33, 0.18);
+}
+
+.settings-field .settings-deadline-feedback {
+    flex: 1 1 auto;
+    margin-left: 0.35rem;
+    min-width: max-content;
+    color: #64748b;
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.45;
+    text-transform: none;
+    white-space: nowrap;
+}
+
+.settings-field .settings-deadline-feedback.is-error {
+    color: #be123c;
+}
+
+.settings-field .settings-deadline-feedback.is-success {
+    color: #047857;
 }
 
 .settings-health-list {
