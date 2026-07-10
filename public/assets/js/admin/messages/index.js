@@ -273,8 +273,35 @@
             });
         }
 
+        function showListSkeleton(container) {
+            if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.showList === 'function') {
+                return window.AdminRowSkeleton.showList(container);
+            }
+            if (!container || !container.querySelector('.msg-row')) return false;
+            container.classList.add('is-admin-list-loading');
+            return true;
+        }
+
+        function hideListSkeleton(container) {
+            if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.hideList === 'function') {
+                window.AdminRowSkeleton.hideList(container);
+                return;
+            }
+            if (container) container.classList.remove('is-admin-list-loading');
+        }
+
+        function waitForListImages(root) {
+            if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.waitForImages === 'function') {
+                return window.AdminRowSkeleton.waitForImages(root);
+            }
+            return Promise.resolve();
+        }
+
         function loadPage(url) {
             if (!url) return;
+            var oldInbox = document.querySelector('.inbox-wrap');
+            showListSkeleton(oldInbox);
+
             fetch(url, { cache: 'no-store', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function (response) { return response.text(); })
                 .then(function (html) {
@@ -293,7 +320,8 @@
                     }
 
                     var newInbox = doc.querySelector('.inbox-wrap');
-                    var oldInbox = document.querySelector('.inbox-wrap');
+                    if (newInbox) showListSkeleton(newInbox);
+                    oldInbox = document.querySelector('.inbox-wrap');
                     if (newInbox && oldInbox) oldInbox.replaceWith(newInbox);
 
                     selectedIds.clear();
@@ -302,6 +330,12 @@
                     bindInboxEvents();
                     updateBulkState();
                     updateHistory(url);
+                    return waitForListImages(newInbox || document.querySelector('.inbox-wrap')).then(function () {
+                        hideListSkeleton(document.querySelector('.inbox-wrap'));
+                    });
+                })
+                .catch(function () {
+                    hideListSkeleton(document.querySelector('.inbox-wrap'));
                 });
         }
 

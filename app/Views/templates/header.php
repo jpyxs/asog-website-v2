@@ -183,7 +183,9 @@
     <?php endif; ?>
 
     <?php if ($isLandingPage && ! $hideSiteHeader && $showAsogLoader): ?>
-        <?= view('components/asog_loader') ?>
+        <?= view('components/asog_loader', [
+            'skipWordAnimation' => ! empty($skipAsogLoaderWords),
+        ]) ?>
     <?php endif; ?>
 
     <?php if (! $hideSiteHeader): ?>

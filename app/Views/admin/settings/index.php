@@ -15,6 +15,10 @@ $loaderSetting = old('landingLoaderEnabled');
 $landingLoaderEnabled = $loaderSetting !== null
     ? $loaderSetting === '1'
     : ($landingLoaderEnabled ?? true);
+$loaderSkipWordsSetting = old('landingLoaderSkipWords');
+$landingLoaderSkipWords = $loaderSkipWordsSetting !== null
+    ? $loaderSkipWordsSetting === '1'
+    : ! empty($landingLoaderSkipWords);
 $applicationStartDate = old('applicationStartDate', $applicationStartDate ?? '');
 $applicationEndDate = old('applicationEndDate', $applicationEndDate ?? '');
 $windowStatus = $applicationWindowStatus ?? [
@@ -422,6 +426,28 @@ $hasLeanCanvasTemplate = $leanCanvasTemplateName !== '';
                         >
                         <span class="settings-slider" aria-hidden="true"></span>
                         <span class="settings-switch-label"><?= $landingLoaderEnabled ? 'ON' : 'OFF' ?></span>
+                    </label>
+                </div>
+
+                <div class="settings-toggle-row">
+                    <div class="settings-toggle-copy">
+                        <strong>Start at logo buildup</strong>
+                        <span><?= $landingLoaderSkipWords
+                            ? 'The intro skips the word morph and starts with the logo forming.'
+                            : 'The intro includes the word morph before the logo buildup.' ?></span>
+                    </div>
+
+                    <label class="settings-switch" for="landingLoaderSkipWords">
+                        <input type="hidden" name="landingLoaderSkipWords" value="0">
+                        <input
+                            id="landingLoaderSkipWords"
+                            type="checkbox"
+                            name="landingLoaderSkipWords"
+                            value="1"
+                            <?= $landingLoaderSkipWords ? 'checked' : '' ?>
+                        >
+                        <span class="settings-slider" aria-hidden="true"></span>
+                        <span class="settings-switch-label"><?= $landingLoaderSkipWords ? 'ON' : 'OFF' ?></span>
                     </label>
                 </div>
 

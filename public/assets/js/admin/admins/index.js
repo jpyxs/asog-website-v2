@@ -45,17 +45,42 @@
         }
     }
 
+    function getCurrentTableBody() {
+        var tblWrap = document.querySelector('.tbl-wrap');
+        return tblWrap ? tblWrap.querySelector('tbody') : null;
+    }
+
+    function showTableSkeleton(tbody) {
+        if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.showTable === 'function') {
+            return window.AdminRowSkeleton.showTable(tbody);
+        }
+        if (!tbody || tbody.querySelector('.empty-row,.empty-row-msg')) return false;
+        tbody.classList.add('is-admin-row-loading');
+        return true;
+    }
+
+    function hideTableSkeleton(tbody) {
+        if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.hideTable === 'function') {
+            window.AdminRowSkeleton.hideTable(tbody);
+            return;
+        }
+        if (tbody) tbody.classList.remove('is-admin-row-loading');
+    }
+
+    function waitForTableImages(root) {
+        if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.waitForImages === 'function') {
+            return window.AdminRowSkeleton.waitForImages(root);
+        }
+        return Promise.resolve();
+    }
+
     function loadPage(url, options) {
         options = options || {};
         if (isFetchingPage) return Promise.resolve();
         isFetchingPage = true;
 
-        var tblWrap = document.querySelector('.tbl-wrap');
-        if (tblWrap) {
-            tblWrap.style.transition = 'opacity 0.15s ease';
-            tblWrap.style.opacity = '0.5';
-            tblWrap.style.pointerEvents = 'none';
-        }
+        var tableBody = getCurrentTableBody();
+        showTableSkeleton(tableBody);
 
         return fetch(url, { cache: 'no-store', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(function (res) { return res.text(); })
@@ -63,6 +88,9 @@
                 isFetchingPage = false;
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(htmlText, 'text/html');
+                var nextWrap = doc.querySelector('.tbl-wrap');
+                var nextBody = nextWrap ? nextWrap.querySelector('tbody') : null;
+                showTableSkeleton(nextBody);
 
                 swapNode(doc, '.accounts-admin-toolbar');
                 swapNode(doc, '.grid-stats');
@@ -79,13 +107,16 @@
 
                 bindTableEvents();
                 bindFilterControls();
+
+                var swappedWrap = document.querySelector('.tbl-wrap');
+                var swappedBody = swappedWrap ? swappedWrap.querySelector('tbody') : null;
+                return waitForTableImages(swappedWrap).then(function () {
+                    hideTableSkeleton(swappedBody);
+                });
             })
             .catch(function () {
                 isFetchingPage = false;
-                if (tblWrap) {
-                    tblWrap.style.opacity = '1';
-                    tblWrap.style.pointerEvents = 'auto';
-                }
+                hideTableSkeleton(tableBody);
             });
     }
 

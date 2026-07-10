@@ -23,6 +23,7 @@ class LandingSettingModel extends Model
     public const KEY_APPLY_SHOW_DEADLINE = 'apply_show_deadline';
     public const KEY_APPLY_LEAN_CANVAS_TEMPLATE = 'apply_lean_canvas_template';
     public const KEY_LANDING_LOADER_ENABLED = 'landing_loader_enabled';
+    public const KEY_LANDING_LOADER_SKIP_WORDS = 'landing_loader_skip_words';
 
     protected $table            = 'landing_settings';
     protected $primaryKey       = 'id';

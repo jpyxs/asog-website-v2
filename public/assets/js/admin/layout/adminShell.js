@@ -119,6 +119,87 @@
     main.setAttribute('aria-busy', isActive ? 'true' : 'false');
   }
 
+  function hasDataTableRows(tbody) {
+    if (!tbody) return false;
+    return Array.prototype.some.call(tbody.querySelectorAll('tr'), function (row) {
+      return !row.querySelector('.empty-row,.empty-row-msg');
+    });
+  }
+
+  function hasMessageRows(container) {
+    return !!(container && container.querySelector('.msg-row'));
+  }
+
+  function showRowSkeleton(target) {
+    if (!target || !hasDataTableRows(target)) return false;
+    target.classList.add('is-admin-row-loading');
+    return true;
+  }
+
+  function hideRowSkeleton(target) {
+    if (!target) return;
+    if (!target.classList.contains('is-admin-row-loading')) {
+      target.classList.remove('is-admin-row-clearing', 'is-admin-row-revealing');
+      return;
+    }
+    target.classList.add('is-admin-row-clearing');
+    window.setTimeout(function () {
+      target.classList.remove('is-admin-row-loading', 'is-admin-row-clearing');
+      target.classList.add('is-admin-row-revealing');
+      window.setTimeout(function () {
+        target.classList.remove('is-admin-row-revealing');
+      }, 180);
+    }, 120);
+  }
+
+  function showListSkeleton(target) {
+    if (!hasMessageRows(target)) return false;
+    target.classList.add('is-admin-list-loading');
+    return true;
+  }
+
+  function hideListSkeleton(target) {
+    if (!target) return;
+    if (!target.classList.contains('is-admin-list-loading')) {
+      target.classList.remove('is-admin-list-clearing', 'is-admin-list-revealing');
+      return;
+    }
+    target.classList.add('is-admin-list-clearing');
+    window.setTimeout(function () {
+      target.classList.remove('is-admin-list-loading', 'is-admin-list-clearing');
+      target.classList.add('is-admin-list-revealing');
+      window.setTimeout(function () {
+        target.classList.remove('is-admin-list-revealing');
+      }, 180);
+    }, 120);
+  }
+
+  function waitForRowImages(root, timeoutMs) {
+    if (!root) return Promise.resolve();
+    var limit = typeof timeoutMs === 'number' ? timeoutMs : 1200;
+    var images = Array.prototype.slice.call(root.querySelectorAll('tbody.is-admin-row-loading img,.is-admin-list-loading img'));
+    if (!images.length) return Promise.resolve();
+
+    return Promise.all(images.map(function (img) {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+
+      return new Promise(function (resolve) {
+        var settled = false;
+        function done() {
+          if (settled) return;
+          settled = true;
+          img.removeEventListener('load', done);
+          img.removeEventListener('error', done);
+          resolve();
+        }
+
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+        window.setTimeout(done, limit);
+      });
+    })).then(function () {});
+  }
+
   function ensurePageStyles(doc) {
     var nextMain = doc.querySelector('[data-admin-main]');
     if (!nextMain) return Promise.resolve();
@@ -234,13 +315,27 @@
     root.classList.add('is-admin-shell-loading');
     root.setAttribute('aria-busy', 'true');
 
+    root.querySelectorAll('tbody').forEach(function (tbody) {
+      if (showRowSkeleton(tbody)) {
+        tbody.setAttribute('data-admin-shell-row-skeleton', '');
+      }
+    });
+
+    root.querySelectorAll('.inbox-wrap').forEach(function (container) {
+      if (showListSkeleton(container)) {
+        container.setAttribute('data-admin-shell-list-skeleton', '');
+      }
+    });
+
     root.querySelectorAll(surfaceSelector).forEach(function (node) {
       if (!node || node.matches(skipSelector) || node.closest(skipSelector)) return;
+      if (node.matches('.tbl-wrap,.posts-tbl,.inc-table-shell,.inbox-wrap,.msg-row') && (node.querySelector('.is-admin-row-loading') || node.classList.contains('is-admin-list-loading') || node.closest('.is-admin-list-loading'))) return;
       node.setAttribute('data-admin-shell-skeleton-surface', '');
     });
 
     root.querySelectorAll('h1,h2,h3,h4,p,small,span,strong,label,a,button,input,select,textarea,img,svg,td,th,.btn,.badge,.status-badge,.side-count').forEach(function (node) {
       if (!node || node.matches(skipSelector) || node.closest(skipSelector)) return;
+      if (node.closest('.is-admin-row-loading,.is-admin-list-loading')) return;
       if (node.closest('[data-admin-shell-skeleton-surface]')) {
         node.setAttribute('data-admin-shell-skeleton-item', '');
       }
@@ -328,10 +423,31 @@
   }
 
   function clearSkeleton(root) {
-    if (!root) return;
-    root.querySelectorAll('[data-admin-shell-skeleton-surface],[data-admin-shell-skeleton-item]').forEach(function (node) {
-      node.removeAttribute('data-admin-shell-skeleton-surface');
-      node.removeAttribute('data-admin-shell-skeleton-item');
+    if (!root) return Promise.resolve();
+    root.classList.add('is-admin-shell-skeleton-clearing');
+
+    root.querySelectorAll('[data-admin-shell-row-skeleton]').forEach(function (node) {
+      hideRowSkeleton(node);
+    });
+    root.querySelectorAll('[data-admin-shell-list-skeleton]').forEach(function (node) {
+      hideListSkeleton(node);
+    });
+
+    return new Promise(function (resolve) {
+      window.setTimeout(function () {
+        root.querySelectorAll('[data-admin-shell-skeleton-surface],[data-admin-shell-skeleton-item]').forEach(function (node) {
+          node.removeAttribute('data-admin-shell-skeleton-surface');
+          node.removeAttribute('data-admin-shell-skeleton-item');
+        });
+        root.querySelectorAll('[data-admin-shell-row-skeleton]').forEach(function (node) {
+          node.removeAttribute('data-admin-shell-row-skeleton');
+        });
+        root.querySelectorAll('[data-admin-shell-list-skeleton]').forEach(function (node) {
+          node.removeAttribute('data-admin-shell-list-skeleton');
+        });
+        root.classList.remove('is-admin-shell-skeleton-clearing');
+        resolve();
+      }, 150);
     });
   }
 
@@ -374,16 +490,17 @@
         if (root) {
           root.classList.remove('is-admin-shell-loading');
           root.setAttribute('aria-busy', 'false');
-          clearSkeleton(root);
           root.classList.add('is-admin-shell-revealing');
         }
 
-        window.setTimeout(function () {
-          if (root) {
-            root.classList.remove('is-admin-shell-revealing');
-          }
-          resolve();
-        }, 220);
+        Promise.resolve(clearSkeleton(root)).then(function () {
+          window.setTimeout(function () {
+            if (root) {
+              root.classList.remove('is-admin-shell-revealing');
+            }
+            resolve();
+          }, 220);
+        });
       }, 170);
     });
   }
@@ -677,6 +794,13 @@
   window.AdminShell.refresh = function () {
     return load(window.location.href, { replaceHistory: true });
   };
+
+  window.AdminRowSkeleton = window.AdminRowSkeleton || {};
+  window.AdminRowSkeleton.showTable = showRowSkeleton;
+  window.AdminRowSkeleton.hideTable = hideRowSkeleton;
+  window.AdminRowSkeleton.showList = showListSkeleton;
+  window.AdminRowSkeleton.hideList = hideListSkeleton;
+  window.AdminRowSkeleton.waitForImages = waitForRowImages;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
