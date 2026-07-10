@@ -711,7 +711,7 @@ tbody.is-admin-row-loading td::after {
 .page[data-admin-page="incubatees"] tbody.is-admin-row-loading td:nth-child(4)::after { width: min(92%, 260px); height: 34px; border-radius: .25rem; }
 .page[data-admin-page="incubatees"] tbody.is-admin-row-loading td:nth-child(5)::after { width: 86px; height: 19px; border-radius: .15rem; }
 .page[data-admin-page="incubatees"] tbody.is-admin-row-loading td:nth-child(6)::after { width: 78px; height: 19px; border-radius: .15rem; }
-.page[data-admin-page="incubatees"] tbody.is-admin-row-loading td:nth-child(7)::after { width: 78px; height: 32px; border-radius: .25rem; }
+.page[data-admin-page="incubatees"] tbody.is-admin-row-loading td:nth-child(7)::after { width: 114px; height: 32px; border-radius: .25rem; }
 
 .is-admin-list-loading .msg-row {
   position: relative;

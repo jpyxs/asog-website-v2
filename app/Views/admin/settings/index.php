@@ -86,15 +86,28 @@ $hasLeanCanvasTemplate = $leanCanvasTemplateName !== '';
                     </div>
                 </div>
 
-                <div class="settings-field-grid">
+                <div class="settings-field-grid settings-window-date-grid" data-deadline-extension>
                     <label class="settings-field" for="applicationStartDate">
                         <span>Start date</span>
                         <input id="applicationStartDate" type="date" name="applicationStartDate" value="<?= esc((string) $applicationStartDate) ?>">
                     </label>
                     <label class="settings-field" for="applicationEndDate">
                         <span>End date</span>
-                        <input id="applicationEndDate" type="date" name="applicationEndDate" value="<?= esc((string) $applicationEndDate) ?>">
+                        <input id="applicationEndDate" type="date" name="applicationEndDate" value="<?= esc((string) $applicationEndDate) ?>" data-deadline-end-date>
                     </label>
+                    <div class="settings-field settings-deadline-extend" aria-label="Extend application deadline">
+                        <label for="applicationDeadlineExtendDays">Extend by</label>
+                        <div class="settings-deadline-extend-row">
+                            <input id="applicationDeadlineExtendDays" type="number" min="1" max="365" step="1" value="7" inputmode="numeric" data-deadline-days>
+                            <span class="settings-deadline-unit">days</span>
+                            <span class="settings-deadline-feedback" data-deadline-feedback aria-live="polite"></span>
+                            <div class="settings-deadline-presets" aria-label="Quick deadline extensions">
+                                <button type="button" data-deadline-preset="7">+7</button>
+                                <button type="button" data-deadline-preset="14">+14</button>
+                                <button type="button" data-deadline-preset="30">+30</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="settings-toggle-row">

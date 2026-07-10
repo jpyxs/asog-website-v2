@@ -117,7 +117,10 @@
     var logoWhiteMaxBytes = parseInt(inputW && inputW.dataset.maxBytes ? inputW.dataset.maxBytes : '0', 10) || 0;
     var logoWhiteMaxLabel = inputW && inputW.dataset.maxLabel ? inputW.dataset.maxLabel : formatFileSize(logoWhiteMaxBytes);
 
-    if (previewW.querySelector('img')) labelW.style.display = 'none';
+    if (previewW.querySelector('img')) {
+        previewW.classList.add('has-preview');
+        labelW.style.display = 'none';
+    }
 
     zoneW.addEventListener('click', function(e) {
         if (e.target === inputW) return;
@@ -137,6 +140,7 @@
         var reader = new FileReader();
         reader.onload = function(e) {
             previewW.innerHTML = '<img class="upload-preview-white-logo" src="' + e.target.result + '" alt="">';
+            previewW.classList.add('has-preview');
             labelW.style.display = 'none';
         };
         reader.readAsDataURL(file);
@@ -144,8 +148,8 @@
 
     zoneW.addEventListener('dragover', function(e) {
         e.preventDefault();
-        zoneW.style.borderColor = '#7fb3d1';
-        zoneW.style.background = '#044066';
+        zoneW.style.borderColor = '#03558C';
+        zoneW.style.background = '#fafcff';
     });
     zoneW.addEventListener('dragleave', function() {
         zoneW.style.borderColor = '';

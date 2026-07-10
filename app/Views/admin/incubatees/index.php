@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/adminIncubatees.css') ?>">
+<?php helper('incubatees'); ?>
 
 <div id="incubateesConfig"
     data-add-url="<?= site_url('admin/cohorts/add') ?>"
@@ -136,6 +137,7 @@
         <?php foreach ($incubatees as $inc): ?>
             <?php
                 $founders = [];
+                $publicCardUrl = site_url('incubatees') . '#' . incubatee_anchor_id($inc);
                 if (! empty($inc['teamMembers'])) {
                     $decodedFounders = json_decode((string) $inc['teamMembers'], true);
                     $founders = is_array($decodedFounders) ? array_values(array_filter($decodedFounders, static function ($founder): bool {
@@ -197,6 +199,21 @@
                 </td>
                 <td>
                     <div class="acts">
+                        <?php if (! empty($inc['isPublished'])): ?>
+                            <a href="<?= esc($publicCardUrl, 'attr') ?>" target="_blank" rel="noopener" class="act-btn view" title="View public card" aria-label="View public incubatee card">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h8v8"/>
+                                </svg>
+                            </a>
+                        <?php else: ?>
+                            <button type="button" class="act-btn view disabled" title="Publish to view on public page" aria-label="Publish to view on public page" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h8v8"/>
+                                </svg>
+                            </button>
+                        <?php endif; ?>
                         <a href="<?= site_url('admin/incubatees/' . $inc['id'] . '/edit') ?>" class="act-btn edit" title="Edit" aria-label="Edit incubatee">
                             <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 7.125L16.862 4.487"/><path stroke-linecap="round" stroke-linejoin="round" d="M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                         </a>
