@@ -168,26 +168,38 @@ function createWordMorphTimeline({ gsap, root, scale }) {
 export function createLoaderTimeline({ scene, gsap, config, root, onComplete }) {
     const s = scene.items;
     const scale = config.durationScale || 1;
+    const skipWordAnimation = config.skipWordAnimation === true;
+    const timelineOffset = skipWordAnimation ? 4 : 0;
     const logoScale = scene.getLogoScale?.() || 0.9;
     const finalLockupScale = logoScale * 0.5;
+    let completionStarted = false;
+    const requestComplete = () => {
+        if (completionStarted) {
+            return;
+        }
+        completionStarted = true;
+        onComplete?.();
+    };
     const tl = gsap.timeline({
         defaults: { ease: 'power3.out' },
         onStart() {
             scene.start();
         },
-        onComplete,
+        onComplete: requestComplete,
     });
 
-    const at = (seconds) => seconds * scale;
+    const at = (seconds) => Math.max(0, seconds - timelineOffset) * scale;
     const dur = (seconds) => seconds * scale;
 
     delete root.dataset.final;
-    root.dataset.loaderPhase = 'words';
+    root.dataset.loaderPhase = skipWordAnimation ? 'prebuild' : 'words';
 
     scene.camera.zoom = 0.98;
     scene.camera.updateProjectionMatrix();
 
-    tl.add(createWordMorphTimeline({ gsap, root, scale }), at(0));
+    if (!skipWordAnimation) {
+        tl.add(createWordMorphTimeline({ gsap, root, scale }), at(0));
+    }
     tl.to(scene.camera, {
         zoom: 1.018,
         duration: dur(6.4),
@@ -199,7 +211,7 @@ export function createLoaderTimeline({ scene, gsap, config, root, onComplete }) 
 
     tl.call(() => {
         root.dataset.loaderPhase = 'build';
-    }, null, at(4));
+    }, null, skipWordAnimation ? dur(0.12) : at(4));
     tl.to(s.grid.material, { opacity: 0.028, duration: dur(0.42), ease: 'sine.out' }, at(4));
 
     tl.fromTo(s.logoGroup.position, { y: -0.02 }, { y: 0, duration: dur(1.8), ease: 'sine.inOut' }, at(4));
@@ -293,7 +305,7 @@ export function createLoaderTimeline({ scene, gsap, config, root, onComplete }) 
         ease: 'power2.out',
     }, at(7.55));
 
-    tl.to({}, { duration: dur(0.88) }, at(8.07));
+    tl.call(requestComplete, null, at(8.5));
 
     return tl;
 }

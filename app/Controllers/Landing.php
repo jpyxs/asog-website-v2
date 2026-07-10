@@ -47,6 +47,10 @@ class Landing extends BaseController
                 LandingSettingModel::KEY_LANDING_LOADER_ENABLED,
                 '1'
             )) !== '0',
+            'skipAsogLoaderWords' => trim((string) $landingSettingModel->getValue(
+                LandingSettingModel::KEY_LANDING_LOADER_SKIP_WORDS,
+                '0'
+            )) === '1',
             'heroSlides'         => $postModel->getFeaturedSlides(5),
             'heroPreloadImage'   => '',
             'featuredPost'       => $postModel->getFeatured(),

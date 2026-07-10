@@ -2,8 +2,9 @@ export const ASOG_LOADER_CONFIG = {
     sessionKey: 'asog_loader_seen_v1',
     durationScale: 1,
     runOnce: true,
+    skipWordAnimation: false,
     pixelRatioMax: 1.75,
-    fadeOutMs: 860,
+    fadeOutMs: 600,
     staticHoldMs: 920,
     landingPreloadMaxMs: 8500,
     landingPreloadLimit: 8,
@@ -33,6 +34,7 @@ export const ASOG_LOADER_CONFIG = {
 export function mergeLoaderConfig(root, overrides = {}) {
     const base = root?.dataset?.loaderBase || '/assets/loader';
     const logoUrl = root?.dataset?.logoUrl || ASOG_LOADER_CONFIG.assets.logo;
+    const skipWordAnimation = root?.dataset?.skipWordAnimation === 'true';
 
     return {
         ...ASOG_LOADER_CONFIG,
@@ -41,6 +43,7 @@ export function mergeLoaderConfig(root, overrides = {}) {
         logoUrl,
         durationScale: Number(overrides.durationScale || ASOG_LOADER_CONFIG.durationScale) || 1,
         runOnce: overrides.runOnce ?? ASOG_LOADER_CONFIG.runOnce,
+        skipWordAnimation: overrides.skipWordAnimation ?? skipWordAnimation,
         assets: {
             ...ASOG_LOADER_CONFIG.assets,
             ...(overrides.assets || {}),

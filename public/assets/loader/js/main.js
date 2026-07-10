@@ -210,7 +210,7 @@ async function init(options = {}) {
             config,
             root,
             onComplete: async () => {
-                await landingAssetsReady;
+                landingAssetsReady.catch(() => {});
                 options.onComplete?.();
                 await complete();
             },

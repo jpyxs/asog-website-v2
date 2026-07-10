@@ -1,6 +1,7 @@
 <?php
 $loaderBase = rtrim(base_url('assets/loader'), '/');
 $logoUrl = base_url('assets/img/ASOG TBI/WebP/ASOG-TBI_full-colored_stacked.webp');
+$skipWordAnimation = ! empty($skipWordAnimation);
 $importMap = [
     'imports' => [
         'three' => $loaderBase . '/vendor/three.module.min.js',
@@ -13,6 +14,7 @@ $importMap = [
     data-asog-loader-root
     data-loader-base="<?= esc($loaderBase) ?>"
     data-logo-url="<?= esc($logoUrl) ?>"
+    data-skip-word-animation="<?= $skipWordAnimation ? 'true' : 'false' ?>"
     aria-live="polite"
     aria-busy="true"
 >

@@ -24,7 +24,7 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transition: opacity 860ms ease, visibility 860ms ease;
+    transition: opacity 600ms ease, visibility 600ms ease;
 }
 
 [data-asog-loader-root]::before {
@@ -248,6 +248,14 @@
 
 [data-asog-loader-root][data-loader-phase="words"]::after {
     opacity: 0.2;
+}
+
+[data-asog-loader-root][data-loader-phase="prebuild"]::before {
+    opacity: 0.08;
+}
+
+[data-asog-loader-root][data-loader-phase="prebuild"]::after {
+    opacity: 0.06;
 }
 
 [data-asog-loader-root][data-loader-phase="build"]::before {

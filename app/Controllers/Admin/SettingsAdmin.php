@@ -45,6 +45,10 @@ class SettingsAdmin extends BaseController
             LandingSettingModel::KEY_LANDING_LOADER_ENABLED,
             '1'
         )) !== '0';
+        $landingLoaderSkipWords = trim((string) $settingModel->getValue(
+            LandingSettingModel::KEY_LANDING_LOADER_SKIP_WORDS,
+            '0'
+        )) === '1';
         $applicationStartDate = $this->normalizeDateValue($settingModel->getValue(
             LandingSettingModel::KEY_APPLY_START_DATE,
             ''
@@ -79,6 +83,7 @@ class SettingsAdmin extends BaseController
             'allowDuplicateEmails'  => $allowDuplicateEmails,
             'showApplicationDeadline' => $showApplicationDeadline,
             'landingLoaderEnabled'  => $landingLoaderEnabled,
+            'landingLoaderSkipWords' => $landingLoaderSkipWords,
             'applicationStartDate'  => $applicationStartDate,
             'applicationEndDate'    => $applicationEndDate,
             'applicationWindowStatus' => $applicationWindowStatus,
@@ -102,7 +107,9 @@ class SettingsAdmin extends BaseController
                 'label'       => $landingLoaderEnabled ? 'On' : 'Off',
                 'state'       => $landingLoaderEnabled ? 'ready' : 'off',
                 'description' => $landingLoaderEnabled
-                    ? 'Runs once per browser session on the homepage.'
+                    ? ($landingLoaderSkipWords
+                        ? 'Runs once per browser session and starts at the logo buildup.'
+                        : 'Runs once per browser session on the homepage.')
                     : 'Landing page opens directly without the intro animation.',
             ],
         ];
@@ -294,8 +301,12 @@ class SettingsAdmin extends BaseController
     {
         $settingModel = new LandingSettingModel();
         $loaderEnabled = $this->request->getPost('landingLoaderEnabled') === '1';
+        $loaderSkipWords = $this->request->getPost('landingLoaderSkipWords') === '1';
 
-        if (! $settingModel->setValue(LandingSettingModel::KEY_LANDING_LOADER_ENABLED, $loaderEnabled ? '1' : '0')) {
+        $saved = $settingModel->setValue(LandingSettingModel::KEY_LANDING_LOADER_ENABLED, $loaderEnabled ? '1' : '0');
+        $saved = $settingModel->setValue(LandingSettingModel::KEY_LANDING_LOADER_SKIP_WORDS, $loaderSkipWords ? '1' : '0') && $saved;
+
+        if (! $saved) {
             setToast('error', 'Unable to save site experience setting.');
             return redirect()->to(site_url('admin/settings'));
         }
