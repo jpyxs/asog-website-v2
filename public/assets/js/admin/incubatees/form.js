@@ -380,3 +380,71 @@
         });
     }
 })();
+
+// ── Submission Guard for Founder Rows ── //
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('incubateeForm');
+    var tmRowsContainer = document.getElementById('tmRows');
+    
+    if (!form || !tmRowsContainer) return;
+
+    // Highlight name field when photo is chosen
+    tmRowsContainer.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('tm-photo-input')) {
+            var row = e.target.closest('.tm-row');
+            if (!row) return;
+            
+            var nameInput = row.querySelector('input[name="tm_name[]"]');
+            if (!nameInput) return;
+
+            if (e.target.files && e.target.files.length > 0) {
+                nameInput.placeholder = "Name (Required)";
+                nameInput.style.borderColor = "#03558C"; 
+            }
+        }
+    });
+
+    // Catch empty names if photo or title exists
+    form.addEventListener('submit', function(e) {
+        var rows = tmRowsContainer.querySelectorAll('.tm-row');
+        var formIsInvalid = false;
+
+        rows.forEach(function(row) {
+            var fileInput = row.querySelector('.tm-photo-input');
+            var existingInput = row.querySelector('input[name="tm_photo_existing[]"]');
+            var nameInput = row.querySelector('input[name="tm_name[]"]');
+            var roleInput = row.querySelector('input[name="tm_role[]"]');
+
+            if (nameInput) {
+                var hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+                var hasExistingFile = existingInput && existingInput.value.trim() !== '';
+                var hasRole = roleInput && roleInput.value.trim() !== '';
+                var isNameEmpty = nameInput.value.trim() === '';
+
+                if (isNameEmpty && (hasNewFile || hasExistingFile || hasRole)) {
+                    e.preventDefault();
+                    formIsInvalid = true;
+
+                    nameInput.required = true;
+                    nameInput.placeholder = "Name is required.";
+                    nameInput.style.borderColor = "#ef4444";
+                    
+                    nameInput.addEventListener('input', function() {
+                        this.setCustomValidity('');
+                        this.style.borderColor = '';
+                    }, { once: true });
+
+                    nameInput.setCustomValidity("Please specify the name of this founder. A founder cannot be saved without a name.");
+                }
+            }
+        });
+
+        if (formIsInvalid) {
+            var firstError = tmRowsContainer.querySelector('input[style*="rgb(239, 68, 68)"]');
+            if (firstError) {
+                firstError.focus();
+                firstError.reportValidity();
+            }
+        }
+    });
+});
