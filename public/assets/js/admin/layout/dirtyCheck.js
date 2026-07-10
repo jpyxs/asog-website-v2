@@ -6,6 +6,8 @@
     function serializeForm(form) {
         var parts = [];
         var elements = form.elements;
+        var nameCounts = {};
+
         for (var i = 0; i < elements.length; i++) {
             var el = elements[i];
             if (!el.name || el.type === 'submit' || el.type === 'button') continue;
@@ -21,7 +23,17 @@
             } else {
                 val = el.value;
             }
-            parts.push(el.name + '=' + val);
+
+            var name = el.name;
+            // Handle dynamic array inputs specifically
+            if (name.endsWith('[]')) {
+                if (!nameCounts[name]) nameCounts[name] = 0;
+                nameCounts[name]++;
+                if (val === '') continue;
+                parts.push(name + '[' + nameCounts[name] + ']=' + val);
+            } else {
+                parts.push(name + '=' + val);
+            }
         }
         return parts.join('&');
     }
@@ -51,6 +63,11 @@
 
         form.addEventListener('input', check);
         form.addEventListener('change', check);
+
+        // Watch for added/removed rows (Incubatees form)
+        if (typeof MutationObserver !== 'undefined') {
+            new MutationObserver(check).observe(form, { childList: true, subtree: true });
+        }
 
         (options.watchContainers || []).forEach(function (container) {
             if (!container || typeof MutationObserver === 'undefined') return;
