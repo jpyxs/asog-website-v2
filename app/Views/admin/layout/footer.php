@@ -5,6 +5,7 @@
 <?= view('admin/components/delete_confirm_modal') ?>
 <?= view('admin/components/discard_changes_modal') ?>
 
+<script src="<?= base_url('assets/js/admin/layout/scrollRestore.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/quill/quill.min.js') ?>"></script>
 <script id="adminQuillBootstrap"
     data-base-url="<?= esc(rtrim(site_url(), '/'), 'attr') ?>"

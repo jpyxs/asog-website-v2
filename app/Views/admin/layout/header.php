@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }</script>
+    <style>html, body { overflow-anchor: none; }</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title><?= esc($pageTitle ?? 'Admin') ?> — ASOG TBI</title>
