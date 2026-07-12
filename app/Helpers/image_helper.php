@@ -31,6 +31,33 @@
  * @param string $extraClass    additional CSS classes
  * @return string
  */
+
+/**
+ * Find the first existing sidecar variant across supported output formats,
+ * checked in the same priority order the generator uses.
+ */
+function findVariantFile(string $dir, string $stem, string $widthSuffix): ?string
+{
+    foreach (['webp', 'png', 'jpg'] as $ext) {
+        $candidate = $dir . $stem . '-' . $widthSuffix . '.' . $ext;
+        if (is_file(FCPATH . $candidate)) {
+            return $candidate;
+        }
+    }
+    return null;
+}
+
+function findFullVariantFile(string $dir, string $stem, string $originalRelativePath): string
+{
+    foreach (['webp', 'png', 'jpg'] as $ext) {
+        $candidate = $dir . $stem . '.' . $ext;
+        if (is_file(FCPATH . $candidate)) {
+            return $candidate;
+        }
+    }
+    return $originalRelativePath; // last resort — only if generation never ran (GD missing, memory cap, old upload)
+}
+
 function responsiveUploadImg(string $relativePath, string $type, string $alt = '', string $extraClass = '', bool $lazy = false): string
 {
     $stem = pathinfo($relativePath, PATHINFO_FILENAME);
@@ -65,14 +92,15 @@ function responsiveUploadImg(string $relativePath, string $type, string $alt = '
         case 'posts':
             // Sidebar card: 100px wide; featured: ~580px wide (1.3fr of 1200px max)
             // Prefer 100w/400w/800w sidecars when available so the browser can avoid the full upload.
-            $thumb100 = $dir . $stem . '-100w.webp';
-            $thumb180 = $dir . $stem . '-180w.webp';
-            $mid      = $dir . $stem . '-400w.webp';
-            $full  = $relativePath;
-            if (is_file(FCPATH . $mid)) {
+            $thumb100 = findVariantFile($dir, $stem, '100w');
+            $thumb180 = findVariantFile($dir, $stem, '180w');
+            $mid      = findVariantFile($dir, $stem, '400w');
+            $full     = findFullVariantFile($dir, $stem, $relativePath);
+
+            if ($mid !== null) {
                 [$midW, $midH] = $intrinsic($mid);
                 $srcsetParts = [];
-                if (is_file(FCPATH . $thumb100)) {
+                if ($thumb100 !== null) {
                     $srcsetParts[] = base_url(esc($thumb100)) . ' 100w';
                 }
                 $srcsetParts[] = base_url(esc($mid)) . ' 400w';
@@ -85,7 +113,7 @@ function responsiveUploadImg(string $relativePath, string $type, string $alt = '
                     . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
             }
 
-            if (is_file(FCPATH . $thumb180)) {
+            if ($thumb180 !== null) {
                 [$thumbW, $thumbH] = $intrinsic($thumb180);
                 $srcsetParts = [base_url(esc($thumb180)) . ' 180w'];
                 if (is_file(FCPATH . $full)) {
@@ -104,13 +132,14 @@ function responsiveUploadImg(string $relativePath, string $type, string $alt = '
 
         case 'posts-thumb':
             // Sidebar thumbnail: fixed 100–180px container
-            $thumb = $dir . $stem . '-100w.webp';
-            $thumb180 = $dir . $stem . '-180w.webp';
-            $full  = $relativePath;
-            if (is_file(FCPATH . $thumb)) {
+            $thumb = findVariantFile($dir, $stem, '100w');
+            $thumb180 = findVariantFile($dir, $stem, '180w');
+            $full     = findFullVariantFile($dir, $stem, $relativePath);
+
+            if ($thumb !== null) {
                 [$thumbW, $thumbH] = $intrinsic($thumb);
                 $srcsetParts = [base_url(esc($thumb)) . ' 100w'];
-                if (is_file(FCPATH . $thumb180)) {
+                if ($thumb180 !== null) {
                     $srcsetParts[] = base_url(esc($thumb180)) . ' 180w';
                 }
 
@@ -120,7 +149,7 @@ function responsiveUploadImg(string $relativePath, string $type, string $alt = '
                     . $dimsAttr($thumbW, $thumbH)
                     . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
             }
-            if (is_file(FCPATH . $thumb180)) {
+            if ($thumb180 !== null) {
                 [$thumbW, $thumbH] = $intrinsic($thumb180);
                 return '<img src="' . base_url(esc($thumb180)) . '"'
                     . ' srcset="' . base_url(esc($thumb180)) . ' 180w"'
@@ -130,12 +159,13 @@ function responsiveUploadImg(string $relativePath, string $type, string $alt = '
             }
             [$fullW, $fullH] = $intrinsic($full);
             return '<img src="' . base_url(esc($full)) . '"' . $dimsAttr($fullW, $fullH) . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
-
+            
         case 'incubatees':
             // Logo carousel: up to 110px display
-            $thumb = $dir . $stem . '-160w.webp';
-            $full  = $relativePath;
-            if (is_file(FCPATH . $thumb)) {
+            $thumb = findVariantFile($dir, $stem, '160w');
+            $full  = findFullVariantFile($dir, $stem, $relativePath);
+            
+            if ($thumb !== null) {
                 [$thumbW, $thumbH] = $intrinsic($thumb);
                 return '<img src="' . base_url(esc($thumb)) . '"'
                     . ' srcset="' . base_url(esc($thumb)) . ' 160w"'
@@ -145,7 +175,61 @@ function responsiveUploadImg(string $relativePath, string $type, string $alt = '
             }
             [$fullW, $fullH] = $intrinsic($full);
             return '<img src="' . base_url(esc($full)) . '"' . $dimsAttr($fullW, $fullH) . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
+        
+        case 'team-org':
+            $thumb300 = findVariantFile($dir, $stem, '300w');
+            $thumb500 = findVariantFile($dir, $stem, '500w');
+            $full     = findFullVariantFile($dir, $stem, $relativePath);
 
+            $primary = $thumb300 ?? $thumb500 ?? $full;
+            if ($primary !== null) {
+                [$w, $h] = $intrinsic($primary);
+                $srcsetParts = [];
+                if ($thumb300 !== null) {
+                    $srcsetParts[] = base_url(esc($thumb300)) . ' 300w';
+                }
+                if ($thumb500 !== null) {
+                    $srcsetParts[] = base_url(esc($thumb500)) . ' 500w';
+                }
+                $srcsetParts[] = base_url(esc($full)) . ' 900w'; // width descriptor for the browser; actual file is the standardized full size
+
+                return '<img src="' . base_url(esc($primary)) . '"'
+                    . ' srcset="' . implode(', ', $srcsetParts) . '"'
+                    . ' sizes="300px"'
+                    . $dimsAttr($w, $h)
+                    . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
+            }
+            [$fullW, $fullH] = $intrinsic($full);
+            return '<img src="' . base_url(esc($full)) . '"' . $dimsAttr($fullW, $fullH) . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
+
+        case 'team-landing':
+            // Larger card thumbnail, ~165px display
+            $thumb300  = findVariantFile($dir, $stem, '300w');
+            $thumb500  = findVariantFile($dir, $stem, '500w');
+            $full      = findFullVariantFile($dir, $stem, $relativePath);
+
+            $primary = $thumb300 ?? $thumb500 ?? $full;
+            if ($primary !== null) {
+                [$w, $h] = $intrinsic($primary);
+                $srcsetParts = [];
+                if ($thumb300 !== null) {
+                    $srcsetParts[] = base_url(esc($thumb300)) . ' 300w';
+                }
+                if ($thumb500 !== null) {
+                    $srcsetParts[] = base_url(esc($thumb500)) . ' 500w';
+                }
+
+                $srcsetParts[] = base_url(esc($full)) . ' 900w';
+
+                return '<img src="' . base_url(esc($primary)) . '"'
+                    . ' srcset="' . implode(', ', $srcsetParts) . '"'
+                    . ' sizes="300px"'
+                    . $dimsAttr($w, $h)
+                    . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
+            }
+            [$fullW, $fullH] = $intrinsic($full);
+            return '<img src="' . base_url(esc($full)) . '"' . $dimsAttr($fullW, $fullH) . ' alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
+            
         default:
             return '<img src="' . base_url(esc($relativePath)) . '" alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
     }
@@ -322,7 +406,6 @@ function responsiveStaticImg(string $basePathFromDb, string $type, string $alt =
     return '<img src="' . base_url('assets/img/placeholder.png') . '" width="1" height="1" alt="' . esc($alt) . '"' . $classAttr . $lazyAttr . '>';
 }
 
-
 /**
  * Responsive nav logo <picture> element.
  * Stacked (portrait) logo: displayed 56–76px wide.
@@ -358,58 +441,38 @@ function responsiveNavLogoLandscape(): string
 if (! function_exists('org_photo_url')) {
     /**
      * Resolve a member photo path (assets or uploads) to a full URL.
-     *
-     * Accepts:
-     *  - a web-relative stem like "assets/img/team/Name"
-     *  - a web-relative filename like "assets/img/team/Name.webp"
-     *  - an absolute URL like "https://cdn.example.com/..."
-     *
-     * Returns an absolute URL or empty string.
+     * Kept for any caller that needs a bare URL string rather than a full <img> tag.
      */
     function org_photo_url(?string $path): string
     {
-        $p = trim((string) $path);
-        if ($p === '') {
+        $path = trim((string) $path);
+        if ($path === '') {
             return '';
         }
 
-        // If already an absolute URL, return as-is.
-        if (preg_match('#^https?://#i', $p)) {
-            return $p;
-        }
-
-        $normalized = str_replace('\\', '/', ltrim($p, '/'));
-        $normalized = strtok($normalized, '?');
-        $normalized = strtok($normalized, '#');
-
-        $candidates = [$normalized];
-        $extension = pathinfo($normalized, PATHINFO_EXTENSION);
-
-        if ($extension === '') {
-            $candidates[] = $normalized . '.webp';
-            $candidates[] = $normalized . '.png';
-            $candidates[] = $normalized . '.jpg';
-            $candidates[] = $normalized . '.jpeg';
-        } else {
-            $stem = preg_replace('/\.(webp|png|jpe?g)$/i', '', $normalized);
-            $candidates[] = $stem . '.webp';
-            $candidates[] = $stem . '.png';
-            $candidates[] = $stem . '.jpg';
-            $candidates[] = $stem . '.jpeg';
-        }
-
-        foreach ($candidates as $candidate) {
-            if ($candidate === '') {
-                continue;
-            }
-
-            $fsPath = FCPATH . ltrim($candidate, '/');
-            if (is_file($fsPath)) {
-                return base_url($candidate);
-            }
-        }
-
-        return base_url($normalized);
+        return base_url(ltrim($path, '/'));
     }
 }
 
+if (! function_exists('responsiveTeamImg')) {
+    /**
+     * Display a team photo, dispatching to the correct renderer based on
+     * whether the path is a static pre-generated asset or a dynamic upload.
+     *
+     * @param string $path     'assets/img/team/Name' or 'uploads/team/xxx.png'
+     * @param string $context  'org' | 'landing'
+     */
+    function responsiveTeamImg(?string $path, string $context, string $alt = '', string $extraClass = '', bool $lazy = false): string
+    {
+        $path = trim((string) $path);
+        if ($path === '') {
+            return '<img src="' . base_url('assets/img/placeholder.png') . '" width="1" height="1" alt="' . esc($alt) . '">';
+        }
+
+        if (str_starts_with($path, 'uploads/')) {
+            return responsiveUploadImg($path, 'team-' . $context, $alt, $extraClass, $lazy);
+        }
+
+        return responsiveStaticImg($path, 'team-' . $context, $alt, $extraClass, $lazy);
+    }
+}
