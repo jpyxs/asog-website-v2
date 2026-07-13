@@ -375,14 +375,23 @@
             <!-- ═══════════════════════════════════════════════════════
                  SUBMIT
                  ═══════════════════════════════════════════════════════ -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+            <div class="flex flex-col gap-4 pt-2">
+                <?php if ($recaptchaEnabled): ?>
+                    <p class="max-w-[520px] text-[.62rem] leading-[1.55] text-dark/45">
+                        This site is protected by reCAPTCHA and the Google
+                        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Privacy Policy</a>
+                        and
+                        <a href="https://policies.google.com/terms" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Terms of Service</a>
+                        apply.
+                    </p>
+                <?php endif; ?>
                 <div class="apply-form-actions">
                     <button type="button" id="btnPreview"
                         class="apply-form-action-btn font-body text-[.62rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm border-none cursor-pointer transition-all duration-200 hover:bg-dark">
                         <?= $isRevalidation ? 'Review &amp; Update' : 'Review &amp; Submit →' ?>
                     </button>
                     <button type="button" data-open-guidelines
-                        class="apply-form-action-btn font-body text-[.6rem] font-bold tracking-[.13em] uppercase text-navy/50 bg-transparent px-4 py-3.5 rounded-sm border border-navy/15 cursor-pointer transition-all duration-200 hover:text-navy hover:border-navy/30">
+                        class="apply-form-action-btn font-body text-[.6rem] font-bold tracking-[.13em] uppercase text-navy bg-gold/20 px-4 py-3.5 rounded-sm border border-gold/45 cursor-pointer transition-all duration-200 hover:bg-gold/30 hover:border-gold/70">
                         <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" stroke="currentColor"
                             stroke-width="1.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"

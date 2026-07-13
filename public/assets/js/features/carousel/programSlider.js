@@ -40,7 +40,12 @@
         var cardW  = trackW / pp;
         var px     = -(page * pp * cardW);
 
-        gsap.to(slider, { x: px, duration: .7, ease: 'power3.inOut' });
+        if (window.gsap) {
+            window.gsap.to(slider, { x: px, duration: .7, ease: 'power3.inOut' });
+        } else {
+            slider.style.transition = 'transform .45s ease';
+            slider.style.transform = 'translate3d(' + px + 'px, 0, 0)';
+        }
 
         pgLabel.textContent = (page + 1) + ' / ' + (maxP + 1);
 

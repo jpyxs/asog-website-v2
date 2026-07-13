@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.grecaptcha-badge {
+  visibility: hidden !important;
+}
+
 @layer components {
   .file-upload-button {
     display: inline-flex;
