@@ -1,5 +1,6 @@
 /* Footer — Classic columnar design, navy / gold theme  (refreshed) */
 
+.ft-logo-frame,
 .ft-logo,
 .ft-tagline,
 .ft-heading,
@@ -91,28 +92,48 @@
 }
 
 /* ── Brand column ────────────────────────── */
+.ft-logo-frame {
+    width: fit-content;
+    height: auto;
+    max-width: 100%;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: -0.2rem 0 0.75rem -0.25rem;
+}
+
 .ft-logo {
     width: auto;
-    height: 56px;
-    max-width: 220px;
+    height: 72px;
+    max-width: 280px;
     object-fit: contain;
-    margin-bottom: 1rem;
+    flex: 0 0 auto;
+    margin: 0;
     opacity: .9;
     transition: opacity .3s;
 }
 .ft-logo:hover { opacity: 1; }
 
 @media (max-width: 639px) {
+    .ft-logo-frame {
+        margin: -0.15rem 0 0.7rem -0.2rem;
+    }
+
     .ft-logo {
-        height: 42px;
-        max-width: 170px;
+        height: 52px;
+        max-width: 210px;
     }
 }
 
 @media (min-width: 1024px) {
+    .ft-logo-frame {
+        margin: -0.25rem 0 0.8rem -0.35rem;
+    }
+
     .ft-logo {
-        height: 64px;
-        max-width: 260px;
+        height: 82px;
+        max-width: 330px;
     }
 }
 
@@ -294,6 +315,7 @@
     .ft-social-link,
     .ft-bottom,
     .ft-logo,
+    .ft-logo-frame,
     .ft-social-link,
     .ft-links a,
     .ft-contact-list a,

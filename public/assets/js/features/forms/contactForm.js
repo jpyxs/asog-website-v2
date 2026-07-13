@@ -36,18 +36,31 @@
     return wrapper ? wrapper.querySelector('.contact-field-error') : null;
   }
 
+  function getErrorTarget(field) {
+    if (!field) return null;
+    if (field.name === 'message') {
+      return field.closest('[data-contact-message-frame]') || field;
+    }
+    return field;
+  }
+
   function setError(field, message) {
     var errorEl = getErrorEl(field);
+    var target = getErrorTarget(field);
     if (!errorEl) return;
     if (!message) {
       errorEl.textContent = '';
       errorEl.classList.add('hidden');
-      field.classList.remove('border-red-500', 'ring-1', 'ring-red-200');
+      if (target) {
+        target.classList.remove('border-red-500', 'ring-1', 'ring-red-200');
+      }
       return;
     }
     errorEl.textContent = message;
     errorEl.classList.remove('hidden');
-    field.classList.add('border-red-500', 'ring-1', 'ring-red-200');
+    if (target) {
+      target.classList.add('border-red-500', 'ring-1', 'ring-red-200');
+    }
   }
 
   function updateCounter() {
