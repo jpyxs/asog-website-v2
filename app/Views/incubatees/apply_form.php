@@ -243,11 +243,11 @@
                             </label>
                                 <span class="text-[.58rem] text-navy/30 block mb-3">Upload PDFs · Max 10 files · 100 MB
                                     each</span>
-                            <div id="teamCvChooser" class="inline-flex items-center gap-3">
+                            <div id="teamCvChooser" class="apply-file-chooser inline-flex items-center gap-3">
                                 <button type="button" id="teamCvButton" class="file-upload-button">
                                     Choose File
                                 </button>
-                                <span id="teamCvStatus" class="text-[.78rem] text-dark/60">No file chosen</span>
+                                <span id="teamCvStatus" class="apply-file-status text-[.78rem] text-dark/60">No file chosen</span>
                                 <input type="file" id="teamCv" name="teamCv[]" multiple accept=".pdf" class="hidden">
                             </div>
                             <?php if ($isRevalidation && $existingTeamCvPath !== ''): ?>
@@ -342,11 +342,11 @@
                         </label>
                         <span class="text-[.58rem] text-navy/30 block mb-3">Must be in .docx or PDF &middot; 1 file
                             &middot; Max 10 MB</span>
-                        <div id="leanCanvasChooser" class="inline-flex items-center gap-3">
+                        <div id="leanCanvasChooser" class="apply-file-chooser inline-flex items-center gap-3">
                             <button type="button" id="leanCanvasButton" class="file-upload-button">
                                 Choose File
                             </button>
-                            <span id="leanCanvasStatus" class="text-[.78rem] text-dark/60">No file chosen</span>
+                            <span id="leanCanvasStatus" class="apply-file-status text-[.78rem] text-dark/60">No file chosen</span>
                             <input type="file" id="leanCanvas" name="leanCanvas"
                                 accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                 class="hidden">
@@ -376,13 +376,13 @@
                  SUBMIT
                  ═══════════════════════════════════════════════════════ -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-                <div class="flex items-center gap-3">
+                <div class="apply-form-actions">
                     <button type="button" id="btnPreview"
-                        class="font-body text-[.62rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm border-none cursor-pointer transition-all duration-200 hover:bg-dark">
+                        class="apply-form-action-btn font-body text-[.62rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm border-none cursor-pointer transition-all duration-200 hover:bg-dark">
                         <?= $isRevalidation ? 'Review &amp; Update' : 'Review &amp; Submit →' ?>
                     </button>
                     <button type="button" data-open-guidelines
-                        class="font-body text-[.6rem] font-bold tracking-[.13em] uppercase text-navy/50 bg-transparent px-4 py-3.5 rounded-sm border border-navy/15 cursor-pointer transition-all duration-200 hover:text-navy hover:border-navy/30">
+                        class="apply-form-action-btn font-body text-[.6rem] font-bold tracking-[.13em] uppercase text-navy/50 bg-transparent px-4 py-3.5 rounded-sm border border-navy/15 cursor-pointer transition-all duration-200 hover:text-navy hover:border-navy/30">
                         <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" stroke="currentColor"
                             stroke-width="1.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -524,11 +524,11 @@
         <div
             class="sticky bottom-0 bg-white z-10 px-7 py-5 border-t border-navy/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <button id="btnBackEdit"
-                class="font-body text-[.58rem] font-bold tracking-[.12em] uppercase text-dark/50 bg-transparent px-5 py-2.5 rounded-sm border border-dark/15 cursor-pointer transition-all duration-200 hover:border-dark/30 hover:text-dark">
+                class="apply-form-action-btn font-body text-[.58rem] font-bold tracking-[.12em] uppercase text-dark/50 bg-transparent px-5 py-2.5 rounded-sm border border-dark/15 cursor-pointer transition-all duration-200 hover:border-dark/30 hover:text-dark">
                 ← Edit Application
             </button>
             <button id="btnConfirmSubmit"
-                class="font-body text-[.62rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm border-none cursor-pointer transition-all duration-200 hover:bg-dark">
+                class="apply-form-action-btn font-body text-[.62rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm border-none cursor-pointer transition-all duration-200 hover:bg-dark">
                 <?= $isRevalidation ? 'Confirm &amp; Update' : 'Confirm &amp; Submit' ?>
             </button>
         </div>

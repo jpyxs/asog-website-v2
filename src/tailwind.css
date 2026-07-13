@@ -5,6 +5,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     border: 1px solid #03558C;
     border-radius: 0.125rem;
     background: #03558C;
@@ -14,6 +15,7 @@
     font-weight: 700;
     letter-spacing: 0.1em;
     line-height: 1;
+    white-space: nowrap;
     text-transform: uppercase;
     cursor: pointer;
     transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
@@ -23,6 +25,59 @@
     background: #fff;
     border-color: #03558C;
     color: #03558C;
+  }
+
+  .apply-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .apply-form-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .apply-file-chooser {
+    max-width: 100%;
+  }
+
+  .apply-file-status {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 420px) {
+    .apply-form-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      width: 100%;
+    }
+
+    .apply-form-action-btn {
+      width: 100%;
+      padding-left: 0.85rem !important;
+      padding-right: 0.85rem !important;
+      font-size: 0.56rem !important;
+      letter-spacing: 0.075em !important;
+    }
+
+    .apply-file-chooser {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr);
+      width: 100%;
+      gap: 0.55rem;
+    }
+
+    .apply-file-chooser .file-upload-button {
+      width: 100%;
+    }
   }
 }
 

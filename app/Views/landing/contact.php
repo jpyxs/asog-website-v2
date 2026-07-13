@@ -32,9 +32,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-12">
 
             <!-- LEFT — Map + Floating Card + Social -->
-            <div class="reveal">
+            <div class="reveal lg:h-full">
                 <!-- Map container — maximised height -->
-                <div class="relative rounded-lg overflow-hidden mb-5" style="height:420px;">
+                <div class="relative h-[360px] md:h-[420px] lg:h-full rounded-lg overflow-hidden mb-5 lg:mb-0">
                     <iframe
                         title="Find ASOG Technology Business Incubator on Google Maps"
                         aria-label="Map showing the location of ASOG Technology Business Incubator in San Miguel, Nabua, Camarines Sur"
