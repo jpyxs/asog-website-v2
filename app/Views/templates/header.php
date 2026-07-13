@@ -72,6 +72,14 @@
     </script>
     <!-- ================== CSS/JS  ===================== -->
     <link href="<?= base_url('style.css') ?>" rel="stylesheet">
+    <style>
+        .grecaptcha-badge {
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+    </style>
     <?php if (!empty($extraCss) && is_array($extraCss)): ?>
         <?php foreach ($extraCss as $css): ?>
             <link rel="stylesheet" href="<?= esc($css) ?>">

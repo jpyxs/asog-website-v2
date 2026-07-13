@@ -47,7 +47,7 @@
             <!-- RIGHT — Contact Form -->
             <div class="reveal reveal-d2">
                 <?php $contactErrors = session('errors') ?? []; ?>
-                <form action="<?= site_url('contact/send') ?>" method="post" class="space-y-5" id="contactForm" novalidate
+                <form action="<?= site_url('contact/send') ?>" method="post" class="contact-form-stack" id="contactForm" novalidate
                     data-recaptcha-enabled="<?= $recaptchaEnabled ? '1' : '0' ?>"
                     data-recaptcha-site-key="<?= esc($recaptcha->siteKey) ?>"
                     data-recaptcha-action="contact_send">
@@ -74,29 +74,31 @@
                         <label
                             class="text-[.54rem] font-bold tracking-[.16em] uppercase text-dark/60 block mb-2">Message</label>
                         <div class="w-full">
-                            <div class="relative w-full bg-white border border-dark/[.12] rounded-sm overflow-hidden">
+                            <div class="relative w-full bg-white border border-dark/[.12] rounded-sm overflow-hidden transition-colors duration-200" data-contact-message-frame>
                             <textarea rows="5" name="message" data-contact-message
                                 class="guidelines-scroll w-full bg-transparent border-none px-4 py-3 pb-9 pr-20 text-[.85rem] text-dark font-light outline-none resize-none transition-colors duration-200 placeholder:text-dark/30"
                             placeholder="How can we help?" required></textarea>
                             </div>
-                            <div class="mt-1 flex items-start gap-3 px-1 min-h-[1em]">
+                            <div class="contact-message-meta mt-1 flex items-start gap-3 px-1 min-h-[1em]">
                                 <span class="contact-field-error min-w-0 flex-1 text-[.62rem] text-red-500 leading-[1.3]<?= ! empty($contactErrors['message']) ? '' : ' hidden' ?>" data-contact-message-error><?= esc((string) ($contactErrors['message'] ?? '')) ?></span>
                                 <span data-contact-counter class="ml-auto shrink-0" style="display:inline-block;color:rgba(2,13,24,.6);background:transparent;font-size:10px;line-height:1;font-weight:500;letter-spacing:.08em;white-space:nowrap;">0/5000</span>
                             </div>
                         </div>
                     </div>
-                    <?php if ($recaptchaEnabled): ?>
-                        <p class="max-w-[360px] text-[.62rem] leading-[1.55] text-dark/45">
-                            This site is protected by reCAPTCHA and the Google
-                            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Privacy Policy</a>
-                            and
-                            <a href="https://policies.google.com/terms" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Terms of Service</a>
-                            apply.
-                        </p>
-                    <?php endif; ?>
-                    <button type="submit"
-                        class="font-body text-[.72rem] font-medium tracking-[.14em] uppercase text-white bg-sky border border-sky px-8 md:px-10 py-4 rounded-sm cursor-pointer no-underline transition-all duration-200 hover:bg-sky/80 hover:-translate-y-0.5">Send
-                        Message</button>
+                    <div class="contact-recaptcha-actions">
+                        <?php if ($recaptchaEnabled): ?>
+                            <p class="contact-recaptcha-copy mt-0 mb-[.9rem] text-[.62rem] leading-[1.45] text-dark/45">
+                                This site is protected by reCAPTCHA and the Google
+                                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Privacy Policy</a>
+                                and
+                                <a href="https://policies.google.com/terms" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Terms of Service</a>
+                                apply.
+                            </p>
+                        <?php endif; ?>
+                        <button type="submit"
+                            class="contact-recaptcha-submit font-body text-[.68rem] font-medium tracking-[.14em] uppercase text-white bg-sky border border-sky px-7 md:px-9 py-3 rounded-sm cursor-pointer no-underline transition-all duration-200 hover:bg-sky/80 hover:-translate-y-0.5">Send
+                            Message</button>
+                    </div>
                 </form>
             </div>
         </div>

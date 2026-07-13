@@ -12,7 +12,9 @@
 
             <!-- COL 1: Brand -->
             <div class="ft-col ft-col-brand">
-                <?= responsiveStaticImg('assets/img/ASOG TBI/WebP/asog logo variations_full-colored_landscape-light', 'footer-logo', 'ASOG TBI', 'ft-logo') ?>
+                <div class="ft-logo-frame">
+                    <?= responsiveStaticImg('assets/img/ASOG TBI/WebP/asog logo variations_full-colored_landscape-light', 'footer-logo', 'ASOG TBI', 'ft-logo') ?>
+                </div>
                 <p class="ft-tagline">
                     Empowering startups &amp; MSMEs in Bicol through engineering, AI, and food value chain innovation.
                 </p>
