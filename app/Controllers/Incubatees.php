@@ -47,6 +47,10 @@ class Incubatees extends BaseController
             LandingSettingModel::KEY_APPLY_SHOW_DEADLINE,
             '1'
         )) !== '0';
+        $showApplyFaqs = trim((string) $settings->getValue(
+            LandingSettingModel::KEY_APPLY_SHOW_FAQS,
+            '1'
+        )) !== '0';
         $applicationDeadline = $showDeadline
             ? $this->normalizeApplicationDate($settings->getValue(LandingSettingModel::KEY_APPLY_END_DATE, ''))
             : '';
@@ -60,7 +64,8 @@ class Incubatees extends BaseController
             'heroSubtitle' => 'Join the Program',
             'heroTitle'    => 'Be an Incubatee',
             'heroDesc'     => 'Apply to the ASOG TBI incubation program and turn your innovation into a market-ready solution.',
-            'faqs'         => $faqModel->getPublished(),
+            'faqs'         => $showApplyFaqs ? $faqModel->getPublished() : [],
+            'showApplyFaqs' => $showApplyFaqs,
             'faqTitle'     => $settings->getValue(
                 LandingSettingModel::KEY_APPLY_FAQ_TITLE,
                 'A few things you might be wondering.'

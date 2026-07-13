@@ -41,6 +41,10 @@ class SettingsAdmin extends BaseController
             LandingSettingModel::KEY_APPLY_SHOW_DEADLINE,
             '1'
         )) !== '0';
+        $showApplyFaqs = trim((string) $settingModel->getValue(
+            LandingSettingModel::KEY_APPLY_SHOW_FAQS,
+            '1'
+        )) !== '0';
         $landingLoaderEnabled = trim((string) $settingModel->getValue(
             LandingSettingModel::KEY_LANDING_LOADER_ENABLED,
             '1'
@@ -82,6 +86,7 @@ class SettingsAdmin extends BaseController
             'selectedLandingFilter' => $selectedLandingFilter,
             'allowDuplicateEmails'  => $allowDuplicateEmails,
             'showApplicationDeadline' => $showApplicationDeadline,
+            'showApplyFaqs'         => $showApplyFaqs,
             'landingLoaderEnabled'  => $landingLoaderEnabled,
             'landingLoaderSkipWords' => $landingLoaderSkipWords,
             'applicationStartDate'  => $applicationStartDate,
@@ -184,6 +189,7 @@ class SettingsAdmin extends BaseController
     {
         $allowDuplicateEmails = $this->request->getPost('allowDuplicateEmails') === '1';
         $showDeadline = $this->request->getPost('showApplicationDeadline') === '1';
+        $showApplyFaqs = $this->request->getPost('showApplyFaqs') === '1';
         $startDate = $this->normalizeDateValue($this->request->getPost('applicationStartDate'));
         $endDate = $this->normalizeDateValue($this->request->getPost('applicationEndDate'));
 
@@ -205,6 +211,10 @@ class SettingsAdmin extends BaseController
         $saved = $settingModel->setValue(
             LandingSettingModel::KEY_APPLY_SHOW_DEADLINE,
             $showDeadline ? '1' : '0'
+        ) && $saved;
+        $saved = $settingModel->setValue(
+            LandingSettingModel::KEY_APPLY_SHOW_FAQS,
+            $showApplyFaqs ? '1' : '0'
         ) && $saved;
         $saved = $settingModel->setValue(LandingSettingModel::KEY_APPLY_START_DATE, $startDate) && $saved;
         $saved = $settingModel->setValue(LandingSettingModel::KEY_APPLY_END_DATE, $endDate) && $saved;

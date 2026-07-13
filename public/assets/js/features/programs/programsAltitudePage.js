@@ -12,6 +12,40 @@
 
   var isLoaded = false;
   var isImporting = false;
+
+  var loadScriptOnce = function (src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[src="' + src + '"]');
+      if (existing) {
+        if (window.gsap) {
+          resolve(window.gsap);
+          return;
+        }
+
+        existing.addEventListener('load', function () { resolve(window.gsap); }, { once: true });
+        existing.addEventListener('error', reject, { once: true });
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.onload = function () { resolve(window.gsap); };
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  };
+
+  var ensureGsap = async function () {
+    if (window.gsap) return window.gsap;
+
+    var gsapUrl = window.altitude3DGsapUrl || '/assets/loader/vendor/gsap.min.js';
+    var gsap = await loadScriptOnce(gsapUrl);
+    if (!gsap) throw new Error('GSAP failed to initialize.');
+
+    return gsap;
+  };
+
   var showProgramPage = async function () {
     if (isLoaded) {
       var card = document.getElementById('altitudeExploreCard');
@@ -27,6 +61,7 @@
     }
 
     try {
+      await ensureGsap();
       var module = await import(window.altitude3DScriptUrl || '/assets/js/altitude/main.js');
       isLoaded = true;
       if (enterBtn) {

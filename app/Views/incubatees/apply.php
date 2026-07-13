@@ -313,6 +313,88 @@
     </div>
 </section>
 
+<?php
+$applyFaqsVisible = ! empty($showApplyFaqs) && ! empty($faqs);
+$applicationTitle = $appIsOpen
+    ? 'Ready to get started?'
+    : (string) ($applicationWindow['title'] ?? 'Applications are not available');
+$applicationCopy = $appIsOpen
+    ? 'Fill out our application form and the ASOG-TBI team will reach out to schedule your screening and next steps.'
+    : (string) ($applicationWindow['message'] ?? 'Applications are not available right now.');
+if (! $appIsOpen && empty($showApplicationDates) && $appIsUpcoming) {
+    $applicationCopy = 'Applications for the ASOG TBI incubation program are not yet open. Please check back once the application period begins.';
+}
+?>
+
+<?php if (! $applyFaqsVisible): ?>
+<!-- ── 5 · What You'll Receive + CTA — split layout, no card grid ── -->
+<section class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
+    <div class="ai-grid"></div>
+    <div class="ai-grid-fade"></div>
+
+    <div class="max-w-[880px] mx-auto relative z-[2]">
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-14 lg:gap-20">
+            <div>
+                <div class="reveal mb-8">
+                    <span
+                        class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">05
+                        — Benefits</span>
+                    <h2 class="font-display text-[1.5rem] md:text-[1.8rem] lg:text-[2.05rem] text-dark leading-[1.15]">
+                        What you'll receive</h2>
+                </div>
+                <ul class="reveal list-none p-0 m-0 space-y-0">
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> Co-working space &amp; lab access
+                    </li>
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> Technical mentorship &amp; advisory
+                    </li>
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> Business model development support
+                    </li>
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> IP &amp; legal guidance
+                    </li>
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> Investor readiness &amp; pitch coaching
+                    </li>
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> Networking &amp; partnership opportunities
+                    </li>
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> Training workshops &amp; seminars
+                    </li>
+                    <li
+                        class="flex items-center gap-3 py-3 border-t border-b border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                        <span class="text-gold text-[.7rem]">✓</span> Demo day &amp; showcase events
+                    </li>
+                </ul>
+            </div>
+
+            <div class="reveal flex flex-col justify-center">
+                <h3 class="font-display text-[1.3rem] md:text-[1.5rem] lg:text-[1.7rem] text-dark leading-[1.2] mb-4">
+                    <?= esc($applicationTitle) ?></h3>
+                <p class="text-[.88rem] lg:text-[.98rem] font-normal leading-[1.65] text-black mb-6">
+                    <?= esc($applicationCopy) ?>
+                </p>
+                <?php if ($appIsOpen): ?>
+                <a href="<?= site_url('apply/form') ?>"
+                    class="inline-block self-start font-body text-[.62rem] lg:text-[.7rem] font-bold tracking-[.14em] uppercase text-dark bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors duration-200 hover:bg-gold-dk">
+                    Apply Now →
+                </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</section>
+<?php else: ?>
 <!-- ── 5 · What You'll Receive ── -->
 <section class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
     <div class="ai-grid"></div>
@@ -362,8 +444,9 @@
         </ul>
     </div>
 </section>
+<?php endif; ?>
 
-<?php if (! empty($faqs)): ?>
+<?php if ($applyFaqsVisible): ?>
 <?php
 $faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
 ?>
@@ -414,6 +497,7 @@ $faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
 </section>
 <?php endif; ?>
 
+<?php if ($applyFaqsVisible): ?>
 <!-- Final application CTA -->
 <section id="application-notice" class="relative overflow-hidden bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14" data-navhint="light">
     <div class="ai-grid"></div>
@@ -422,20 +506,8 @@ $faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
     <div class="reveal max-w-[760px] mx-auto relative z-[2] text-center flex flex-col items-center">
         <span
             class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">
-            07 — Apply
+            <?= $applyFaqsVisible ? '07' : '06' ?> — Apply
         </span>
-        <?php
-            // Reuses $appIsOpen / $appIsUpcoming / $appIsClosed set at the top of this view.
-            $applicationTitle = $appIsOpen
-                ? 'Ready to get started?'
-                : (string) ($applicationWindow['title'] ?? 'Applications are not available');
-            $applicationCopy = $appIsOpen
-                ? 'Fill out our application form and the ASOG TBI team will reach out to schedule your screening and next steps.'
-                : (string) ($applicationWindow['message'] ?? 'Applications are not available right now.');
-            if (! $appIsOpen && empty($showApplicationDates) && $appIsUpcoming) {
-                $applicationCopy = 'Applications for the ASOG TBI incubation program are not yet open. Please check back once the application period begins.';
-            }
-        ?>
         <h2 class="font-display text-[2rem] md:text-[2.65rem] lg:text-[3rem] text-dark leading-[1.08]">
             <?= esc($applicationTitle) ?>
         </h2>
@@ -472,11 +544,12 @@ $faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
         <?php if ($appIsOpen): ?>
         <a href="<?= site_url('apply/form') ?>"
             class="inline-block font-body text-[.62rem] lg:text-[.7rem] font-bold tracking-[.14em] uppercase text-dark bg-gold px-9 py-4 rounded-sm no-underline transition-colors duration-200 hover:bg-gold-dk">
-            Apply Now →
+            Apply Now <span aria-hidden="true">&rarr;</span>
         </a>
         <?php endif; ?>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Evaluation bar animation -->
 <script src="<?= base_url('assets/js/features/incubatees/incubateesApplyPage.js') ?>" defer></script>

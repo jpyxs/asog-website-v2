@@ -132,8 +132,8 @@ $formUrl = $isEdit
     <div class="preview-card">
         <div class="preview-header">
             <h3>Post Preview</h3>
-            <a href="<?= site_url('admin/posts/' . $post['id'] . '/preview') ?>" target="_blank" class="btn-o" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
-                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <a href="<?= site_url('admin/posts/' . $post['id'] . '/preview') ?>" target="_blank" class="btn-o" style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
                 Open in New Tab

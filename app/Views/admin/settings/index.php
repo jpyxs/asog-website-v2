@@ -11,6 +11,10 @@ $deadlineSetting = old('showApplicationDeadline');
 $showApplicationDeadline = $deadlineSetting !== null
     ? $deadlineSetting === '1'
     : ! empty($showApplicationDeadline);
+$showFaqsSetting = old('showApplyFaqs');
+$showApplyFaqs = $showFaqsSetting !== null
+    ? $showFaqsSetting === '1'
+    : ! empty($showApplyFaqs);
 $loaderSetting = old('landingLoaderEnabled');
 $landingLoaderEnabled = $loaderSetting !== null
     ? $loaderSetting === '1'
@@ -151,6 +155,28 @@ $hasLeanCanvasTemplate = $leanCanvasTemplateName !== '';
                         >
                         <span class="settings-slider" aria-hidden="true"></span>
                         <span class="settings-switch-label"><?= $showApplicationDeadline ? 'ON' : 'OFF' ?></span>
+                    </label>
+                </div>
+
+                <div class="settings-toggle-row">
+                    <div class="settings-toggle-copy">
+                        <strong>Show apply FAQs</strong>
+                        <span><?= $showApplyFaqs
+                            ? 'The FAQ section is visible on the public Apply page.'
+                            : 'The FAQ section is hidden from the public Apply page.' ?></span>
+                    </div>
+
+                    <label class="settings-switch" for="showApplyFaqs">
+                        <input type="hidden" name="showApplyFaqs" value="0">
+                        <input
+                            id="showApplyFaqs"
+                            type="checkbox"
+                            name="showApplyFaqs"
+                            value="1"
+                            <?= $showApplyFaqs ? 'checked' : '' ?>
+                        >
+                        <span class="settings-slider" aria-hidden="true"></span>
+                        <span class="settings-switch-label"><?= $showApplyFaqs ? 'ON' : 'OFF' ?></span>
                     </label>
                 </div>
 
