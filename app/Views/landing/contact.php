@@ -85,6 +85,15 @@
                             </div>
                         </div>
                     </div>
+                    <?php if ($recaptchaEnabled): ?>
+                        <p class="max-w-[360px] text-[.62rem] leading-[1.55] text-dark/45">
+                            This site is protected by reCAPTCHA and the Google
+                            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Privacy Policy</a>
+                            and
+                            <a href="https://policies.google.com/terms" target="_blank" rel="noopener" class="text-sky hover:text-sky/80 no-underline">Terms of Service</a>
+                            apply.
+                        </p>
+                    <?php endif; ?>
                     <button type="submit"
                         class="font-body text-[.72rem] font-medium tracking-[.14em] uppercase text-white bg-sky border border-sky px-8 md:px-10 py-4 rounded-sm cursor-pointer no-underline transition-all duration-200 hover:bg-sky/80 hover:-translate-y-0.5">Send
                         Message</button>
