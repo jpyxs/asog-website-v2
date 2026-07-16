@@ -20,6 +20,9 @@ class Sitemap extends BaseController
             ['loc' => $baseUrl . '/news', 'lastmod' => date('Y-m-d')],
             ['loc' => $baseUrl . '/organization', 'lastmod' => date('Y-m-d')],
             ['loc' => $baseUrl . '/contact', 'lastmod' => date('Y-m-d')],
+            ['loc' => $baseUrl . '/asog-tbi-website-app', 'lastmod' => date('Y-m-d')],
+            ['loc' => $baseUrl . '/privacy-policy', 'lastmod' => date('Y-m-d')],
+            ['loc' => $baseUrl . '/terms-of-service', 'lastmod' => date('Y-m-d')],
         ];
 
         $postModel = new PostModel();

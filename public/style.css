@@ -1677,6 +1677,9 @@
   .text-\[\.65rem\] {
     font-size: .65rem;
   }
+  .text-\[\.66rem\] {
+    font-size: .66rem;
+  }
   .text-\[\.68rem\] {
     font-size: .68rem;
   }
@@ -1719,6 +1722,9 @@
   .text-\[\.95rem\] {
     font-size: .95rem;
   }
+  .text-\[\.96rem\] {
+    font-size: .96rem;
+  }
   .text-\[\.97rem\] {
     font-size: .97rem;
   }
@@ -1742,6 +1748,9 @@
   }
   .text-\[1\.5rem\] {
     font-size: 1.5rem;
+  }
+  .text-\[1\.6rem\] {
+    font-size: 1.6rem;
   }
   .text-\[1\.8rem\] {
     font-size: 1.8rem;
@@ -1776,9 +1785,24 @@
   .text-\[clamp\(1\.8rem\,3\.5vw\,3rem\)\] {
     font-size: clamp(1.8rem, 3.5vw, 3rem);
   }
+  .text-\[clamp\(2\.4rem\,5vw\,4\.4rem\)\] {
+    font-size: clamp(2.4rem, 5vw, 4.4rem);
+  }
+  .leading-7 {
+    --tw-leading: calc(var(--spacing) * 7);
+    line-height: calc(var(--spacing) * 7);
+  }
+  .leading-8 {
+    --tw-leading: calc(var(--spacing) * 8);
+    line-height: calc(var(--spacing) * 8);
+  }
   .leading-\[1\.1\] {
     --tw-leading: 1.1;
     line-height: 1.1;
+  }
+  .leading-\[1\.02\] {
+    --tw-leading: 1.02;
+    line-height: 1.02;
   }
   .leading-\[1\.2\] {
     --tw-leading: 1.2;
@@ -2237,6 +2261,9 @@
   }
   .underline {
     text-decoration-line: underline;
+  }
+  .underline-offset-4 {
+    text-underline-offset: 4px;
   }
   .accent-gold {
     accent-color: var(--color-gold);
