@@ -18,6 +18,9 @@ $routes->get('/landing', 'Landing::index');
 $routes->match(['GET', 'HEAD'], '/sitemap.xml', 'Sitemap::index');
 $routes->get('/about', 'About::index');
 $routes->get('/about/logo', 'About::logo');
+$routes->get('/asog-tbi-website-app', 'Legal::appInfo');
+$routes->get('/privacy-policy', 'Legal::privacyPolicy');
+$routes->get('/terms-of-service', 'Legal::termsOfService');
 $routes->get('/deployment/run-migrations', 'Deployment::runMigrations');
 
 /*
