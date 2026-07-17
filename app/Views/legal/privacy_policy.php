@@ -27,10 +27,10 @@
             <section>
                 <h2 class="font-display text-[1.6rem] text-navy mb-3">Google User Data and Gmail API Use</h2>
                 <p>
-                    The ASOG TBI Website requests Google access only for website functionality. Google sign-in is used to let authorized administrators sign in or link their Google account to an ASOG TBI administrator account. The Gmail API is used by the website to send transactional email notifications, including admin account invitations, password reset messages, contact message alerts, application confirmations, and application status updates.
+                    The ASOG TBI Website requests Google access only for website functionality. Google sign-in is used to let authorized administrators sign in or link their Google account to an ASOG TBI administrator account. The Gmail API may be used by the website to send transactional email notifications, including admin account invitations, password reset messages, contact message alerts, application confirmations, and application status updates. If Gmail API delivery is unavailable, the website may use configured SMTP delivery for the same transactional messages.
                 </p>
                 <p>
-                    The ASOG TBI Website uses the Gmail sending permission only to send these website-related email notifications from the configured ASOG TBI sender account. The website does not read Gmail inbox contents, does not access Gmail contacts, does not sell Google user data, and does not use Google user data for advertising, profiling, retargeting, credit decisions, data brokerage, or training AI models.
+                    The ASOG TBI Website uses the Gmail sending permission only to send these website-related email notifications from the configured ASOG TBI sender account. SMTP fallback does not require Google user data. The website does not read Gmail inbox contents, does not access Gmail contacts, does not sell Google user data, and does not use Google user data for advertising, profiling, retargeting, credit decisions, data brokerage, or training AI models.
                 </p>
             </section>
 

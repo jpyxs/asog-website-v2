@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Libraries\GmailMailer;
+use App\Libraries\TransactionalMailer;
 use App\Libraries\RecaptchaVerifier;
 
 class Contact extends BaseController
@@ -104,20 +104,23 @@ class Contact extends BaseController
             'sentAt'  => date('F j, Y \a\t g:i A'),
         ]);
 
-        $gmail = new GmailMailer();
-        $config = config('GmailApi');
-        $recipient = $config->adminRecipient !== '' ? $config->adminRecipient : $config->senderEmail;
+        $mailer = new TransactionalMailer();
+        $gmailConfig = config('GmailApi');
+        $emailConfig = config('Email');
+        $recipient = $gmailConfig->adminRecipient !== ''
+            ? $gmailConfig->adminRecipient
+            : ($gmailConfig->senderEmail !== '' ? $gmailConfig->senderEmail : $emailConfig->fromEmail);
 
         if ($recipient === '') {
-            log_message('info', 'Contact notification skipped - Gmail API admin recipient is not configured.');
+            log_message('info', 'Contact notification skipped - admin recipient is not configured.');
             return;
         }
 
-        if (! $gmail->send($recipient, 'ASOG TBI - New Contact Message from ' . $data['name'], $body, [
+        if (! $mailer->send($recipient, 'ASOG TBI - New Contact Message from ' . $data['name'], $body, [
             'email' => (string) $data['email'],
             'name' => (string) $data['name'],
         ])) {
-            log_message('error', 'Contact notification email failed via Gmail API.');
+            log_message('error', 'Contact notification email failed.');
         } else {
             log_message('info', 'Contact notification sent for: ' . $data['email']);
         }

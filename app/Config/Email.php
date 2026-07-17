@@ -9,6 +9,7 @@ class Email extends BaseConfig
     public string $fromEmail  = 'noreply@asog-tbi.com';
     public string $fromName   = 'ASOG TBI';
     public string $recipients = '';
+    public bool $smtpEnabled = false;
 
     /**
      * The "user agent"
@@ -123,4 +124,38 @@ class Email extends BaseConfig
      * Enable notify message from server
      */
     public bool $DSN = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->smtpEnabled = filter_var(env('smtp.enabled', false), FILTER_VALIDATE_BOOL);
+        $smtpFromEmail = trim((string) env('smtp.fromEmail', ''));
+        $smtpFromName = trim((string) env('smtp.fromName', ''));
+
+        $this->fromEmail = $smtpFromEmail !== ''
+            ? $smtpFromEmail
+            : trim((string) env('gmailApi.senderEmail', $this->fromEmail));
+        $this->fromName = $smtpFromName !== ''
+            ? $smtpFromName
+            : trim((string) env('gmailApi.senderName', $this->fromName));
+        $this->SMTPHost = trim((string) env('smtp.host', $this->SMTPHost));
+        $this->SMTPUser = trim((string) env('smtp.user', $this->SMTPUser));
+        $this->SMTPPass = (string) env('smtp.pass', $this->SMTPPass);
+
+        $port = (int) env('smtp.port', $this->SMTPPort);
+        if ($port > 0) {
+            $this->SMTPPort = $port;
+        }
+
+        $crypto = strtolower(trim((string) env('smtp.crypto', $this->SMTPCrypto)));
+        if (in_array($crypto, ['', 'tls', 'ssl'], true)) {
+            $this->SMTPCrypto = $crypto;
+        }
+
+        $timeout = (int) env('smtp.timeout', $this->SMTPTimeout);
+        if ($timeout > 0) {
+            $this->SMTPTimeout = $timeout;
+        }
+    }
 }

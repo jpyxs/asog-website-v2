@@ -64,12 +64,19 @@ class SettingsAdmin extends BaseController
         $applicationWindowStatus = $this->applicationWindowStatus($applicationStartDate, $applicationEndDate);
         $leanCanvasTemplate = $this->resolveLeanCanvasTemplate($settingModel);
         $gmailConfig = config('GmailApi');
+        $emailConfig = config('Email');
         $recaptchaConfig = config('Recaptcha');
         $gmailReady = ! empty($gmailConfig->enabled)
             && trim((string) $gmailConfig->senderEmail) !== ''
             && trim((string) $gmailConfig->clientId) !== ''
             && trim((string) $gmailConfig->clientSecret) !== ''
             && trim((string) $gmailConfig->refreshToken) !== '';
+        $smtpReady = ! empty($emailConfig->smtpEnabled)
+            && trim((string) $emailConfig->fromEmail) !== ''
+            && trim((string) $emailConfig->SMTPHost) !== ''
+            && trim((string) $emailConfig->SMTPUser) !== ''
+            && trim((string) $emailConfig->SMTPPass) !== ''
+            && (int) $emailConfig->SMTPPort > 0;
         $recaptchaReady = ! empty($recaptchaConfig->enabled)
             && trim((string) $recaptchaConfig->siteKey) !== ''
             && trim((string) $recaptchaConfig->apiKey) !== '';
@@ -94,12 +101,18 @@ class SettingsAdmin extends BaseController
             'applicationWindowStatus' => $applicationWindowStatus,
             'leanCanvasTemplate'    => $leanCanvasTemplate,
             'gmailStatus' => [
-                'label'       => $gmailReady ? 'Ready' : 'Needs setup',
-                'state'       => $gmailReady ? 'ready' : 'off',
+                'label'       => $gmailReady ? ($smtpReady ? 'Ready + fallback' : 'Ready') : ($smtpReady ? 'SMTP fallback' : 'Needs setup'),
+                'state'       => ($gmailReady || $smtpReady) ? 'ready' : 'off',
                 'description' => $gmailReady
-                    ? 'Email sending is ready for website messages.'
-                    : 'Email sending needs setup before messages can be sent.',
-                'detail'      => $gmailReady ? trim((string) $gmailConfig->senderEmail) : '',
+                    ? ($smtpReady
+                        ? 'Gmail API is primary and SMTP fallback is ready.'
+                        : 'Gmail API is ready for website messages.')
+                    : ($smtpReady
+                        ? 'Gmail API is unavailable; SMTP fallback can send website messages.'
+                        : 'Email sending needs setup before messages can be sent.'),
+                'detail'      => $gmailReady
+                    ? trim((string) $gmailConfig->senderEmail)
+                    : ($smtpReady ? trim((string) $emailConfig->fromEmail) : ''),
             ],
             'recaptchaStatus' => [
                 'label'       => $recaptchaReady ? 'On' : 'Off',

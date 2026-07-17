@@ -17,7 +17,7 @@
             <section>
                 <h2 class="font-display text-[1.6rem] text-navy mb-3">Google Data Use</h2>
                 <p>
-                    Google sign-in is used only to help authorized ASOG TBI administrators access or link their administrator accounts. The Gmail API is used only to send transactional website emails, including account invitations, password resets, contact alerts, application confirmations, and application status updates.
+                    Google sign-in is used only to help authorized ASOG TBI administrators access or link their administrator accounts. The Gmail API may be used to send transactional website emails, including account invitations, password resets, contact alerts, application confirmations, and application status updates. Configured SMTP delivery may be used as a fallback for those same messages.
                 </p>
                 <p>
                     ASOG TBI Website does not read Gmail inbox contents, does not access Gmail contacts, does not sell Google user data, and does not use Google user data for advertising, profiling, retargeting, credit decisions, data brokerage, or AI model training.

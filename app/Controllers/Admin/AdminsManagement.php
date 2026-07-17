@@ -3,7 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Libraries\GmailMailer;
+use App\Libraries\TransactionalMailer;
 
 /**
  * AdminsManagement — CRUD for admin accounts and Google OAuth authorization.
@@ -449,15 +449,15 @@ class AdminsManagement extends BaseController
         $setupUrl = site_url('asog-admin/reset-password/' . $token);
 
         try {
-            $gmail = new GmailMailer();
-            $sent = $gmail->send($email, 'Set Your ASOG TBI Account Password', view('emails/admin_account_welcome', [
+            $mailer = new TransactionalMailer();
+            $sent = $mailer->send($email, 'Set Your ASOG TBI Account Password', view('emails/admin_account_welcome', [
                 'adminName' => $fullName,
                 'role' => $role,
                 'setupUrl' => $setupUrl,
             ]));
 
             if (! $sent) {
-                log_message('error', 'New account welcome email failed via Gmail API for ' . $email . '.');
+                log_message('error', 'New account welcome email failed for ' . $email . '.');
             }
 
             return $sent;

@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-use App\Libraries\GmailMailer;
 use App\Libraries\ImageUpload;
 use App\Libraries\RecaptchaVerifier;
+use App\Libraries\TransactionalMailer;
 use App\Models\FaqModel;
 use App\Models\IncubateeApplicationModel;
 use App\Models\LandingSettingModel;
@@ -555,10 +555,10 @@ class Incubatees extends BaseController
             'isUpdate'              => $isUpdate,
         ]);
 
-        $gmail = new GmailMailer();
+        $mailer = new TransactionalMailer();
 
-        if (! $gmail->send($data['applicantEmail'], $isUpdate ? 'ASOG TBI - Updated Application Received' : 'ASOG TBI - Application Received', $body)) {
-            log_message('error', 'Confirmation email failed via Gmail API.');
+        if (! $mailer->send($data['applicantEmail'], $isUpdate ? 'ASOG TBI - Updated Application Received' : 'ASOG TBI - Application Received', $body)) {
+            log_message('error', 'Confirmation email failed.');
         } else {
             log_message('info', 'Confirmation email sent to: ' . $data['applicantEmail']);
         }
