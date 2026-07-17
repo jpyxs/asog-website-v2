@@ -8,7 +8,7 @@ use Google\Service\Gmail;
 use Google\Service\Gmail\Message;
 use Throwable;
 
-class GmailMailer
+class GmailMailer implements MailSenderInterface
 {
     private const CACHE_KEY = 'gmail_api_access_token';
 

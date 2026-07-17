@@ -22,7 +22,7 @@ class Legal extends BaseController
     {
         $data = [
             'title'           => 'Privacy Policy | ASOG TBI Website',
-            'metaDescription' => 'Privacy policy for the ASOG TBI Website, including how Google user data is used for account sign-in and Gmail API email notifications.',
+            'metaDescription' => 'Privacy policy for the ASOG TBI Website, including how Google user data is used for account sign-in and transactional email notifications.',
             'canonical'       => site_url('privacy-policy'),
             'bodyClass'       => 'bg-off text-dark',
         ];

@@ -3,7 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Libraries\GmailMailer;
+use App\Libraries\TransactionalMailer;
 use App\Models\IncubateeApplicationModel;
 
 /**
@@ -315,10 +315,10 @@ class ApplicationsAdmin extends BaseController
                 'revalidationExpiresAt' => $app['revalidationTokenExpiresAt'] ?? null,
             ]);
 
-            $gmail = new GmailMailer();
+            $mailer = new TransactionalMailer();
 
-            if (! $gmail->send($app['applicantEmail'], $info['subject'], $body)) {
-                log_message('error', 'Status email failed via Gmail API for app #' . $app['id'] . '.');
+            if (! $mailer->send($app['applicantEmail'], $info['subject'], $body)) {
+                log_message('error', 'Status email failed for app #' . $app['id'] . '.');
             } else {
                 log_message('info', 'Status email sent to: ' . $app['applicantEmail'] . ' (status: ' . $newStatus . ')');
             }
