@@ -101,10 +101,18 @@ phpunit
 # Composer
 #-------------------------
 vendor/
+composer.phar
+composer-setup.php
 !public/assets/loader/vendor/
 !public/assets/loader/vendor/*.js
 !public/assets/vendor/
 !public/assets/vendor/**
+
+#-------------------------
+# Local/Deployment Scratch Files
+#-------------------------
+cookies.txt
+hostinger_*.txt
 
 #-------------------------
 # IDE / Development Files
