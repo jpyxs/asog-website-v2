@@ -9,7 +9,6 @@ import {
     supportsWebGL,
     wait,
 } from './utils.js';
-import { ASOGLoaderScene } from './scene.js';
 import { createLoaderTimeline } from './timeline.js';
 
 function dispatchLoaderEvent(name, detail = {}) {
@@ -191,7 +190,10 @@ async function init(options = {}) {
 
     try {
         const landingAssetsReady = preloadLandingAssets(config);
-        const [assets, gsap] = await Promise.all([
+        const wordTimelineReady = config.skipWordAnimation === true ? Promise.resolve(null) : import('./wordTimeline.js');
+        const [sceneModule, wordTimelineModule, assets, gsap] = await Promise.all([
+            import('./scene.js'),
+            wordTimelineReady,
             preloadLoaderAssets(config),
             window.gsap ? Promise.resolve(window.gsap) : loadScript(config.assets.gsap),
         ]);
@@ -200,15 +202,19 @@ async function init(options = {}) {
             throw new Error('GSAP is unavailable.');
         }
 
-        await waitForLoaderFonts();
+        if (wordTimelineModule) {
+            await waitForLoaderFonts();
+        }
 
         const mount = root.querySelector('[data-asog-loader-stage]');
+        const { ASOGLoaderScene } = sceneModule;
         state.scene = new ASOGLoaderScene({ root, mount, config, assets });
         state.timeline = createLoaderTimeline({
             scene: state.scene,
             gsap,
             config,
             root,
+            createWordMorphTimeline: wordTimelineModule?.createWordMorphTimeline,
             onComplete: async () => {
                 landingAssetsReady.catch(() => {});
                 options.onComplete?.();

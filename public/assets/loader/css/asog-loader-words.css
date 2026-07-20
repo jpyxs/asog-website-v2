@@ -1,0 +1,173 @@
+[data-asog-loader-root] {
+    --asog-loader-font-monas: "ASOG Loader Monas";
+}
+
+@font-face {
+    font-family: "ASOG Loader Monas";
+    src: url("../fonts/MonasGrotesk-Bold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 900;
+    font-display: block;
+}
+
+[data-asog-loader-word-morph] {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 4;
+    width: min(90vw, 980px);
+    height: clamp(170px, 20vw, 260px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--asog-loader-font-monas), Arial, sans-serif;
+    font-size: clamp(40px, 7vw, 98px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    filter: none;
+    will-change: opacity, transform;
+}
+
+[data-asog-loader-word-morph] > span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    filter: blur(18px);
+    overflow: visible;
+    will-change: opacity, filter;
+}
+
+.asog-loader-word-row {
+    display: inline-flex;
+}
+
+.asog-loader-word-row {
+    align-items: center;
+    justify-content: center;
+    gap: 0.02em;
+    line-height: 1;
+}
+
+.asog-loader-final-lockup,
+.asog-loader-final-asog {
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.asog-loader-final-lockup {
+    display: inline-flex;
+}
+
+.asog-loader-final-lockup {
+    gap: 0.4em;
+}
+
+.asog-loader-final-asog {
+    display: inline-flex;
+    gap: 0;
+}
+
+.asog-loader-final-letter {
+    display: inline-flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.asog-loader-flying-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block !important;
+    opacity: 1 !important;
+    filter: none !important;
+    pointer-events: none;
+}
+
+.asog-loader-flying-letter {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #F8AF21;
+    background-image: linear-gradient(135deg, #F57D1A 0%, #F8AF21 36%, #F8AF21 70%, #F3943A 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    will-change: transform, opacity, filter;
+}
+
+[data-asog-loader-word-a] {
+    flex-direction: column;
+    gap: clamp(5px, 1vw, 10px);
+}
+
+.asog-loader-word-initial,
+.asog-loader-final-letter,
+.asog-loader-word-rest,
+.asog-loader-word-tbi {
+    display: inline-block;
+    line-height: 1;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.asog-loader-word-initial,
+.asog-loader-final-letter {
+    color: #F8AF21;
+    background-image: linear-gradient(135deg, #F57D1A 0%, #F8AF21 36%, #F8AF21 70%, #F3943A 100%);
+}
+
+.asog-loader-word-rest {
+    color: #2A4282;
+    background-image: linear-gradient(135deg, #2A4282 0%, #42A3D8 42%, #42A3D8 72%, #2A4282 100%);
+}
+
+.asog-loader-word-tbi {
+    color: #2A4282;
+    background-image: linear-gradient(135deg, #42A3D8 0%, #42A3D8 54%, #2A4282 100%);
+    letter-spacing: 0.026em;
+}
+
+[data-asog-loader-root][data-loader-phase="words"]::before {
+    opacity: 0.18;
+}
+
+[data-asog-loader-root][data-loader-phase="words"]::after {
+    opacity: 0.2;
+}
+
+[data-asog-loader-root][data-loader-phase="build"] [data-asog-loader-word-morph],
+[data-asog-loader-root][data-loader-phase="final"] [data-asog-loader-word-morph] {
+    pointer-events: none;
+}
+
+@media (max-width: 640px) {
+    [data-asog-loader-word-morph] {
+        width: min(92vw, 480px);
+        height: clamp(190px, 54vw, 270px);
+        font-size: clamp(24px, 7.1vw, 40px);
+    }
+
+    [data-asog-loader-word-a] {
+        gap: clamp(8px, 2.2vw, 14px);
+    }
+
+    .asog-loader-word-row {
+        line-height: 1.08;
+    }
+
+    .asog-loader-final-lockup {
+        gap: 0.34em;
+    }
+}
