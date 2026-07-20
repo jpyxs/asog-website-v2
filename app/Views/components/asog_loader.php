@@ -9,6 +9,9 @@ $importMap = [
 ];
 ?>
 <link rel="stylesheet" href="<?= esc($loaderBase) ?>/css/asog-loader.css">
+<?php if (! $skipWordAnimation): ?>
+<link rel="stylesheet" href="<?= esc($loaderBase) ?>/css/asog-loader-words.css">
+<?php endif; ?>
 
 <div
     data-asog-loader-root

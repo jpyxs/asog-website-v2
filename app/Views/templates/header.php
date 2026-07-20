@@ -104,7 +104,7 @@
     <?php if (! empty($heroPreloadImage)): ?>
     <link rel="preload" as="image" href="<?= esc($heroPreloadImage) ?>" fetchpriority="high">
     <?php endif; ?>
-    <?php if (! empty($isLanding) && empty($hideSiteHeader) && (($showAsogLoader ?? null) !== false)): ?>
+    <?php if (! empty($isLanding) && empty($hideSiteHeader) && (($showAsogLoader ?? null) !== false) && empty($skipAsogLoaderWords)): ?>
     <link rel="preload" as="font" href="<?= base_url('assets/loader/fonts/MonasGrotesk-Bold.woff2') ?>" type="font/woff2" crossorigin>
     <?php endif; ?>
 </head>

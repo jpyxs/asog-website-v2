@@ -59,6 +59,7 @@
                 <form action="<?= site_url('contact/send') ?>" method="post" class="contact-form-stack" id="contactForm" novalidate
                     data-recaptcha-enabled="<?= $recaptchaEnabled ? '1' : '0' ?>"
                     data-recaptcha-site-key="<?= esc($recaptcha->siteKey) ?>"
+                    data-recaptcha-script-url="<?= $recaptchaEnabled ? esc('https://www.google.com/recaptcha/enterprise.js?render=' . rawurlencode($recaptcha->siteKey)) : '' ?>"
                     data-recaptcha-action="contact_send">
                     <?= csrf_field() ?>
                     <input type="hidden" name="recaptchaToken" data-recaptcha-token value="">
@@ -114,8 +115,5 @@
     </div>
 </section>
 
-<?php if ($recaptchaEnabled): ?>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= rawurlencode($recaptcha->siteKey) ?>"></script>
-<?php endif; ?>
 <script src="<?= base_url('assets/js/features/forms/contactForm.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/forms/contactForm.js') ?>"></script>
 <script src="<?= base_url('assets/js/features/layout/lazy-map.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/layout/lazy-map.js') ?>" defer></script>

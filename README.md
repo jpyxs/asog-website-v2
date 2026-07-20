@@ -360,28 +360,48 @@ Do not commit credentials, tokens, refresh tokens, API keys, database passwords,
 
 ## <img src="https://api.iconify.design/lucide:users.svg?color=%2303558C" width="22" height="22" align="absmiddle" alt=""> Contributors
 
-The 2026 DOST-SEI PTP Scholar-Trainees who enhanced this version are listed below. Future maintainers should review [CONTRIBUTING.md](CONTRIBUTING.md) before starting major changes or planning a successor version.
+For future interns/maintainers, kindly review [CONTRIBUTING.md](CONTRIBUTING.md) before starting major changes or planning a successor version.
 
-<div align="center">
-  <div style="display:inline-block;width:126px;text-align:center;vertical-align:top;margin:0 6px 16px;">
-    <a href="https://github.com/ferenimedez-stab"><img src="https://wsrv.nl/?url=github.com/ferenimedez-stab.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="ferenimedez-stab"><br><sub><b>ferenimedez-stab</b></sub></a>
-  </div>
-  <div style="display:inline-block;width:126px;text-align:center;vertical-align:top;margin:0 6px 16px;">
-    <a href="https://github.com/jazz-lnz"><img src="https://wsrv.nl/?url=github.com/jazz-lnz.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="jazz-lnz"><br><sub><b>jazz-lnz</b></sub></a>
-  </div>
-  <div style="display:inline-block;width:126px;text-align:center;vertical-align:top;margin:0 6px 16px;">
-    <a href="https://github.com/johncarlonas"><img src="https://wsrv.nl/?url=github.com/johncarlonas.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="johncarlonas"><br><sub><b>johncarlonas</b></sub></a>
-  </div>
-  <div style="display:inline-block;width:126px;text-align:center;vertical-align:top;margin:0 6px 16px;">
-    <a href="https://github.com/Arrvsssogood"><img src="https://wsrv.nl/?url=github.com/Arrvsssogood.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="Arrvsssogood"><br><sub><b>Arrvsssogood</b></sub></a>
-  </div>
-  <div style="display:inline-block;width:126px;text-align:center;vertical-align:top;margin:0 6px 16px;">
-    <a href="https://github.com/mprestado"><img src="https://wsrv.nl/?url=github.com/mprestado.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="mprestado"><br><sub><b>mprestado</b></sub></a>
-  </div>
-  <div style="display:inline-block;width:126px;text-align:center;vertical-align:top;margin:0 6px 16px;">
-    <a href="https://github.com/jpyxs"><img src="https://wsrv.nl/?url=github.com/jpyxs.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="jpyxs"><br><sub><b>jpyxs</b></sub></a>
-  </div>
-</div>
+<table align="center" border="0" cellpadding="10" cellspacing="0">
+  <tr>
+    <td align="center" valign="top">
+      <a href="https://github.com/ferenimedez-stab">
+        <img src="https://wsrv.nl/?url=github.com/ferenimedez-stab.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="ferenimedez-stab"><br>
+        <sub><b>ferenimedez-stab</b></sub>
+      </a>
+    </td>
+    <td align="center" valign="top">
+      <a href="https://github.com/jazz-lnz">
+        <img src="https://wsrv.nl/?url=github.com/jazz-lnz.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="jazz-lnz"><br>
+        <sub><b>jazz-lnz</b></sub>
+      </a>
+    </td>
+    <td align="center" valign="top">
+      <a href="https://github.com/johncarlonas">
+        <img src="https://wsrv.nl/?url=github.com/johncarlonas.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="johncarlonas"><br>
+        <sub><b>johncarlonas</b></sub>
+      </a>
+    </td>
+    <td align="center" valign="top">
+      <a href="https://github.com/Arrvsssogood">
+        <img src="https://wsrv.nl/?url=github.com/Arrvsssogood.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="Arrvsssogood"><br>
+        <sub><b>Arrvsssogood</b></sub>
+      </a>
+    </td>
+    <td align="center" valign="top">
+      <a href="https://github.com/mprestado">
+        <img src="https://wsrv.nl/?url=github.com/mprestado.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="mprestado"><br>
+        <sub><b>mprestado</b></sub>
+      </a>
+    </td>
+    <td align="center" valign="top">
+      <a href="https://github.com/jpyxs">
+        <img src="https://wsrv.nl/?url=github.com/jpyxs.png%3Fsize%3D160&w=72&h=72&fit=cover&mask=circle" width="72" height="72" alt="jpyxs"><br>
+        <sub><b>jpyxs</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## <img src="https://api.iconify.design/lucide:scroll-text.svg?color=%23B77900" width="22" height="22" align="absmiddle" alt=""> License
 
