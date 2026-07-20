@@ -14,9 +14,89 @@
   var allowNativeSubmit = false;
   var recaptchaEnabled = form.dataset.recaptchaEnabled === '1';
   var recaptchaSiteKey = form.dataset.recaptchaSiteKey || '';
+  var recaptchaScriptUrl = form.dataset.recaptchaScriptUrl || '';
   var recaptchaAction = form.dataset.recaptchaAction || 'contact_send';
   var recaptchaTokenField = form.querySelector('[data-recaptcha-token]');
   var submitButton = form.querySelector('button[type="submit"]');
+
+  function normalizeScriptUrl(src) {
+    try {
+      return new URL(src, window.location.href).href;
+    } catch (error) {
+      return src;
+    }
+  }
+
+  function findScriptBySrc(src) {
+    var normalized = normalizeScriptUrl(src);
+    var scripts = document.getElementsByTagName('script');
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src === normalized) {
+        return scripts[i];
+      }
+    }
+    return null;
+  }
+
+  function loadRecaptchaScript() {
+    if (!recaptchaEnabled) {
+      return Promise.resolve(null);
+    }
+
+    if (window.grecaptcha && window.grecaptcha.enterprise) {
+      return Promise.resolve(window.grecaptcha);
+    }
+
+    if (!recaptchaScriptUrl) {
+      return Promise.reject(new Error('recaptcha_unavailable'));
+    }
+
+    var normalizedSrc = normalizeScriptUrl(recaptchaScriptUrl);
+    if (window.ASOGRecaptchaLoader && window.ASOGRecaptchaLoader.src === normalizedSrc) {
+      return window.ASOGRecaptchaLoader.promise;
+    }
+
+    var promise = new Promise(function (resolve, reject) {
+      var existing = findScriptBySrc(recaptchaScriptUrl);
+      if (existing) {
+        existing.addEventListener('load', function () { resolve(window.grecaptcha || null); }, { once: true });
+        existing.addEventListener('error', function () {
+          existing.remove();
+          reject(new Error('recaptcha_unavailable'));
+        }, { once: true });
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = recaptchaScriptUrl;
+      script.async = true;
+      script.onload = function () { resolve(window.grecaptcha || null); };
+      script.onerror = function () {
+        script.remove();
+        reject(new Error('recaptcha_unavailable'));
+      };
+      document.head.appendChild(script);
+    });
+
+    window.ASOGRecaptchaLoader = {
+      src: normalizedSrc,
+      promise: promise.catch(function (error) {
+        if (window.ASOGRecaptchaLoader && window.ASOGRecaptchaLoader.src === normalizedSrc) {
+          window.ASOGRecaptchaLoader = null;
+        }
+        throw error;
+      }),
+    };
+
+    return window.ASOGRecaptchaLoader.promise;
+  }
+
+  function warmRecaptcha() {
+    if (!recaptchaEnabled) {
+      return;
+    }
+    loadRecaptchaScript().catch(function () {});
+  }
 
   function escHtml(str) {
     var div = document.createElement('div');
@@ -172,15 +252,21 @@
       return Promise.resolve('');
     }
 
-    if (!recaptchaSiteKey || !window.grecaptcha || !window.grecaptcha.enterprise) {
+    if (!recaptchaSiteKey) {
       return Promise.reject(new Error('recaptcha_unavailable'));
     }
 
-    return new Promise(function (resolve, reject) {
-      window.grecaptcha.enterprise.ready(function () {
-        window.grecaptcha.enterprise.execute(recaptchaSiteKey, { action: recaptchaAction })
-          .then(resolve)
-          .catch(reject);
+    return loadRecaptchaScript().then(function () {
+      if (!window.grecaptcha || !window.grecaptcha.enterprise) {
+        return Promise.reject(new Error('recaptcha_unavailable'));
+      }
+
+      return new Promise(function (resolve, reject) {
+        window.grecaptcha.enterprise.ready(function () {
+          window.grecaptcha.enterprise.execute(recaptchaSiteKey, { action: recaptchaAction })
+            .then(resolve)
+            .catch(reject);
+        });
       });
     });
   }
@@ -207,6 +293,11 @@
       validateField(field);
     });
   });
+
+  form.addEventListener('focusin', warmRecaptcha, { once: true });
+  form.addEventListener('pointerdown', warmRecaptcha, { once: true, passive: true });
+  form.addEventListener('keydown', warmRecaptcha, { once: true });
+  form.addEventListener('input', warmRecaptcha, { once: true });
 
   form.addEventListener('submit', function (event) {
     if (allowNativeSubmit) {

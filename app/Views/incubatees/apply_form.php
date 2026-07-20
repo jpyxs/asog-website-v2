@@ -50,6 +50,7 @@
             data-existing-team-cv-count="<?= esc((string) $existingTeamCvCount) ?>"
             data-recaptcha-enabled="<?= $recaptchaEnabled ? '1' : '0' ?>"
             data-recaptcha-site-key="<?= esc($recaptcha->siteKey) ?>"
+            data-recaptcha-script-url="<?= $recaptchaEnabled ? esc('https://www.google.com/recaptcha/enterprise.js?render=' . rawurlencode($recaptcha->siteKey)) : '' ?>"
             data-recaptcha-action="<?= esc($recaptchaAction) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="recaptchaToken" data-recaptcha-token value="">
@@ -544,9 +545,6 @@
     </div>
 </div>
 
-<?php if ($recaptchaEnabled): ?>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= rawurlencode($recaptcha->siteKey) ?>"></script>
-<?php endif; ?>
 <script src="<?= base_url('assets/js/features/forms/applyForm.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/forms/applyForm.js') ?>"></script>
 
 <!-- ═══ GUIDELINES MODAL (reusable) ═══ -->
