@@ -1,14 +1,9 @@
 {
-    "name": "codeigniter4/appstarter",
-    "description": "CodeIgniter4 starter app",
-    "license": "MIT",
+    "name": "asog-tbi/website-v2",
+    "description": "ASOG Technology Business Incubator website improvements, audit fixes, and enhancements.",
+    "license": "proprietary",
     "type": "project",
-    "homepage": "https://codeigniter.com",
-    "support": {
-        "forum": "https://forum.codeigniter.com/",
-        "source": "https://github.com/codeigniter4/CodeIgniter4",
-        "slack": "https://codeigniterchat.slack.com"
-    },
+    "homepage": "https://asogtbi.com",
     "require": {
         "php": "^8.2",
         "codeigniter4/framework": "^4.7",

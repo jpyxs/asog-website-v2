@@ -27,7 +27,7 @@
 
         <!-- Right body -->
 
-        <div class="reveal reveal-d2">
+        <div class="reveal reveal-d2" data-reveal-mobile-initial>
             <div class="text-sm md:text-base font-light leading-[1.72] md:leading-[2.0] mb-5 text-left"
                 style="color:#020d18;">
                 <p>The ASOG Technology Business Incubator (TBI) is an initiative of Camarines Sur Polytechnic

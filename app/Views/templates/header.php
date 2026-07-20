@@ -99,21 +99,11 @@
     <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('icon.png') ?>">
-    <!-- Preload critical WebP logo -->
-    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>"
-        type="image/webp">
     <?php if (! empty($heroPreloadImage)): ?>
     <link rel="preload" as="image" href="<?= esc($heroPreloadImage) ?>" fetchpriority="high">
     <?php endif; ?>
     <?php if (! empty($isLanding) && empty($hideSiteHeader) && (($showAsogLoader ?? null) !== false)): ?>
     <link rel="preload" as="font" href="<?= base_url('assets/loader/fonts/MonasGrotesk-Bold.woff2') ?>" type="font/woff2" crossorigin>
-    <link rel="preload" as="image" href="<?= base_url('assets/loader/img/full-logo.png') ?>">
-    <link rel="preload" as="image" href="<?= base_url('assets/loader/img/subtext.png') ?>">
-    <link rel="preload" as="image" href="<?= base_url('assets/loader/img/gear.png') ?>">
-    <link rel="preload" as="image" href="<?= base_url('assets/loader/img/arc.png') ?>">
-    <link rel="preload" as="image" href="<?= base_url('assets/loader/img/mountain.png') ?>">
-    <link rel="preload" as="image" href="<?= base_url('assets/loader/img/sparkle.png') ?>">
-    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI_full-colored_stacked.webp') ?>" type="image/webp">
     <?php endif; ?>
 </head>
 
