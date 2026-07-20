@@ -12,9 +12,7 @@ Use this checklist before the first production deployment and for later releases
 - [ ] Confirm Hostinger is configured to deploy from the GitHub `main` branch.
 - [ ] Confirm `.env` is not committed.
 - [ ] Confirm `composer.lock` is committed so production installs exact dependency versions.
-- [ ] Remove dev-only public files unless intentionally shipped:
-  - [ ] `public/test-3d-mountain.html`
-  - [ ] backup files such as `public/assets/js/features/layout/hero.js.backup`
+- [ ] Remove dev-only public files unless intentionally shipped, including backup files such as `public/assets/js/features/layout/hero.js.backup`.
 - [ ] Confirm the latest `public/style.css` is built if Tailwind changes were made.
 - [ ] Confirm uploads and generated files are not accidentally committed.
 

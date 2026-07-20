@@ -14,48 +14,54 @@ The ASOG Technology Business Incubator (ASOG TBI) Website v2 is the official web
 
 This version is a fork and modernization of [`DeGrozer/asog-website`](https://github.com/DeGrozer/asog-website), enhanced during the 2026 DOST-SEI Practical Training Program period from June 15, 2026 to July 24, 2026.
 
-Production site: `https://asogtbi.com`
+Production site: [https://asogtbi.com](https://asogtbi.com)
+
+## Improvement Basis
+
+The Website v2 enhancements were guided by the ASOG TBI Website v1 audit conducted in June 2026. The audit identified usability, accessibility, performance, content-management, security, deployment, and maintainability issues in the original website implementation, and those findings informed the improvements, fixes, and feature enhancements made in this repository.
+
+Audit reference: [ASOG TBI Website Audit Report (June 2026).pdf](<docs/ASOG TBI Website Audit Report (June 2026).pdf>)
 
 ## Contributors
 
-<table>
+<table align="center" border="0" cellpadding="14" cellspacing="0">
   <tr>
-    <td align="center" width="110">
+    <td align="center" width="128" style="border:0;">
       <a href="https://github.com/ferenimedez-stab">
         <img src="https://wsrv.nl/?url=github.com/ferenimedez-stab.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="ferenimedez-stab">
         <br>
         <sub><b>ferenimedez-stab</b></sub>
       </a>
     </td>
-    <td align="center" width="110">
+    <td align="center" width="128" style="border:0;">
       <a href="https://github.com/jazz-lnz">
         <img src="https://wsrv.nl/?url=github.com/jazz-lnz.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="jazz-lnz">
         <br>
         <sub><b>jazz-lnz</b></sub>
       </a>
     </td>
-    <td align="center" width="110">
+    <td align="center" width="128" style="border:0;">
       <a href="https://github.com/johncarlonas">
         <img src="https://wsrv.nl/?url=github.com/johncarlonas.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="johncarlonas">
         <br>
         <sub><b>johncarlonas</b></sub>
       </a>
     </td>
-    <td align="center" width="110">
+    <td align="center" width="128" style="border:0;">
       <a href="https://github.com/Arrvsssogood">
         <img src="https://wsrv.nl/?url=github.com/Arrvsssogood.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="Arrvsssogood">
         <br>
         <sub><b>Arrvsssogood</b></sub>
       </a>
     </td>
-    <td align="center" width="110">
+    <td align="center" width="128" style="border:0;">
       <a href="https://github.com/mprestado">
         <img src="https://wsrv.nl/?url=github.com/mprestado.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="mprestado">
         <br>
         <sub><b>mprestado</b></sub>
       </a>
     </td>
-    <td align="center" width="110">
+    <td align="center" width="128" style="border:0;">
       <a href="https://github.com/jpyxs">
         <img src="https://wsrv.nl/?url=github.com/jpyxs.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="jpyxs">
         <br>
@@ -65,16 +71,17 @@ Production site: `https://asogtbi.com`
   </tr>
 </table>
 
-## Application Areas
+## Functional Scope
 
 - Public website for ASOG TBI information, programs, services, facilities, incubatees, news, organization profiles, contact forms, and legal pages.
-- Incubatee application portal with application submission, email checks, thank-you flow, uploaded document handling, and private revalidation links.
-- Admin dashboard for managing posts, incubatees, applications, contact messages, organization members, FAQs, homepage settings, game visibility, and administrator accounts.
-- Transactional email pipeline using Gmail API as the primary sender, with optional SMTP fallback.
-- Google OAuth support for administrator login, administrator account linking, and the Guess the Startup game.
+- Incubatee application portal for application intake, duplicate-email checks, document uploads, confirmation email delivery, status review, and private revalidation links.
+- Admin dashboard for content management, application review, contact-message handling, site settings, account management, and role-based operational workflows.
+- Transactional email pipeline using Gmail API as the primary sender, with optional SMTP fallback for resilience.
+- Google OAuth support for administrator login, administrator account linking, and Guess the Startup player sign-in.
 - Score-based Google reCAPTCHA integration for public form protection.
-- Guess the Startup game with profile setup, daily play, leaderboard, and supporting API endpoints.
+- Guess the Startup game with profile setup, daily play sessions, scoring, anti-repeat checks, and leaderboard APIs.
 - Notification system for administrators, including role-targeted and account-targeted notification visibility.
+- Public-facing legal and OAuth reviewer pages for privacy, terms, and application identity verification.
 
 ## Tech Stack
 
@@ -160,6 +167,50 @@ Lightweight API routes are provided for frontend features:
 
 Application uploads stored outside the web root are served through controlled upload routes under `/uploads/applications/...` and `/uploads/templates/...`.
 
+## Feature Details By Section
+
+### Public Website
+
+- **Landing page** - presents the ASOG TBI brand, featured news hero slides, About preview, program highlights, selected incubatees, latest news, organization preview, calls to action, and optional landing-loader experience.
+- **About page** - explains ASOG TBI, CSPC context, partner support, organization background, and brand/logo references.
+- **Programs and services** - separates program storytelling from service offerings and includes the ALTITUDE 3D program experience for guided startup-development stages.
+- **Facilities** - presents ASOG TBI spaces and facility media, including static facility galleries and service-specific facility context.
+- **Incubatees** - lists published incubatees by cohort, supports cohort pages, SDG display, company information, contact links, logos, team members, and public profile data.
+- **News** - lists published posts, supports article detail pages by slug, preserves slug redirect history, supports categories, and feeds the landing-page featured/hero content.
+- **Organization** - displays leadership, staff, mentors, interns, and organization sections managed from the admin dashboard.
+- **Contact** - provides public contact details and a form that stores messages, triggers admin notifications, and can send email notifications.
+- **Legal and reviewer pages** - provide privacy policy, terms of service, and app information pages required for public trust and Google OAuth/Gmail API verification.
+
+### Incubatee Application Flow
+
+- Public users can open the application page, review instructions, and proceed to the application form.
+- The form supports applicant information, startup details, team details, SDG alignment, file uploads, and Lean Canvas/template-related requirements.
+- Email checks help prevent or manage duplicate application submissions according to current settings.
+- Successful submissions route applicants to a thank-you page and can send confirmation email.
+- Admin-reviewed applications can receive private revalidation links for controlled resubmission or update flows.
+- Application windows, duplicate-email behavior, FAQ visibility, and Lean Canvas template behavior are managed from admin settings.
+
+### Guess The Startup
+
+- Public game landing page introduces the game and links to play/profile/leaderboard flows.
+- Players can sign in with Google or complete a local profile flow depending on the current game path.
+- The play API manages game sessions, guesses, abandonment, completion, scoring, and leaderboard results.
+- The leaderboard exposes public rankings for the active play date.
+- Admin settings control game visibility and availability.
+
+### Admin Operations
+
+- Admin screens use a protected dashboard shell with sidebar status, notifications, dirty-form protection, delete confirmations, custom selects, and feature-specific scripts.
+- Posts management supports drafts, publishing, categories, image uploads, slug history, previews, featured content, and hero slide ordering.
+- Incubatee management supports company profiles, cohorts, logos, white logos, team members, contacts, SDGs, publishing, and drag/reorder workflows.
+- Applications management supports review queues, status updates, reviewer remarks, archiving, deletion, bulk actions, and email status updates.
+- Messages management supports contact-message review, read/unread state, archiving, deletion, and bulk actions.
+- Organization management supports sectioned member management, mentors, featured entries, modal editing, photo uploads, and ordering.
+- FAQ management supports Apply-page FAQ content, section copy, ordering, publishing, and deletion.
+- Settings management controls public application settings, homepage incubatee filtering, site experience toggles, intern visibility, game availability, password updates, and Lean Canvas template upload/deletion.
+- Account management supports administrator creation, editing, activation state, roles, welcome email delivery, and Google account authorization/linking.
+- Notifications are role-aware and can be marked read individually or in bulk.
+
 ## Admin Area
 
 Admin login starts at:
@@ -189,11 +240,18 @@ The admin area supports:
 - Role-targeted notifications and mark-read actions
 - Superadmin-only Gmail API refresh-token setup route
 
-The role levels used by the admin routes are:
+## User Roles And Permissions
 
-- `editor` - content-focused management access
-- `admin` - operational management access
-- `superadmin` - settings, account management, Gmail setup, and full administrative access
+The application separates public users, game players, applicants, and administrators.
+
+- **Public visitor** - can browse public pages, view incubatees/news/facilities/organization content, submit contact messages, access legal pages, and play public game flows when enabled.
+- **Applicant** - can submit incubatee applications, upload required files, receive confirmation email, and use private revalidation links when an admin requests updated information.
+- **Game player** - can complete Guess the Startup profile/sign-in flows, start a daily play session, submit guesses, abandon sessions, and appear on leaderboards when eligible.
+- **Editor** - can access the admin dashboard for content-focused work such as posts, public incubatee records, cohorts, and Apply-page FAQs.
+- **Admin** - includes editor capabilities and adds operational review tools for incubatee applications, contact messages, and organization member management.
+- **Superadmin** - includes admin capabilities and adds site settings, administrator account management, game/application controls, Lean Canvas template management, Gmail API setup, and other high-impact configuration areas.
+
+Role checks are enforced through protected admin route groups. Admin Google sign-in is not enough by itself; the account must also exist as an active administrator record with the appropriate role.
 
 ## Requirements
 
@@ -395,48 +453,29 @@ For production-facing changes, verify:
 - Uploaded public and protected files render or download through the correct route
 - No local `.test`, `localhost`, or `127.0.0.1` URLs are active in production configuration
 
-## Deployment Notes
+## Production Notes
 
-The production domain is:
+The public production site is [https://asogtbi.com](https://asogtbi.com).
 
-```text
-https://asogtbi.com
-```
+For future maintainers, keep production operations provider-neutral and avoid committing infrastructure-specific paths, credentials, IP addresses, access commands, or provider-specific operational details to the public repository.
 
-The Hostinger production layout uses a CodeIgniter structure where application code lives outside the public web directory and public assets live in `public_html`.
+Production expectations:
 
-Typical mapping:
+- The web server document root should point to the contents of `public/`, not to the repository root.
+- Runtime folders under `writable/` must be writable by the PHP process.
+- Public uploads under `public/uploads/` and protected uploads under `writable/uploads/` must be preserved during deployments.
+- Production `.env` values must be configured on the server or deployment environment, never committed.
+- CSS must be rebuilt before deployment when `src/tailwind.css`, Tailwind utility usage, or compiled frontend styling changes.
+- New migrations should be reviewed, backed up against, and run intentionally.
+- Public forms, application flow, contact email, admin login, file uploads, notifications, and the game should be smoke-tested after production changes.
 
-```text
-app/                  -> production app/
-vendor/               -> production vendor/
-writable/             -> production writable/
-public/*              -> production public_html/*
-composer.json         -> production composer.json
-composer.lock         -> production composer.lock
-spark                 -> production spark
-```
-
-Do not overwrite production `.env` with local values. Do not overwrite production uploads unless intentionally migrating uploaded files.
-
-Safe deployment flow:
-
-1. Back up production files and database.
-2. Build CSS locally if frontend styles changed.
-3. Upload only the changed application files and public assets, or deploy the reviewed release package.
-4. Run `php spark migrate` only when new migrations are part of the release.
-5. Clear framework cache and any server-level page cache.
-6. Smoke-test public pages, admin access, forms, uploads, and email workflows.
-
-Never run destructive migration commands on production unless a rollback plan and verified backup are already in place:
+Never run destructive migration commands on production unless a verified backup and rollback plan already exist:
 
 ```powershell
 php spark migrate:refresh
 php spark migrate:rollback
 php spark db:seed
 ```
-
-Use direct file-cache cleanup only when `php spark cache:clear` is not available in the target hosting layout.
 
 ## Security And Maintenance
 
@@ -463,5 +502,6 @@ Contact:
 ASOG Technology Business Incubator
 Camarines Sur Polytechnic Colleges
 San Miguel, Nabua, Camarines Sur 4434
-asogtbi@cspc.edu.ph
 ```
+
+Email: [asogtbi@cspc.edu.ph](mailto:asogtbi@cspc.edu.ph)
