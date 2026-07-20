@@ -35,12 +35,21 @@
             <div class="reveal lg:h-full">
                 <!-- Map container — maximised height -->
                 <div class="relative h-[360px] md:h-[420px] lg:h-full rounded-lg overflow-hidden mb-5 lg:mb-0">
-                    <iframe
-                        title="Find ASOG Technology Business Incubator on Google Maps"
-                        aria-label="Map showing the location of ASOG Technology Business Incubator in San Miguel, Nabua, Camarines Sur"
-                        src="https://maps.google.com/maps?q=ASOG+Technology+Business+Incubator,+San+Miguel,+Nabua,+Camarines+Sur&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                        class="absolute inset-0 w-full h-full" style="border:0;" allowfullscreen="" loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <div
+                        class="absolute inset-0 bg-[#dce8ef]"
+                        data-lazy-map
+                        data-map-title="Find ASOG Technology Business Incubator on Google Maps"
+                        data-map-label="Map showing the location of ASOG Technology Business Incubator in San Miguel, Nabua, Camarines Sur"
+                        data-map-src="https://maps.google.com/maps?q=ASOG+Technology+Business+Incubator,+San+Miguel,+Nabua,+Camarines+Sur&t=&z=15&ie=UTF8&iwloc=&output=embed">
+                        <noscript>
+                            <iframe
+                                title="Find ASOG Technology Business Incubator on Google Maps"
+                                aria-label="Map showing the location of ASOG Technology Business Incubator in San Miguel, Nabua, Camarines Sur"
+                                src="https://maps.google.com/maps?q=ASOG+Technology+Business+Incubator,+San+Miguel,+Nabua,+Camarines+Sur&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                                class="absolute inset-0 w-full h-full" style="border:0;" allowfullscreen="" loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </noscript>
+                    </div>
                 </div>
             </div>
 
@@ -109,3 +118,4 @@
     <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= rawurlencode($recaptcha->siteKey) ?>"></script>
 <?php endif; ?>
 <script src="<?= base_url('assets/js/features/forms/contactForm.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/forms/contactForm.js') ?>"></script>
+<script src="<?= base_url('assets/js/features/layout/lazy-map.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/layout/lazy-map.js') ?>" defer></script>

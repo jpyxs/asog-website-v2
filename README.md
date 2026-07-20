@@ -24,52 +24,23 @@ Audit reference: [ASOG TBI Website Audit Report (June 2026).pdf](<docs/ASOG TBI 
 
 ## Contributors
 
-<table align="center" border="0" cellpadding="14" cellspacing="0">
-  <tr>
-    <td align="center" width="128" style="border:0;">
-      <a href="https://github.com/ferenimedez-stab">
-        <img src="https://wsrv.nl/?url=github.com/ferenimedez-stab.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="ferenimedez-stab">
-        <br>
-        <sub><b>ferenimedez-stab</b></sub>
-      </a>
-    </td>
-    <td align="center" width="128" style="border:0;">
-      <a href="https://github.com/jazz-lnz">
-        <img src="https://wsrv.nl/?url=github.com/jazz-lnz.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="jazz-lnz">
-        <br>
-        <sub><b>jazz-lnz</b></sub>
-      </a>
-    </td>
-    <td align="center" width="128" style="border:0;">
-      <a href="https://github.com/johncarlonas">
-        <img src="https://wsrv.nl/?url=github.com/johncarlonas.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="johncarlonas">
-        <br>
-        <sub><b>johncarlonas</b></sub>
-      </a>
-    </td>
-    <td align="center" width="128" style="border:0;">
-      <a href="https://github.com/Arrvsssogood">
-        <img src="https://wsrv.nl/?url=github.com/Arrvsssogood.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="Arrvsssogood">
-        <br>
-        <sub><b>Arrvsssogood</b></sub>
-      </a>
-    </td>
-    <td align="center" width="128" style="border:0;">
-      <a href="https://github.com/mprestado">
-        <img src="https://wsrv.nl/?url=github.com/mprestado.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="mprestado">
-        <br>
-        <sub><b>mprestado</b></sub>
-      </a>
-    </td>
-    <td align="center" width="128" style="border:0;">
-      <a href="https://github.com/jpyxs">
-        <img src="https://wsrv.nl/?url=github.com/jpyxs.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="jpyxs">
-        <br>
-        <sub><b>jpyxs</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="https://github.com/ferenimedez-stab"><img src="https://wsrv.nl/?url=github.com/ferenimedez-stab.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="ferenimedez-stab"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/jazz-lnz"><img src="https://wsrv.nl/?url=github.com/jazz-lnz.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="jazz-lnz"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/johncarlonas"><img src="https://wsrv.nl/?url=github.com/johncarlonas.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="johncarlonas"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/Arrvsssogood"><img src="https://wsrv.nl/?url=github.com/Arrvsssogood.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="Arrvsssogood"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/mprestado"><img src="https://wsrv.nl/?url=github.com/mprestado.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="mprestado"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/jpyxs"><img src="https://wsrv.nl/?url=github.com/jpyxs.png%3Fsize%3D160&w=80&h=80&fit=cover&mask=circle" width="80" height="80" alt="jpyxs"></a>
+</p>
+
+<p align="center">
+  <sub><b><a href="https://github.com/ferenimedez-stab">ferenimedez-stab</a></b></sub>&nbsp;&nbsp;
+  <sub><b><a href="https://github.com/jazz-lnz">jazz-lnz</a></b></sub>&nbsp;&nbsp;
+  <sub><b><a href="https://github.com/johncarlonas">johncarlonas</a></b></sub>&nbsp;&nbsp;
+  <sub><b><a href="https://github.com/Arrvsssogood">Arrvsssogood</a></b></sub>&nbsp;&nbsp;
+  <sub><b><a href="https://github.com/mprestado">mprestado</a></b></sub>&nbsp;&nbsp;
+  <sub><b><a href="https://github.com/jpyxs">jpyxs</a></b></sub>
+</p>
 
 ## Functional Scope
 
@@ -123,7 +94,7 @@ asog-website-v2/
 |   |-- index.php            Web front controller
 |   |-- style.css            Compiled Tailwind output
 |   |-- robots.txt           Search crawler rules
-|   `-- favicon.ico          Site icon
+|   `-- assets/favicon/      Browser icons and web app manifest
 |-- src/
 |   `-- tailwind.css         Tailwind source stylesheet
 |-- tests/                   PHPUnit tests and support files

@@ -3,11 +3,21 @@
      ║  Full-width Google Maps embed with blue overlay + info card        ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 <div id="map" class="relative h-[400px] md:h-[500px] lg:h-[600px]">
-    <iframe
-        src="https://maps.google.com/maps?q=ASOG+Technology+Business+Incubator,+San+Miguel,+Nabua,+Camarines+Sur&t=&z=18&ie=UTF8&iwloc=&output=embed"
-        class="absolute inset-0 w-full h-full" style="border:0;" allowfullscreen="" loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-    </iframe>
+    <div
+        class="absolute inset-0 bg-[#dce8ef]"
+        data-lazy-map
+        data-map-title="Find ASOG Technology Business Incubator on Google Maps"
+        data-map-label="Map showing the location of ASOG Technology Business Incubator in San Miguel, Nabua, Camarines Sur"
+        data-map-src="https://maps.google.com/maps?q=ASOG+Technology+Business+Incubator,+San+Miguel,+Nabua,+Camarines+Sur&t=&z=18&ie=UTF8&iwloc=&output=embed">
+        <noscript>
+            <iframe
+                title="Find ASOG Technology Business Incubator on Google Maps"
+                aria-label="Map showing the location of ASOG Technology Business Incubator in San Miguel, Nabua, Camarines Sur"
+                src="https://maps.google.com/maps?q=ASOG+Technology+Business+Incubator,+San+Miguel,+Nabua,+Camarines+Sur&t=&z=18&ie=UTF8&iwloc=&output=embed"
+                class="absolute inset-0 w-full h-full" style="border:0;" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </noscript>
+    </div>
 
     <!-- Navy blue overlay -->
     <div class="absolute inset-0 bg-navy/40 pointer-events-none z-[1]"></div>
@@ -57,3 +67,4 @@
         </div>
     </div>
 </div>
+<script src="<?= base_url('assets/js/features/layout/lazy-map.js') ?>?v=<?= filemtime(FCPATH . 'assets/js/features/layout/lazy-map.js') ?>" defer></script>

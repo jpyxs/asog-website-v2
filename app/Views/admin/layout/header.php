@@ -6,8 +6,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title><?= esc($pageTitle ?? 'Admin') ?> — ASOG TBI</title>
-    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
+    <link rel="icon" href="<?= base_url('assets/favicon/favicon.ico') ?>" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/favicon/favicon-32x32.png') ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/favicon/favicon-16x16.png') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/favicon/apple-touch-icon.png') ?>">
+    <link rel="manifest" href="<?= base_url('assets/favicon/site.webmanifest') ?>">
     <link rel="preload" as="font" href="<?= base_url('assets/fonts/dm-sans-normal-400.ttf') ?>" type="font/ttf" crossorigin>
     <link rel="preload" as="font" href="<?= base_url('assets/fonts/dm-sans-normal-600.ttf') ?>" type="font/ttf" crossorigin>
     <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI_full-colored_stacked-white.webp') ?>">
