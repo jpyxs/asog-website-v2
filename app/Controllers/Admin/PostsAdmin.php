@@ -20,11 +20,37 @@ class PostsAdmin extends BaseController
      */
     public function index()
     {
+        $perPage    = 5;
+        $search     = trim((string) ($this->request->getGet('search') ?? ''));
+        $status     = trim((string) ($this->request->getGet('status') ?? 'all'));
+        $status     = in_array($status, ['all', 'published', 'draft', 'featured'], true) ? $status : 'all';
+        $category   = trim((string) ($this->request->getGet('category') ?? 'all'));
+        $category   = in_array($category, ['all', 'news', 'events', 'features'], true) ? $category : 'all';
+        $sort       = trim((string) ($this->request->getGet('sort') ?? 'default'));
+        $sort       = in_array($sort, ['default', 'date_desc', 'date_asc'], true) ? $sort : 'default';
+        $page       = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $result     = $this->postModel->getAdminPage($search, $status, $category, $perPage, $page, $sort);
+
+        $featuredStories = $this->postModel->where('isFeatured', 1);
+        if ($this->postModel->supportsSortOrder()) {
+            $featuredStories->orderBy('sortOrder', 'ASC');
+        }
+        $featuredStories = $featuredStories->orderBy('createdAt', 'DESC')->findAll();
+
         $data = [
-            'pageTitle'  => 'Posts',
-            'activePage' => 'posts',
+            'pageTitle'         => 'Posts',
+            'activePage'        => 'posts',
             'supportsSortOrder' => $this->postModel->supportsSortOrder(),
-            'posts'      => $this->postModel->getAdminList(),
+            'posts'             => $result['posts'],
+            'featuredStories'   => $featuredStories,
+            'currentPage'       => $result['currentPage'],
+            'totalPages'        => $result['totalPages'],
+            'total'             => $result['total'],
+            'perPage'           => $result['perPage'],
+            'search'            => $search,
+            'status'            => $status,
+            'category'          => $category,
+            'sort'              => $sort,
         ];
 
         return view('admin/layout/header', $data)
@@ -77,6 +103,7 @@ class PostsAdmin extends BaseController
     public function store()
     {
         $slugInput = trim((string) $this->request->getPost('slug'));
+        $action = $this->request->getPost('action');
 
         $data = [
             'title'            => $this->request->getPost('title'),
@@ -84,7 +111,7 @@ class PostsAdmin extends BaseController
             'shortDescription' => $this->request->getPost('shortDescription'),
             'content'          => $this->request->getPost('content'),
             'category'         => $this->request->getPost('category'),
-            'isPublished'      => $this->request->getPost('isPublished') ? 1 : 0,
+            'isPublished'      => $action === 'publish' ? 1 : 0,
             'isFeatured'       => $this->request->getPost('isFeatured') ? 1 : 0,
             'authorName'       => $this->request->getPost('authorName') ?: 'ASOG TBI',
         ];
@@ -147,12 +174,14 @@ class PostsAdmin extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $newId = (int) $this->postModel->getInsertID();
-        setToast('success', 'Post saved successfully.');
-        if ($newId > 0) {
-            return redirect()->to(site_url('admin/posts/' . $newId . '/edit'));
-        }
-        return redirect()->back();
+        setToast(
+            'success',
+            $action === 'publish'
+                ? 'Post published successfully.'
+                : 'Draft saved successfully.'
+        );
+
+        return redirect()->to(site_url('admin/posts'));
     }
 
     public function edit(int $id)
@@ -182,11 +211,18 @@ class PostsAdmin extends BaseController
         $post = $this->postModel->find($id);
 
         if (! $post) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(404)->setJSON([
+                    'error' => 'Post not found.',
+                    'csrf' => csrf_hash()
+                ]);
+            }
             setToast('error', 'Post not found.');
             return redirect()->to(site_url('admin/posts'));
         }
 
         $slugInput = trim((string) $this->request->getPost('slug'));
+        $action = $this->request->getPost('action');
 
         $data = [
             'title'            => $this->request->getPost('title'),
@@ -194,7 +230,7 @@ class PostsAdmin extends BaseController
             'shortDescription' => $this->request->getPost('shortDescription'),
             'content'          => $this->request->getPost('content'),
             'category'         => $this->request->getPost('category'),
-            'isPublished'      => $this->request->getPost('isPublished') ? 1 : 0,
+            'isPublished'      => $action === 'publish' ? 1 : 0,
             'isFeatured'       => $this->request->getPost('isFeatured') ? 1 : 0,
             'authorName'       => $this->request->getPost('authorName') ?: 'ASOG TBI',
         ];
@@ -230,11 +266,23 @@ class PostsAdmin extends BaseController
                 // A file was submitted — check if PHP accepted it
                 if (! $file->isValid()) {
                     $phpError = $file->getErrorString();
+                    if ($this->request->isAJAX()) {
+                        return $this->response->setStatusCode(422)->setJSON([
+                            'error' => 'Image upload failed: ' . $phpError,
+                            'csrf' => csrf_hash()
+                        ]);
+                    }
                     setToast('error', 'Image upload failed: ' . $phpError);
                     return redirect()->back()->withInput();
                 }
 
                 if ($file->hasMoved()) {
+                    if ($this->request->isAJAX()) {
+                        return $this->response->setStatusCode(422)->setJSON([
+                            'error' => 'Image upload error: file was already processed.',
+                            'csrf' => csrf_hash()
+                        ]);
+                    }
                     setToast('error', 'Image upload error: file was already processed.');
                     return redirect()->back()->withInput();
                 }
@@ -250,22 +298,53 @@ class PostsAdmin extends BaseController
                     $data['imagePath'] = $path;
 
                 } else {
+                    if ($this->request->isAJAX()) {
+                        return $this->response->setStatusCode(422)->setJSON([
+                            'error' => 'Image upload failed: ' . $uploader->getError(),
+                            'csrf' => csrf_hash()
+                        ]);
+                    }
                     setToast('error', 'Image upload failed: ' . $uploader->getError());
                     return redirect()->back()->withInput();
                 }
             }
         } catch (\Throwable $e) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(422)->setJSON([
+                    'error' => 'Image upload error: ' . $e->getMessage(),
+                    'csrf' => csrf_hash()
+                ]);
+            }
             setToast('error', 'Image upload error: ' . $e->getMessage());
             return redirect()->back()->withInput();
         }
 
         if (! $this->postModel->updateWithSlugHistory($id, $data, (string) ($post['slug'] ?? ''))) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(422)->setJSON([
+                    'error' => 'Validation failed: ' . implode(', ', $this->postModel->errors()),
+                    'csrf' => csrf_hash()
+                ]);
+            }
             setToast('error', 'Validation failed: ' . implode(', ', $this->postModel->errors()));
             return redirect()->back()->withInput();
         }
 
-        setToast('success', 'Post saved successfully.');
-        return redirect()->to(site_url('admin/posts/' . $id . '/edit'));
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => true,
+                'csrf' => csrf_hash()
+            ]);
+        }
+
+        setToast(
+            'success',
+            $action === 'publish'
+                ? 'Post updated successfully.'
+                : 'Draft updated successfully.'
+        );
+
+        return redirect()->to(site_url('admin/posts'));
     }
 
     /**
@@ -347,6 +426,60 @@ class PostsAdmin extends BaseController
 
         setToast('success', 'Featured stories order updated.');
         return redirect()->to(site_url('admin/posts'));
+    }
+
+    /**
+     * Render the post using the public detail layout
+     * Used for previewing drafts/published posts inside the iframe
+     */
+    public function previewById(int $id)
+    {
+        $post = $this->postModel->find($id);
+
+        if (! $post) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Post not found");
+        }
+
+        $previewPost = $post;
+        if ($this->request->is('post')) {
+            $previewPost = array_merge($post, [
+                'title'            => trim((string) $this->request->getPost('title')) !== '' ? $this->request->getPost('title') : $post['title'],
+                'slug'             => trim((string) $this->request->getPost('slug')) !== '' ? $this->request->getPost('slug') : ($post['slug'] ?? ''),
+                'shortDescription' => $this->request->getPost('shortDescription') ?? $post['shortDescription'],
+                'content'          => $this->request->getPost('content') ?? $post['content'],
+                'category'         => $this->request->getPost('category') ?? $post['category'],
+                'authorName'       => trim((string) $this->request->getPost('authorName')) !== '' ? $this->request->getPost('authorName') : ($post['authorName'] ?? 'ASOG TBI'),
+                'imagePath'        => $post['imagePath'] ?? null,
+            ]);
+        }
+
+        $plainContent = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode($previewPost['content'], ENT_QUOTES, 'UTF-8'))));
+        $metaDescription = $plainContent !== ''
+            ? (mb_strlen($plainContent) > 160 ? mb_substr($plainContent, 0, 160) . '…' : $plainContent)
+            : 'Preview mode.';
+
+        $data = [
+            'title'       => $previewPost['title'] . ' - ASOG TBI (Preview)',
+            'post'        => $previewPost,
+            'latestPosts' => [],
+            'metaDescription' => $metaDescription,
+            'metaImage'       => '',
+            'metaImageAlt'    => '',
+            'metaType'        => 'article',
+            'canonical'       => '',
+            
+            // Flags for view logic
+            'isPreview'       => true,
+            'isDraft'         => !(bool) $previewPost['isPublished']
+        ];
+
+        $html = view('templates/header', $data)
+            . view('news/detail', $data)
+            . view('templates/footer');
+
+        return $this->response
+            ->setHeader('X-CSRF-TOKEN', csrf_hash())
+            ->setBody($html);
     }
 
 }

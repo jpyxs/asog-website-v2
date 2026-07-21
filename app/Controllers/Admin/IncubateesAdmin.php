@@ -4,7 +4,6 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Libraries\ImageUpload;
-use App\Models\LandingSettingModel;
 
 /**
  * IncubateesAdmin — Full CRUD for the incubatees showcase.
@@ -13,6 +12,8 @@ use App\Models\LandingSettingModel;
  */
 class IncubateesAdmin extends BaseController
 {
+    private const INCUBATEE_LOGO_MAX_BYTES = 1048576; // 1 MB
+    private const INCUBATEE_TEAM_PHOTO_MAX_BYTES = 10485760; // 10 MB
 
     /**
      * Build a map of published incubatee counts keyed by cohort name.
@@ -41,6 +42,36 @@ class IncubateesAdmin extends BaseController
         return $counts;
     }
 
+    private function formatUploadSize(int $bytes): string
+    {
+        if ($bytes >= 1048576) {
+            $mb = $bytes / 1048576;
+            return rtrim(rtrim(number_format($mb, 1, '.', ''), '0'), '.') . ' MB';
+        }
+
+        if ($bytes >= 1024) {
+            $kb = $bytes / 1024;
+            return rtrim(rtrim(number_format($kb, 1, '.', ''), '0'), '.') . ' KB';
+        }
+
+        return $bytes . ' bytes';
+    }
+
+    private function assertSquareImage(\CodeIgniter\HTTP\Files\UploadedFile $file, string $label): void
+    {
+        $dimensions = @getimagesize($file->getTempName());
+        if ($dimensions === false || ! isset($dimensions[0], $dimensions[1])) {
+            throw new \RuntimeException($label . ' must be a valid image.');
+        }
+
+        $width = (int) $dimensions[0];
+        $height = (int) $dimensions[1];
+
+        if ($width !== $height) {
+            throw new \RuntimeException($label . ' must be square (1:1).');
+        }
+    }
+
 
     /**
      * List all incubatees in the admin panel.
@@ -49,18 +80,8 @@ class IncubateesAdmin extends BaseController
      */
     public function index()
     {
-        $landingSettingModel = new LandingSettingModel();
         $cohorts = $this->cohortModel->getAllSorted();
         $cohortStartupCounts = $this->getPublishedCountsByCohort();
-        $selectedLandingFilter = trim((string) $landingSettingModel->getValue(
-            LandingSettingModel::KEY_INCUBATEES_FILTER,
-            'all'
-        ));
-        $activeCohortNames = $this->cohortModel->getActiveNames();
-
-        if ($selectedLandingFilter === '' || ($selectedLandingFilter !== 'all' && ! in_array($selectedLandingFilter, $activeCohortNames, true))) {
-            $selectedLandingFilter = 'all';
-        }
 
         $data = [
             'pageTitle'   => 'Incubatees',
@@ -68,39 +89,11 @@ class IncubateesAdmin extends BaseController
             'incubatees'  => $this->incubateeModel->orderBy('sortOrder', 'ASC')->orderBy('createdAt', 'DESC')->findAll(),
             'cohorts'     => $cohorts,
             'cohortStartupCounts' => $cohortStartupCounts,
-            'landingFilterOptions' => $activeCohortNames,
-            'selectedLandingFilter' => $selectedLandingFilter,
         ];
 
         return view('admin/layout/header', $data)
              . view('admin/incubatees/index', $data)
              . view('admin/layout/footer');
-    }
-
-    public function updateLandingFilter()
-    {
-        $selected = trim((string) ($this->request->getPost('landingCohortFilter') ?? 'all'));
-
-        $allowed = ['all'];
-        foreach ($this->cohortModel->getActiveNames() as $cohortName) {
-            $allowed[] = (string) $cohortName;
-        }
-
-        if (! in_array($selected, $allowed, true)) {
-            setToast('error', 'Invalid cohort selection.');
-            return redirect()->to(site_url('admin/incubatees'));
-        }
-
-        $landingSettingModel = new LandingSettingModel();
-        if (! $landingSettingModel->setValue(LandingSettingModel::KEY_INCUBATEES_FILTER, $selected)) {
-            setToast('error', 'Unable to save landing cohort setting.');
-            return redirect()->to(site_url('admin/incubatees'));
-        }
-
-        $label = $selected === 'all' ? 'All Cohorts' : $selected;
-        setToast('success', 'Landing incubatees set to ' . $label . '.');
-
-        return redirect()->to(site_url('admin/incubatees'));
     }
 
     /**
@@ -109,6 +102,7 @@ class IncubateesAdmin extends BaseController
     public function saveOrder()
     {
         $orderedIds = $this->request->getPost('order');
+        $cohort = trim((string) ($this->request->getPost('cohort') ?? 'all'));
 
         if (! is_array($orderedIds) || $orderedIds === []) {
             return $this->response->setJSON([
@@ -117,17 +111,53 @@ class IncubateesAdmin extends BaseController
             ]);
         }
 
+        $normalizedIds = [];
+        foreach (array_values($orderedIds) as $id) {
+            $incubateeId = (int) $id;
+            if ($incubateeId > 0) {
+                $normalizedIds[] = $incubateeId;
+            }
+        }
+
+        if ($normalizedIds === []) {
+            return $this->response->setJSON([
+                'ok' => false,
+                'error' => 'No valid incubatee order received.',
+            ]);
+        }
+
         $this->db->transStart();
 
-        foreach (array_values($orderedIds) as $index => $id) {
-            $incubateeId = (int) $id;
-            if ($incubateeId <= 0) {
-                continue;
-            }
+        if ($cohort !== '' && strtolower($cohort) !== 'all') {
+            $currentRows = $this->db->table('incubatees')
+                ->select('id, sortOrder')
+                ->where('cohort', $cohort)
+                ->orderBy('sortOrder', 'ASC')
+                ->orderBy('createdAt', 'DESC')
+                ->get()
+                ->getResultArray();
 
-            $this->db->table('incubatees')
-                ->where('id', $incubateeId)
-                ->update(['sortOrder' => $index + 1]);
+            $allowedIds = array_fill_keys(array_map(static fn ($row) => (int) $row['id'], $currentRows), true);
+            $sortSlots = array_map(static fn ($row) => (int) $row['sortOrder'], $currentRows);
+            $position = 0;
+
+            foreach ($normalizedIds as $incubateeId) {
+                if (! isset($allowedIds[$incubateeId], $sortSlots[$position])) {
+                    continue;
+                }
+
+                $this->db->table('incubatees')
+                    ->where('id', $incubateeId)
+                    ->update(['sortOrder' => $sortSlots[$position]]);
+
+                $position++;
+            }
+        } else {
+            foreach ($normalizedIds as $index => $incubateeId) {
+                $this->db->table('incubatees')
+                    ->where('id', $incubateeId)
+                    ->update(['sortOrder' => $index + 1]);
+            }
         }
 
         $this->db->transComplete();
@@ -138,6 +168,8 @@ class IncubateesAdmin extends BaseController
                 'error' => 'Unable to save the new order.',
             ]);
         }
+
+        $this->incubateeModel->clearPublicCache();
 
         return $this->response->setJSON([
             'ok' => true,
@@ -153,6 +185,10 @@ class IncubateesAdmin extends BaseController
             'existingCohorts' => $this->cohortModel->getActiveNames(),
             'allCohorts'      => $cohorts,
             'cohortStartupCounts' => $this->getPublishedCountsByCohort(),
+            'logoUploadMaxBytes' => self::INCUBATEE_LOGO_MAX_BYTES,
+            'logoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_LOGO_MAX_BYTES),
+            'teamPhotoUploadMaxBytes' => self::INCUBATEE_TEAM_PHOTO_MAX_BYTES,
+            'teamPhotoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_TEAM_PHOTO_MAX_BYTES),
         ];
 
         return view('admin/layout/header', $data)
@@ -224,7 +260,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $path = $uploader->upload($file, 'incubatees');
+                $path = $uploader->upload($file, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($path !== null) {
                     $data['logoPath'] = $path;
                 } else {
@@ -254,7 +290,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $whitePath = $uploader->upload($whiteFile, 'incubatees');
+                $whitePath = $uploader->upload($whiteFile, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($whitePath !== null) {
                     $data['logoWhitePath'] = $whitePath;
                 } else {
@@ -302,6 +338,10 @@ class IncubateesAdmin extends BaseController
             'existingCohorts' => $this->cohortModel->getActiveNames(),
             'allCohorts'      => $cohorts,
             'cohortStartupCounts' => $this->getPublishedCountsByCohort(),
+            'logoUploadMaxBytes' => self::INCUBATEE_LOGO_MAX_BYTES,
+            'logoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_LOGO_MAX_BYTES),
+            'teamPhotoUploadMaxBytes' => self::INCUBATEE_TEAM_PHOTO_MAX_BYTES,
+            'teamPhotoUploadMaxLabel' => $this->formatUploadSize(self::INCUBATEE_TEAM_PHOTO_MAX_BYTES),
         ];
 
         return view('admin/layout/header', $data)
@@ -381,7 +421,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $path = $uploader->upload($file, 'incubatees');
+                $path = $uploader->upload($file, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($path !== null) {
                     // Delete old logo
                     if (! empty($incubatee['logoPath'])) {
@@ -415,7 +455,7 @@ class IncubateesAdmin extends BaseController
                 }
 
                 $uploader = new ImageUpload();
-                $whitePath = $uploader->upload($whiteFile, 'incubatees');
+                $whitePath = $uploader->upload($whiteFile, 'incubatees', self::INCUBATEE_LOGO_MAX_BYTES);
                 if ($whitePath !== null) {
                     // Delete old white logo
                     if (! empty($incubatee['logoWhitePath'])) {
@@ -457,6 +497,8 @@ class IncubateesAdmin extends BaseController
             setToast('error', 'Update failed. Please try again.');
             return redirect()->back()->withInput();
         }
+
+        $this->incubateeModel->clearPublicCache();
 
         setToast('success', 'Incubatee saved successfully.');
         return redirect()->to(site_url('admin/incubatees/' . $id . '/edit'));
@@ -538,7 +580,9 @@ class IncubateesAdmin extends BaseController
                     throw new \RuntimeException('Team member photo upload error: file was already processed.');
                 }
 
-                $uploaded = $uploader->upload($photoFile, 'incubatees/team');
+                $this->assertSquareImage($photoFile, 'Founder photo');
+
+                $uploaded = $uploader->upload($photoFile, 'incubatees/team', self::INCUBATEE_TEAM_PHOTO_MAX_BYTES);
                 if ($uploaded === null) {
                     throw new \RuntimeException('Team member photo upload failed: ' . $uploader->getError());
                 }

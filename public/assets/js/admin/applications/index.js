@@ -1,127 +1,415 @@
-/**
- * adminApplications.js
- * --------------------
- * Review modal, themed confirm dialog, CV preview cards,
- * status change workflow for the admin Applications page.
- */
 (function () {
     'use strict';
 
-    /* ── DOM refs ──────────────────────────── */
-    var modalBg    = document.getElementById('reviewModal');
-    var modalBody  = document.getElementById('modalBody');
-    var modalFoot  = document.getElementById('modalFoot');
+    function init(root) {
+    root = root || document;
+    var shellOn = window.AdminShell && typeof window.AdminShell.on === 'function'
+        ? function (target, eventName, selectorOrHandler, handler, options) {
+            return window.AdminShell.on(root, target, eventName, selectorOrHandler, handler, options);
+        }
+        : function (target, eventName, selectorOrHandler, handler, options) {
+            var listener = typeof selectorOrHandler === 'function'
+                ? selectorOrHandler
+                : function (event) {
+                    var matched = event.target && event.target.closest ? event.target.closest(selectorOrHandler) : null;
+                    if (!matched || (target !== document && target !== window && !target.contains(matched))) return;
+                    handler.call(matched, event, matched);
+                };
+            target.addEventListener(eventName, listener, options || false);
+            return function () { target.removeEventListener(eventName, listener, options || false); };
+        };
+
+    /* ── DOM refs ──────────────────────────────────────────── */
+    var modalBg = document.getElementById('reviewModal');
+    var modalBody = document.getElementById('modalBody');
     var modalTitle = document.getElementById('modalTitle');
-    var btnClose   = document.getElementById('modalClose');
-    var btnAccept  = document.getElementById('btnAccept');
-    var btnReject  = document.getElementById('btnReject');
-    var btnChange  = document.getElementById('btnChange');
-    var statusSelect = document.getElementById('statusSelect');
-    var btnSaveStatus = document.getElementById('btnSaveStatus');
+    var btnClose = document.getElementById('modalClose');
+    var btnAccept = document.getElementById('btnAccept');
+    var btnReject = document.getElementById('btnReject');
+    var btnChange = document.getElementById('btnChange');
+    var statusChangeWrap  = document.getElementById('statusChangeWrap');
+    var statusPickerBtn   = document.getElementById('statusPickerBtn');
+    var statusPickerLabel = document.getElementById('statusPickerLabel');
+    var statusPickerMenu  = document.getElementById('statusPickerMenu');
+    var btnSaveStatus     = document.getElementById('btnSaveStatus');
+    var btnArchModal = document.getElementById('btnArchModal');
+    var btnRestoreModal = document.getElementById('btnRestoreModal');
+    var btnRequestRevalidation = document.getElementById('btnRequestRevalidation');
 
-    /* Confirm dialog refs */
-    var confirmBg     = document.getElementById('confirmDialog');
-    var confirmIcon   = document.getElementById('confirmIcon');
-    var confirmSvg    = document.getElementById('confirmSvg');
-    var confirmTitle  = document.getElementById('confirmTitle');
-    var confirmMsg    = document.getElementById('confirmMsg');
-    var confirmOk     = document.getElementById('confirmOk');
-    var confirmCancel = document.getElementById('confirmCancel');
+    var actionConfirm = document.getElementById('appActionConfirm');
+    var actionConfirmBackdrop = document.getElementById('appActionConfirmBackdrop');
+    var actionConfirmIcon = document.getElementById('appActionConfirmIcon');
+    var actionConfirmSvg = document.getElementById('appActionConfirmSvg');
+    var actionConfirmTitle = document.getElementById('appActionConfirmTitle');
+    var actionConfirmMsg = document.getElementById('appActionConfirmMessage');
+    var actionConfirmOk = document.getElementById('appActionConfirmOk');
+    var actionConfirmCancel = document.getElementById('appActionConfirmCancel');
 
-    var currentId      = null;
-    var confirmCb      = null;
+    var selectAll = document.getElementById('selectAll');
+    var smartCaretBtn = document.getElementById('smartCaretBtn');
+    var smartChkMenu = document.getElementById('smartChkMenu');
+    var filterForm = document.getElementById('filterForm');
+    var bulkActionsBar = document.getElementById('bulkActionsBar');
+    var bulkCount = document.getElementById('bulkCount');
+
+    var pendingToast = sessionStorage.getItem('appPendingToast');
+    if (pendingToast) {
+        sessionStorage.removeItem('appPendingToast');
+        try {
+            var _pt = JSON.parse(pendingToast);
+            setTimeout(function () { showToast(_pt.html, _pt.type); }, 300);
+        } catch (e) {}
+    }
+
+    var currentId = null;
+    var actionConfirmResolver = null;
+    var actionConfirmLastFocus = null;
     var currentAppData = null;
+    var statusPickerValue = null;
+    var remarkEditValue = '';
+    var modalRequestSeq = 0;
 
-    /* ══════════════════════════════════════════
+    function bindTableEvents() {
+        document.querySelectorAll('.btn-review').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                currentId = this.dataset.id;
+                openModal(currentId);
+            });
+        });
+
+        document.querySelectorAll('.btn-arch-row').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = this.dataset.id;
+                var isArchived = this.closest('tr').dataset.archived === '1';
+                showConfirm({
+                    title: isArchived ? 'Restore Application' : 'Archive Application',
+                    message: isArchived ? 'Restore this application to active status?' : 'Move this application to the archive?',
+                    color: isArchived ? 'green' : 'amber',
+                    icon: isArchived ? 'check' : 'archive',
+                    onConfirm: function () { sendToggleArchive(id); }
+                });
+            });
+        });
+
+        document.querySelectorAll('.btn-delete-row').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = this.dataset.id;
+                askDeleteConfirm({
+                    title: 'Delete Application',
+                    message: 'This permanently deletes the application record. This action cannot be undone.',
+                    confirmLabel: 'Delete'
+                }).then(function (confirmed) {
+                    if (confirmed) sendDeleteApplication(id);
+                });
+            });
+        });
+
+        document.querySelectorAll('.row-select').forEach(function (chk) {
+            chk.addEventListener('change', function () {
+                var row = this.closest('tr');
+                if (row) row.classList.toggle('row-selected', this.checked);
+                refreshBulkBar();
+            });
+        });
+
+        document.querySelectorAll('.sortable a').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                loadPage(this.href);
+            });
+        });
+
+        document.querySelectorAll('.tbl-pagination a').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (this.classList.contains('pag-disabled')) return;
+                loadPage(this.href);
+            });
+        });
+
+        var clearBtn = document.querySelector('.app-btn-clear');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                var searchInput = document.getElementById('appSearchInput');
+                if (searchInput) searchInput.value = '';
+                var statusSel = document.querySelector('.app-select-filter');
+                if (statusSel) statusSel.value = 'active';
+                loadPage(this.href);
+            });
+        }
+    }
+
+    function getCurrentTableBody() {
+        var tblWrap = document.querySelector('.tbl-wrap');
+        return tblWrap ? tblWrap.querySelector('tbody') : null;
+    }
+
+    function showTableSkeleton(tbody) {
+        if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.showTable === 'function') {
+            return window.AdminRowSkeleton.showTable(tbody);
+        }
+        if (!tbody || tbody.querySelector('.empty-row,.empty-row-msg')) return false;
+        tbody.classList.add('is-admin-row-loading');
+        return true;
+    }
+
+    function hideTableSkeleton(tbody) {
+        if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.hideTable === 'function') {
+            window.AdminRowSkeleton.hideTable(tbody);
+            return;
+        }
+        if (tbody) tbody.classList.remove('is-admin-row-loading');
+    }
+
+    function waitForTableImages(root) {
+        if (window.AdminRowSkeleton && typeof window.AdminRowSkeleton.waitForImages === 'function') {
+            return window.AdminRowSkeleton.waitForImages(root);
+        }
+        return Promise.resolve();
+    }
+
+    var isFetchingPage = false;
+    function loadPage(url) {
+        if (isFetchingPage) return;
+        isFetchingPage = true;
+
+        var tableBody = getCurrentTableBody();
+        showTableSkeleton(tableBody);
+
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (res) { return res.text(); })
+            .then(function (htmlText) {
+                isFetchingPage = false;
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(htmlText, 'text/html');
+
+                var newTblWrap = doc.querySelector('.tbl-wrap');
+                var nextBody = newTblWrap ? newTblWrap.querySelector('tbody') : null;
+                showTableSkeleton(nextBody);
+                var currentTblWrap = document.querySelector('.tbl-wrap');
+                if (newTblWrap && currentTblWrap) {
+                    currentTblWrap.parentNode.replaceChild(newTblWrap, currentTblWrap);
+                }
+
+                var newPagination = doc.querySelector('.tbl-pagination');
+                var currentPagination = document.querySelector('.tbl-pagination');
+                if (currentPagination) {
+                    if (newPagination) {
+                        currentPagination.parentNode.replaceChild(newPagination, currentPagination);
+                    } else {
+                        currentPagination.parentNode.removeChild(currentPagination);
+                    }
+                } else if (newPagination) {
+                    var addedTblWrap = document.querySelector('.tbl-wrap');
+                    if (addedTblWrap) {
+                        addedTblWrap.parentNode.insertBefore(newPagination, addedTblWrap.nextSibling);
+                    }
+                }
+
+                var newStats = doc.querySelector('.grid-stats');
+                var currentStats = document.querySelector('.grid-stats');
+                if (newStats && currentStats) {
+                    currentStats.parentNode.replaceChild(newStats, currentStats);
+                }
+
+                var newForm = doc.querySelector('#filterForm');
+                if (newForm && filterForm) {
+                    var newClear = doc.querySelector('.app-btn-clear');
+                    var currentClear = document.querySelector('.app-btn-clear');
+                    if (currentClear) {
+                        if (newClear) {
+                            currentClear.parentNode.replaceChild(newClear, currentClear);
+                        } else {
+                            currentClear.parentNode.removeChild(currentClear);
+                        }
+                    } else if (newClear) {
+                        var searchBtn = filterForm.querySelector('.app-btn-search');
+                        if (searchBtn) {
+                            searchBtn.parentNode.insertBefore(newClear, searchBtn.nextSibling);
+                        }
+                    }
+                }
+
+                if (window.location.href !== url) {
+                    if (window.AdminShell && typeof window.AdminShell.updateHistory === 'function') {
+                        window.AdminShell.updateHistory(url);
+                    } else {
+                        window.history.pushState(null, '', url);
+                    }
+                }
+
+                if (selectAll) {
+                    selectAll.checked = false;
+                    selectAll.indeterminate = false;
+                }
+                refreshBulkBar();
+
+                bindTableEvents();
+
+                var swappedWrap = document.querySelector('.tbl-wrap');
+                var swappedBody = swappedWrap ? swappedWrap.querySelector('tbody') : null;
+                return waitForTableImages(swappedWrap).then(function () {
+                    hideTableSkeleton(swappedBody);
+                });
+            })
+            .catch(function (err) {
+                isFetchingPage = false;
+                hideTableSkeleton(tableBody);
+                showToast('Failed to load page contents.', 'error');
+            });
+    }
+
+    if (!window.AdminShell) {
+        window.addEventListener('popstate', function () {
+            loadPage(window.location.href);
+        });
+    }
+
+    /* ══════════════════════════════════════════════════
        SECTION 1 — Universal Confirm Dialog
-       ══════════════════════════════════════════ */
+       ══════════════════════════════════════════════════ */
 
-    function showConfirm(opts) {
-        confirmTitle.textContent = opts.title || 'Are you sure?';
-        confirmMsg.textContent   = opts.message || '';
+    function askDeleteConfirm(opts) {
+        if (window.AdminDeleteConfirm && typeof window.AdminDeleteConfirm.ask === 'function') {
+            return window.AdminDeleteConfirm.ask(opts || {});
+        }
+        return Promise.resolve(window.confirm((opts && opts.message) || 'Delete this application?'));
+    }
 
-        confirmIcon.className = 'confirm-icon ' + (opts.color || 'green');
-        if (opts.icon === 'x') {
-            confirmSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>';
-        } else {
-            confirmSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>';
+    function applicationActionIcon(icon) {
+        if (icon === 'x') {
+            return '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>';
+        }
+        if (icon === 'archive') {
+            return '<path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>';
+        }
+        if (icon === 'return') {
+            return '<path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 10l6 6m-6-6l6-6"/>';
+        }
+        return '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>';
+    }
+
+    function askApplicationActionConfirm(opts) {
+        opts = opts || {};
+        if (!actionConfirm) {
+            return Promise.resolve(window.confirm(opts.message || opts.title || 'Confirm this action?'));
         }
 
-        confirmOk.className = 'c-ok ' + (opts.color || 'green');
-        confirmCb = opts.onConfirm || null;
-        confirmBg.classList.add('open');
-    }
+        var tone = opts.color || 'green';
+        actionConfirmTitle.textContent = opts.title || 'Confirm action?';
+        actionConfirmMsg.textContent = opts.message || '';
+        actionConfirmIcon.className = 'app-action-confirm-icon ' + tone;
+        actionConfirmSvg.innerHTML = applicationActionIcon(opts.icon);
+        actionConfirmOk.textContent = opts.confirmLabel || 'Confirm';
+        actionConfirmOk.className = 'btn app-action-confirm-ok ' + tone;
 
-    function hideConfirm() {
-        confirmBg.classList.remove('open');
-        confirmCb = null;
-    }
+        actionConfirmLastFocus = document.activeElement;
+        actionConfirm.classList.add('is-open');
+        actionConfirm.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('app-action-confirm-open');
+        window.setTimeout(function () { actionConfirmOk.focus(); }, 30);
 
-    confirmCancel.addEventListener('click', hideConfirm);
-    confirmOk.addEventListener('click', function () {
-        if (typeof confirmCb === 'function') confirmCb();
-        hideConfirm();
-    });
-    confirmBg.addEventListener('click', function (e) {
-        if (e.target === confirmBg) hideConfirm();
-    });
-
-    /* ══════════════════════════════════════════
-       SECTION 2 — Review Modal
-       ══════════════════════════════════════════ */
-
-    document.querySelectorAll('.btn-review').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            currentId = this.dataset.id;
-            openModal(currentId);
+        return new Promise(function (resolve) {
+            actionConfirmResolver = resolve;
         });
-    });
+    }
+
+    function closeApplicationActionConfirm(result) {
+        if (!actionConfirm || !actionConfirm.classList.contains('is-open')) return;
+        actionConfirm.classList.remove('is-open');
+        actionConfirm.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('app-action-confirm-open');
+
+        var resolver = actionConfirmResolver;
+        actionConfirmResolver = null;
+        if (resolver) resolver(!!result);
+
+        if (actionConfirmLastFocus && typeof actionConfirmLastFocus.focus === 'function') {
+            window.setTimeout(function () { actionConfirmLastFocus.focus(); }, 30);
+        }
+    }
+
+    function showConfirm(opts) {
+        return askApplicationActionConfirm(opts).then(function (confirmed) {
+            if (confirmed && opts && typeof opts.onConfirm === 'function') {
+                opts.onConfirm();
+            }
+            return confirmed;
+        });
+    }
+
+    if (actionConfirmCancel) {
+        actionConfirmCancel.addEventListener('click', function () { closeApplicationActionConfirm(false); });
+    }
+    if (actionConfirmBackdrop) {
+        actionConfirmBackdrop.addEventListener('click', function () { closeApplicationActionConfirm(false); });
+    }
+    if (actionConfirmOk) {
+        actionConfirmOk.addEventListener('click', function () { closeApplicationActionConfirm(true); });
+    }
+
+    /* ══════════════════════════════════════════════════
+       SECTION 2 — Review Modal
+       ══════════════════════════════════════════════════ */
+
+    // Handled dynamically in bindTableEvents()
 
     function openModal(id) {
+        var requestId = ++modalRequestSeq;
+        currentId = id;
+        currentAppData = null;
+        remarkEditValue = '';
+        modalTitle.innerHTML = '<span>APPLICATION OVERVIEW</span>';
         modalBody.innerHTML = '<p style="color:#94a3b8;font-size:.78rem;padding:2rem 0;text-align:center">Loading\u2026</p>';
+        hideAllFooterButtons();
         hideChangeMode();
         modalBg.classList.add('open');
+        modalBg.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('app-review-modal-open');
 
-        fetch(siteUrl('admin/applications/' + id), {
-            headers: { 'Accept': 'application/json' }
-        })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (data.error) {
-                modalBody.innerHTML = '<p style="color:#991b1b;font-size:.78rem;padding:1rem">' + escHtml(data.error) + '</p>';
+        fetch(siteUrl('admin/applications/' + id), { headers: { 'Accept': 'application/json' } })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (requestId !== modalRequestSeq || currentId !== id) return;
+                if (data.error) {
+                    modalBody.innerHTML = '<p style="color:#991b1b;font-size:.78rem;padding:1rem">' + escHtml(data.error) + '</p>';
+                    hideAllFooterButtons();
+                    return;
+                }
+                currentAppData = data;
+                renderModal(data);
+            })
+            .catch(function () {
+                if (requestId !== modalRequestSeq || currentId !== id) return;
+                modalBody.innerHTML = '<p style="color:#991b1b;font-size:.78rem;padding:1rem">Failed to load application.</p>';
                 hideAllFooterButtons();
-                return;
-            }
-            currentAppData = data;
-            renderModal(data);
-        })
-        .catch(function () {
-            modalBody.innerHTML = '<p style="color:#991b1b;font-size:.78rem;padding:1rem">Failed to load application.</p>';
-            hideAllFooterButtons();
-        });
+            });
     }
 
-    /* ── Render fields ─────────────────────── */
     function renderModal(d) {
-        modalTitle.textContent = d.startupName || 'Application Review';
+        modalTitle.innerHTML = '<span>APPLICATION OVERVIEW FOR</span> <strong>' + escHtml(d.startupName || 'Startup Application') + '</strong>';
 
-        var html = '<div class="field-grid">';
-        html += field('Applicant', escHtml(d.applicantName));
-        html += field('Email', '<a href="mailto:' + escHtml(d.applicantEmail) + '">' + escHtml(d.applicantEmail) + '</a>');
-        html += field('Contact', escHtml(d.contactNumber));
-        html += field('Startup', escHtml(d.startupName));
-        html += '</div>';
+        var html = '<section class="app-review-section app-review-summary">'
+            + reviewStat('Applicant\'s Name', escHtml(d.applicantName))
+            + reviewStat('Email', '<a href="mailto:' + escHtml(d.applicantEmail) + '">' + escHtml(d.applicantEmail) + '</a>', 'email')
+            + reviewStat('Contact', escHtml(d.contactNumber), 'contact')
+            + '</section>';
 
-        html += '<div class="modal-divider"></div>';
-        html += field('Description', escHtml(d.startupDescription));
-        html += field('Main Risk', escHtml(d.mainRisk) || '\u2014');
-        html += field('Short-term Goals', escHtml(d.shortTermGoals) || '\u2014');
+        html += '<section class="app-review-section app-review-status-row">'
+            + reviewStat('Status', '<span class="modal-status-text status-' + escHtml(d.applicationStatus) + '">' + statusLabel(d.applicationStatus) + '</span>', 'status')
+            + reviewStat('Submitted on', formatDateTime(d.createdAt))
+            + '</section>';
 
-        html += field('Video Presentation', d.videoPresentationLink
-            ? '<a href="' + escHtml(d.videoPresentationLink) + '" target="_blank" rel="noopener">' + truncateUrl(d.videoPresentationLink) + '</a>'
-            : '\u2014');
+        html += '<section class="app-review-section">' + reviewField('Description', escHtml(d.startupDescription), 'wide') + '</section>';
+        html += '<section class="app-review-section">' + reviewField('Main Risk', escHtml(d.mainRisk) || '\u2014', 'wide') + '</section>';
+        html += '<section class="app-review-section">' + reviewField('Short-term Goals', escHtml(d.shortTermGoals) || '\u2014', 'wide') + '</section>';
+        html += '<section class="app-review-section">' + reviewField('Video Presentation', d.videoPresentationLink
+            ? '<a href="' + escHtml(d.videoPresentationLink) + '" target="_blank" rel="noopener">' + escHtml(d.videoPresentationLink) + '</a>'
+            : '\u2014', 'wide') + '</section>';
 
-        /* CV file cards */
         if (d.teamCvPath) {
             var cards = d.teamCvPath.split(',').map(function (p, i) {
                 var trimmed = p.trim();
@@ -129,53 +417,65 @@
                 var filename = trimmed.split('/').pop();
                 var url = siteUrl('uploads/applications/' + filename);
                 return '<a class="file-card" href="' + escHtml(url) + '" target="_blank" rel="noopener" title="Open ' + escHtml(filename) + '">'
-                     + '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">'
-                     + '<path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>'
-                     + '</svg>'
-                     + '<span>CV ' + (i + 1) + '</span>'
-                     + '</a>';
+                    + '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>'
+                    + '<span>CV ' + (i + 1) + '</span></a>';
             }).join('');
-            html += '<div class="field"><div class="field-label">Team CVs</div><div class="file-cards">' + cards + '</div></div>';
+            html += '<section class="app-review-section app-review-files">'
+                + '<div class="file-group"><div class="field-label">Team CVs</div><div class="file-cards">' + cards + '</div></div>';
+        } else {
+            html += '<section class="app-review-section app-review-files">'
+                + '<div class="file-group"><div class="field-label">Team CVs</div><div class="field-value">\u2014</div></div>';
         }
 
-        /* Lean canvas card */
         if (d.leanCanvasPath) {
             var lcFilename = d.leanCanvasPath.split('/').pop();
             var lcUrl = siteUrl('uploads/applications/' + lcFilename);
             var lcCard = '<a class="file-card" href="' + escHtml(lcUrl) + '" target="_blank" rel="noopener" title="Open ' + escHtml(lcFilename) + '">'
-                       + '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">'
-                       + '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'
-                       + '</svg>'
-                       + '<span>Lean Canvas</span>'
-                       + '</a>';
-            html += '<div class="field"><div class="field-label">Lean Canvas</div><div class="file-cards">' + lcCard + '</div></div>';
+                + '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>'
+                + '<span>Lean Canvas</span></a>';
+            html += '<div class="file-group"><div class="field-label">Lean Canvas</div><div class="file-cards">' + lcCard + '</div></div>';
+        } else {
+            html += '<div class="file-group"><div class="field-label">Lean Canvas</div><div class="field-value">\u2014</div></div>';
         }
+        html += '</section>';
 
-        html += '<div class="modal-divider"></div>';
-
-        html += '<div class="field-grid">';
-        html += field('Status', '<span class="tag tag-' + escHtml(d.applicationStatus) + '">' + statusLabel(d.applicationStatus) + '</span>');
-        html += field('Submitted', formatDate(d.createdAt));
-        html += '</div>';
+        html += '<section class="app-review-section app-review-remarks" id="remarkSection"></section>';
 
         modalBody.innerHTML = html;
-        updateFooterButtons(d.applicationStatus);
+        renderRemarkPanel(false);
+        updateFooterButtons(d.applicationStatus, d.isArchived);
     }
 
-    /* ── Footer button state management ────── */
-    function updateFooterButtons(status) {
+    /* ── Footer button state ────────────────────────────── */
+    function updateFooterButtons(status, isArchived) {
         hideChangeMode();
 
-        if (status === 'pending' || status === 'reviewed') {
-            // Show accept + reject
+        btnAccept.disabled = false;
+        btnReject.disabled = false;
+        if (btnRequestRevalidation) btnRequestRevalidation.disabled = false;
+
+        var archived = (Number(isArchived) === 1);
+
+        btnAccept.style.display = 'none';
+        btnReject.style.display = 'none';
+        btnChange.style.display = 'none';
+        if (btnRequestRevalidation) btnRequestRevalidation.style.display = 'none';
+        if (btnArchModal) btnArchModal.style.display = 'none';
+        if (btnRestoreModal) btnRestoreModal.style.display = 'none';
+
+        if (archived) {
+            if (btnRestoreModal) btnRestoreModal.style.display = 'inline-flex';
+        } else if (status === 'pending') {
             btnAccept.style.display = 'inline-flex';
             btnReject.style.display = 'inline-flex';
-            btnChange.style.display = 'none';
-        } else {
-            // Already decided — show "Change Status" button
-            btnAccept.style.display = 'none';
-            btnReject.style.display = 'none';
+            if (btnRequestRevalidation) btnRequestRevalidation.style.display = 'inline-flex';
+            if (btnArchModal) btnArchModal.style.display = 'inline-flex';
+        } else if (status === 'for_revalidation') {
             btnChange.style.display = 'inline-flex';
+            if (btnArchModal) btnArchModal.style.display = 'inline-flex';
+        } else {
+            btnChange.style.display = 'inline-flex';
+            if (btnArchModal) btnArchModal.style.display = 'inline-flex';
         }
     }
 
@@ -183,178 +483,757 @@
         btnAccept.style.display = 'none';
         btnReject.style.display = 'none';
         btnChange.style.display = 'none';
+        if (btnArchModal) btnArchModal.style.display = 'none';
+        if (btnRestoreModal) btnRestoreModal.style.display = 'none';
+        if (btnRequestRevalidation) btnRequestRevalidation.style.display = 'none';
         hideChangeMode();
     }
 
     function hideChangeMode() {
-        statusSelect.style.display = 'none';
-        btnSaveStatus.style.display = 'none';
+        statusChangeWrap.style.display = 'none';
+        if (statusPickerMenu) statusPickerMenu.classList.remove('open');
     }
 
-    /* ── Close modal ───────────────────────── */
+    /* ── Close modal ──────────────────────────────────── */
     btnClose.addEventListener('click', closeModal);
-    modalBg.addEventListener('click', function (e) {
-        if (e.target === modalBg) closeModal();
+    statusChangeWrap.addEventListener('click', function (e) { e.stopPropagation(); });
+    modalBody.addEventListener('click', function (e) {
+        var actionBtn = e.target.closest('[data-remark-action]');
+        if (!actionBtn) return;
+
+        var action = actionBtn.dataset.remarkAction;
+        if (action === 'edit') {
+            openRemarkEditor(true);
+        } else if (action === 'cancel') {
+            renderRemarkPanel(false);
+        } else if (action === 'save') {
+            saveRemark();
+        }
     });
-    document.addEventListener('keydown', function (e) {
+    modalBg.addEventListener('click', function (e) {
+        if (e.target === modalBg && statusChangeWrap.style.display === 'none') closeModal();
+    });
+    shellOn(document, 'keydown', function (e) {
         if (e.key === 'Escape') {
-            if (confirmBg.classList.contains('open')) { hideConfirm(); return; }
-            if (modalBg.classList.contains('open'))   { closeModal(); }
+            if (actionConfirm && actionConfirm.classList.contains('is-open')) { closeApplicationActionConfirm(false); return; }
+            if (modalBg.classList.contains('open')) { closeModal(); }
         }
     });
 
     function closeModal() {
+        modalRequestSeq++;
         modalBg.classList.remove('open');
+        modalBg.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('app-review-modal-open');
         currentId = null;
         currentAppData = null;
+        remarkEditValue = '';
     }
 
-    /* ══════════════════════════════════════════
-       SECTION 3 — Accept / Reject / Change
-       ══════════════════════════════════════════ */
+    /* ══════════════════════════════════════════════════
+       SECTION 3 — Accept / Reject / Change Status
+       ══════════════════════════════════════════════════ */
 
     btnAccept.addEventListener('click', function () {
         showConfirm({
-            title:   'Accept Application',
+            title: 'Accept Application',
             message: 'This will mark the application as accepted. Continue?',
-            color:   'green',
-            icon:    'check',
+            color: 'green',
+            icon: 'check',
             onConfirm: function () { sendStatus('accepted'); }
         });
     });
 
     btnReject.addEventListener('click', function () {
         showConfirm({
-            title:   'Reject Application',
+            title: 'Reject Application',
             message: 'This will mark the application as rejected. Continue?',
-            color:   'red',
-            icon:    'x',
+            color: 'red',
+            icon: 'x',
             onConfirm: function () { sendStatus('rejected'); }
         });
     });
 
-    /* Change Status flow — toggle select + save button */
+    if (btnRequestRevalidation) {
+        btnRequestRevalidation.addEventListener('click', function () {
+            var remark = getCurrentRemark();
+            if (!remark) {
+                showToast('Please add a remark before returning this application for revalidation.', 'error');
+                openRemarkEditor(true);
+                return;
+            }
+
+            showConfirm({
+                title: 'Return for Revalidation',
+                message: 'Send this application back to the applicant for updates?',
+                color: 'amber',
+                icon: 'return',
+                onConfirm: function () { sendStatus('for_revalidation'); }
+            });
+        });
+    }
+
     btnChange.addEventListener('click', function () {
-        btnChange.style.display = 'none';
-        statusSelect.style.display = 'inline-block';
-        btnSaveStatus.style.display = 'inline-flex';
-        // Pre-select current status
-        if (currentAppData) {
-            statusSelect.value = currentAppData.applicationStatus;
-        }
+        var cur = currentAppData ? currentAppData.applicationStatus : null;
+        statusPickerValue = cur;
+        statusPickerLabel.textContent = cur ? statusLabel(cur) : 'Select status';
+        document.querySelectorAll('.spm-item').forEach(function (btn) {
+            btn.classList.toggle('is-current', btn.dataset.value === cur);
+        });
+        btnChange.style.display       = 'none';
+        statusChangeWrap.style.display = 'flex';
+    });
+
+    statusPickerBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        statusPickerMenu.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.spm-item').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            statusPickerValue = this.dataset.value;
+            statusPickerLabel.textContent = this.textContent;
+            document.querySelectorAll('.spm-item').forEach(function (b) {
+                b.classList.toggle('is-current', b === btn);
+            });
+            statusPickerMenu.classList.remove('open');
+        });
     });
 
     btnSaveStatus.addEventListener('click', function () {
-        var newStatus = statusSelect.value;
+        var newStatus = statusPickerValue;
         if (!newStatus || !currentId) return;
+        var remark = getCurrentRemark();
 
-        if (newStatus === currentAppData.applicationStatus) {
+        if (newStatus === (currentAppData && currentAppData.applicationStatus)) {
             hideChangeMode();
             btnChange.style.display = 'inline-flex';
             return;
         }
 
-        var color = (newStatus === 'rejected') ? 'red' : 'green';
-        var icon  = (newStatus === 'rejected') ? 'x' : 'check';
+        if (newStatus === 'for_revalidation' && !remark) {
+            showToast('Please add a remark before marking this application for revalidation.', 'error');
+            openRemarkEditor(true);
+            return;
+        }
+
+        var isRejectedStatus = newStatus === 'rejected';
+        var isRevalidationStatus = newStatus === 'for_revalidation';
 
         showConfirm({
-            title:   'Change Status',
+            title: 'Change Status',
             message: 'Change this application to "' + statusLabel(newStatus) + '"?',
-            color:   color,
-            icon:    icon,
+            color: isRejectedStatus ? 'red' : (isRevalidationStatus ? 'amber' : 'green'),
+            icon: isRejectedStatus ? 'x' : (isRevalidationStatus ? 'return' : 'check'),
             onConfirm: function () { sendStatus(newStatus); }
         });
     });
 
     function sendStatus(status) {
         if (!currentId) return;
+        var idCopy = currentId;
+        var oldStatus = currentAppData ? currentAppData.applicationStatus : null;
+        var remark = getCurrentRemark();
 
-        fetch(siteUrl('admin/applications/' + currentId + '/status'), {
+        var row = document.querySelector('tr[data-id="' + idCopy + '"]');
+        if (row) {
+            var tag = row.querySelector('.tag:not(.tag-archived)');
+            if (tag) { tag.className = 'tag tag-' + status; tag.textContent = statusLabel(status); }
+            var chk = row.querySelector('.row-select');
+            if (chk) chk.dataset.status = status;
+        }
+        closeModal();
+        updateStatCounts(oldStatus, status);
+        showToast('Status updated to <strong>' + statusLabel(status) + '</strong>. Applicant notified via email.');
+
+        fetch(siteUrl('admin/applications/' + idCopy + '/status'), {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ status: status })
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ status: status, remark: remark })
         })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (data.success) {
-                /* Update table row */
-                var row = document.querySelector('tr[data-id="' + currentId + '"]');
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data.success) {
+                    showToast('Error: ' + (data.error || 'Status update failed.'), 'error');
+                    updateStatCounts(status, oldStatus);
+                    if (row) {
+                        var tag2 = row.querySelector('.tag:not(.tag-archived)');
+                        if (tag2) { tag2.className = 'tag tag-' + (oldStatus || 'pending'); tag2.textContent = statusLabel(oldStatus || 'pending'); }
+                    }
+                    if (currentAppData) {
+                        currentAppData.applicationStatus = oldStatus;
+                    }
+                }
+            })
+            .catch(function () {
+                showToast('Network error. Status may not have been saved.', 'error');
+                updateStatCounts(status, oldStatus);
                 if (row) {
-                    var tag = row.querySelector('.tag');
-                    tag.className = 'tag tag-' + status;
-                    tag.textContent = statusLabel(status);
+                    var tag3 = row.querySelector('.tag:not(.tag-archived)');
+                    if (tag3) { tag3.className = 'tag tag-' + (oldStatus || 'pending'); tag3.textContent = statusLabel(oldStatus || 'pending'); }
                 }
+            });
+    }
 
-                /* Update modal */
-                if (currentAppData) {
-                    currentAppData.applicationStatus = status;
-                    renderModal(currentAppData);
-                }
-            } else {
-                showConfirm({
-                    title:   'Error',
-                    message: data.error || 'Something went wrong. Please try again.',
-                    color:   'red',
-                    icon:    'x',
-                    onConfirm: function () {}
-                });
-            }
-        })
-        .catch(function () {
+    /* ══════════════════════════════════════════════════
+       SECTION 4 — Archive / Restore
+       ══════════════════════════════════════════════════ */
+
+    if (btnArchModal) {
+        btnArchModal.addEventListener('click', function () {
+            if (!currentId) return;
             showConfirm({
-                title:   'Network Error',
-                message: 'Could not reach the server. Please try again.',
-                color:   'red',
-                icon:    'x',
-                onConfirm: function () {}
+                title: 'Archive Application',
+                message: 'This application will be moved to the archive. Continue?',
+                color: 'amber',
+                icon: 'archive',
+                onConfirm: function () { sendToggleArchive(currentId); }
             });
         });
     }
 
-    /* ══════════════════════════════════════════
-       SECTION 4 — Helpers
-       ══════════════════════════════════════════ */
-
-    function field(label, value) {
-        return '<div class="field">'
-             + '<div class="field-label">' + label + '</div>'
-             + '<div class="field-value">' + (value || '\u2014') + '</div>'
-             + '</div>';
+    if (btnRestoreModal) {
+        btnRestoreModal.addEventListener('click', function () {
+            if (!currentId) return;
+            showConfirm({
+                title: 'Restore Application',
+                message: 'This will restore the application to active status. Continue?',
+                color: 'green',
+                icon: 'check',
+                onConfirm: function () { sendToggleArchive(currentId); }
+            });
+        });
     }
+
+    // Handled dynamically in bindTableEvents()
+
+    function sendToggleArchive(id) {
+        var preRow = document.querySelector('tr[data-id="' + id + '"]');
+        var preChk = preRow ? preRow.querySelector('.row-select') : null;
+        var appStatus = preChk ? preChk.dataset.status : null;
+
+        var footBtns = document.querySelectorAll('#modalFoot button');
+        footBtns.forEach(function (b) { b.disabled = true; });
+
+        fetch(siteUrl('admin/applications/' + id + '/toggle-archive'), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                footBtns.forEach(function (b) { b.disabled = false; });
+                if (data.success) {
+                    updateStatCounts(
+                        data.isArchived ? (appStatus || 'pending') : 'archived',
+                        data.isArchived ? 'archived' : (appStatus || 'pending')
+                    );
+
+                    var row = document.querySelector('tr[data-id="' + id + '"]');
+                    if (row) {
+                        row.dataset.archived = data.isArchived;
+
+                        var tagCell = row.querySelector('td:nth-child(6)');
+                        if (tagCell) {
+                            var archTag = tagCell.querySelector('.tag-archived');
+                            if (data.isArchived && !archTag) {
+                                var span = document.createElement('span');
+                                span.className = 'tag tag-archived';
+                                span.textContent = 'Archived';
+                                tagCell.appendChild(span);
+                            } else if (!data.isArchived && archTag) {
+                                archTag.remove();
+                            }
+                        }
+
+                        var archBtn = row.querySelector('.btn-arch-row');
+                        if (archBtn) {
+                            archBtn.title = data.isArchived ? 'Restore' : 'Archive';
+                            archBtn.innerHTML = data.isArchived
+                                ? '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>'
+                                : '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>';
+                        }
+
+                        var chk = row.querySelector('.row-select');
+                        if (chk) chk.dataset.isArchived = data.isArchived;
+
+                        var filterSel = document.querySelector('.app-select-filter');
+                        var curFilter = filterSel ? filterSel.value : 'active';
+                        if ((curFilter === 'active' && data.isArchived) || (curFilter === 'archived' && !data.isArchived)) {
+                            row.style.transition = 'opacity .3s';
+                            row.style.opacity = '0';
+                            setTimeout(function () {
+                                row.remove();
+                                if (!document.querySelector('.tbl tbody tr')) window.location.reload();
+                            }, 300);
+                        }
+                    }
+
+                    if (currentAppData && currentId === id) {
+                        currentAppData.isArchived = data.isArchived;
+                        renderModal(currentAppData);
+                    }
+
+                    showToast(data.isArchived ? 'Application archived.' : 'Application restored.', data.isArchived ? 'info' : 'success');
+                } else {
+                    showConfirm({ title: 'Error', message: data.error || 'Something went wrong.', color: 'red', icon: 'x', onConfirm: function () { } });
+                }
+            })
+            .catch(function () {
+                footBtns.forEach(function (b) { b.disabled = false; });
+                showConfirm({ title: 'Network Error', message: 'Could not reach the server.', color: 'red', icon: 'x', onConfirm: function () { } });
+            });
+    }
+
+    /* ══════════════════════════════════════════════════
+       SECTION 5 — Bulk Selection & Direct Action Buttons
+       ══════════════════════════════════════════════════ */
+
+    function sendDeleteApplication(id) {
+        var row = document.querySelector('tr[data-id="' + id + '"]');
+        var chk = row ? row.querySelector('.row-select') : null;
+        var appStatus = chk ? chk.dataset.status : null;
+        var isArchived = chk ? chk.dataset.isArchived === '1' : (row ? row.dataset.archived === '1' : false);
+
+        fetch(siteUrl('admin/applications/' + id), {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data.success) {
+                    showConfirm({ title: 'Error', message: data.error || 'Unable to delete application.', color: 'red', icon: 'x', onConfirm: function () { } });
+                    return;
+                }
+
+                if (row) {
+                    row.style.transition = 'opacity .25s';
+                    row.style.opacity = '0';
+                    setTimeout(function () {
+                        row.remove();
+                        if (!document.querySelector('.tbl tbody tr')) window.location.reload();
+                    }, 250);
+                }
+
+                decrementDeletedApplicationCounts(isArchived ? 'archived' : (appStatus || 'pending'));
+                refreshBulkBar();
+                showToast(data.message || 'Application deleted.', 'success');
+            })
+            .catch(function () {
+                showConfirm({ title: 'Network Error', message: 'Could not reach the server.', color: 'red', icon: 'x', onConfirm: function () { } });
+            });
+    }
+
+    function refreshBulkBar() {
+        var checked = document.querySelectorAll('.row-select:checked');
+        var total = document.querySelectorAll('.row-select').length;
+        var hasSelection = checked.length > 0;
+
+        if (bulkCount) bulkCount.textContent = checked.length;
+
+        if (filterForm) filterForm.classList.toggle('search-hidden', hasSelection);
+        if (bulkActionsBar) bulkActionsBar.classList.toggle('bulk-visible', hasSelection);
+
+        if (selectAll) {
+            selectAll.indeterminate = hasSelection && checked.length < total;
+            selectAll.checked = total > 0 && checked.length === total;
+        }
+
+        var hasNonArchivedNonPending = false;
+        var hasNonArchivedNonAccepted = false;
+        var hasNonArchivedNonRejected = false;
+        var hasNonArchived = false;
+        var hasArchived = false;
+
+        checked.forEach(function (chk) {
+            var status = chk.dataset.status;
+            var isArchived = chk.dataset.isArchived === '1';
+            if (isArchived) {
+                hasArchived = true;
+            } else {
+                hasNonArchived = true;
+                if (status !== 'pending') hasNonArchivedNonPending = true;
+                if (status !== 'accepted') hasNonArchivedNonAccepted = true;
+                if (status !== 'rejected') hasNonArchivedNonRejected = true;
+            }
+        });
+
+        document.querySelectorAll('.bulk-act-btn').forEach(function (btn) {
+            var action = btn.dataset.action;
+            var shouldDisable = false;
+            if (action === 'pending') shouldDisable = !hasNonArchivedNonPending;
+            if (action === 'accepted') shouldDisable = !hasNonArchivedNonAccepted;
+            if (action === 'rejected') shouldDisable = !hasNonArchivedNonRejected;
+            if (action === 'archive') shouldDisable = !hasNonArchived;
+            if (action === 'unarchive') shouldDisable = !hasArchived;
+            btn.disabled = shouldDisable;
+        });
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            var isChecked = selectAll.checked;
+            document.querySelectorAll('.row-select').forEach(function (chk) {
+                chk.checked = isChecked;
+                var row = chk.closest('tr');
+                if (row) row.classList.toggle('row-selected', isChecked);
+            });
+            refreshBulkBar();
+        });
+    }
+
+    if (filterForm) {
+        filterForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var searchInput = document.getElementById('appSearchInput');
+            var search = searchInput ? searchInput.value.trim() : '';
+            var statusFilter = document.querySelector('.app-select-filter');
+            var status = statusFilter ? statusFilter.value : 'active';
+            
+            var sortInput = filterForm.querySelector('input[name="sort"]');
+            var dirInput = filterForm.querySelector('input[name="direction"]');
+            var sort = sortInput ? sortInput.value : '';
+            var direction = dirInput ? dirInput.value : '';
+
+            var params = [];
+            if (search) params.push('search=' + encodeURIComponent(search));
+            if (status) params.push('status=' + encodeURIComponent(status));
+            if (sort) params.push('sort=' + encodeURIComponent(sort));
+            if (direction) params.push('direction=' + encodeURIComponent(direction));
+
+            var url = siteUrl('admin/applications') + (params.length ? '?' + params.join('&') : '');
+            loadPage(url);
+        });
+
+        var statusFilter = document.querySelector('.app-select-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function () {
+                filterForm.dispatchEvent(new Event('submit', { cancelable: true }));
+            });
+        }
+    }
+
+    // Initialize all dynamic table event listeners on page load
+    bindTableEvents();
+
+    // Handled dynamically in bindTableEvents()
+
+    if (smartCaretBtn && smartChkMenu) {
+        smartCaretBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            smartChkMenu.classList.toggle('open');
+        });
+
+        shellOn(document, 'click', function () {
+            if (smartChkMenu) smartChkMenu.classList.remove('open');
+        });
+
+        smartChkMenu.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+
+        document.querySelectorAll('.scm-item').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var type = this.dataset.smart;
+                document.querySelectorAll('.row-select').forEach(function (chk) {
+                    var shouldCheck;
+                    if (type === 'all') {
+                        shouldCheck = true;
+                    } else if (type === 'none') {
+                        shouldCheck = false;
+                    } else if (type === 'archived') {
+                        shouldCheck = chk.dataset.isArchived === '1';
+                    } else {
+                        shouldCheck = (chk.dataset.status === type && chk.dataset.isArchived !== '1');
+                    }
+                    chk.checked = shouldCheck;
+                    var row = chk.closest('tr');
+                    if (row) row.classList.toggle('row-selected', shouldCheck);
+                });
+                refreshBulkBar();
+                smartChkMenu.classList.remove('open');
+            });
+        });
+    }
+
+    document.querySelectorAll('.bulk-act-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var action = this.dataset.action;
+            if (!action) return;
+
+            var checked = document.querySelectorAll('.row-select:checked');
+            var ids = Array.prototype.map.call(checked, function (chk) { return chk.dataset.id; });
+            if (!ids.length) return;
+
+            var label = this.textContent.trim();
+            var isRejectAction = action === 'rejected';
+            var isArchiveAction = action === 'archive';
+            showConfirm({
+                title: 'Bulk Action',
+                message: 'Apply \u201c' + label + '\u201d to ' + ids.length + ' application(s)?',
+                color: isRejectAction ? 'red' : (isArchiveAction ? 'amber' : 'green'),
+                icon: isRejectAction ? 'x' : (isArchiveAction ? 'archive' : 'check'),
+                onConfirm: function () { sendBulkAction(ids, action); }
+            });
+        });
+    });
+
+    function sendBulkAction(ids, action) {
+        fetch(siteUrl('admin/applications/bulk'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ ids: ids, action: action })
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    sessionStorage.setItem('appPendingToast', JSON.stringify({
+                        html: 'Bulk action applied to ' + ids.length + ' application(s).',
+                        type: 'success'
+                    }));
+                    window.location.reload();
+                } else {
+                    showConfirm({ title: 'Error', message: data.error || 'Something went wrong.', color: 'red', icon: 'x', onConfirm: function () { } });
+                }
+            })
+            .catch(function () {
+                showConfirm({ title: 'Network Error', message: 'Could not reach the server.', color: 'red', icon: 'x', onConfirm: function () { } });
+            });
+    }
+
+    /* ══════════════════════════════════════════════════
+       SECTION 6 — Helpers
+       ══════════════════════════════════════════════════ */
+
+    function reviewStat(label, value, extraClass) {
+        return '<div class="app-review-stat ' + (extraClass || '') + '">'
+            + '<span>' + label + '</span>'
+            + '<strong>' + (value || '\u2014') + '</strong>'
+            + '</div>';
+    }
+
+    function reviewField(label, value, extraClass) {
+        return '<div class="field app-review-field ' + (extraClass || '') + '">'
+            + '<div class="field-label">' + label + '</div>'
+            + '<div class="field-value">' + (value || '\u2014') + '</div>'
+            + '</div>';
+    }
+
+    function renderRemarkPanel(editing) {
+        var section = document.getElementById('remarkSection');
+        if (!section || !currentAppData) return;
+
+        var remark = (currentAppData.statusRemark || '').trim();
+        var html = '<div class="app-review-section-head"><span>Remarks</span></div>';
+
+        if (editing) {
+            remarkEditValue = remarkEditValue || remark;
+            html += '<div class="remark-editor">'
+                + '<textarea id="statusRemarkInput" class="modal-status-input" rows="4" maxlength="2000"'
+                + ' placeholder="Add the specific details, files, or corrections the applicant should address.">'
+                + escHtml(remarkEditValue) + '</textarea>'
+                + '<div class="remark-actions">'
+                + '<button type="button" class="remark-btn primary" data-remark-action="save">Save Remarks</button>'
+                + '<button type="button" class="remark-btn subtle" data-remark-action="cancel">Cancel</button>'
+                + '</div>'
+                + '</div>';
+        } else if (remark) {
+            html += '<div class="remark-preview">'
+                + '<p>' + escHtml(remark) + '</p>'
+                + '<button type="button" class="remark-btn" data-remark-action="edit">Edit Remarks</button>'
+                + '</div>';
+        } else {
+            html += '<div class="remark-empty">'
+                + '<p>No remarks added yet.</p>'
+                + '<button type="button" class="remark-btn" data-remark-action="edit">Add Remarks</button>'
+                + '</div>';
+        }
+
+        section.innerHTML = html;
+
+        if (editing) {
+            var input = document.getElementById('statusRemarkInput');
+            if (input) {
+                input.addEventListener('input', function () {
+                    remarkEditValue = input.value;
+                });
+            }
+        }
+    }
+
+    function openRemarkEditor(focusInput) {
+        remarkEditValue = currentAppData ? (currentAppData.statusRemark || '') : '';
+        renderRemarkPanel(true);
+        var input = document.getElementById('statusRemarkInput');
+        if (focusInput && input) {
+            input.focus();
+            input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+    }
+
+    function getCurrentRemark() {
+        var input = document.getElementById('statusRemarkInput');
+        if (input) return input.value.trim();
+        return currentAppData && currentAppData.statusRemark ? currentAppData.statusRemark.trim() : '';
+    }
+
+    function saveRemark() {
+        if (!currentId || !currentAppData) return;
+        var input = document.getElementById('statusRemarkInput');
+        var remark = input ? input.value.trim() : '';
+        var buttons = document.querySelectorAll('#remarkSection button');
+
+        buttons.forEach(function (btn) { btn.disabled = true; });
+
+        fetch(siteUrl('admin/applications/' + currentId + '/remark'), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ remark: remark })
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                buttons.forEach(function (btn) { btn.disabled = false; });
+                if (!data.success) {
+                    showToast(data.error || 'Unable to save remark.', 'error');
+                    return;
+                }
+                currentAppData.statusRemark = data.remark || '';
+                remarkEditValue = '';
+                renderRemarkPanel(false);
+                showToast(data.message || 'Remark saved.', 'success');
+            })
+            .catch(function () {
+                buttons.forEach(function (btn) { btn.disabled = false; });
+                showToast('Network error. Remark was not saved.', 'error');
+            });
+    }
+
+    function updateStatCounts(from, to) {
+        var elMap = {
+            pending:  document.getElementById('statPending'),
+            for_revalidation: document.getElementById('statForRevalidation'),
+            accepted: document.getElementById('statAccepted'),
+            rejected: document.getElementById('statRejected'),
+            archived: document.getElementById('statArchived'),
+            total:    document.getElementById('statTotal')
+        };
+
+        function nudge(el, delta) {
+            if (!el) return;
+            var n = parseInt(el.textContent, 10) || 0;
+            el.textContent = Math.max(0, n + delta);
+            el.style.transition = 'none';
+            el.style.transform = 'scale(1.25)';
+            setTimeout(function () {
+                el.style.transition = 'transform .2s ease';
+                el.style.transform = 'scale(1)';
+            }, 0);
+        }
+
+        if (!from || !to || from === to) return;
+
+        if (from !== 'archived' && to !== 'archived') {
+            nudge(elMap[from], -1);
+            nudge(elMap[to],   +1);
+        } else if (from !== 'archived' && to === 'archived') {
+            nudge(elMap[from],     -1);
+            nudge(elMap.total,     -1);
+            nudge(elMap.archived,  +1);
+        } else if (from === 'archived' && to !== 'archived') {
+            nudge(elMap.archived,  -1);
+            nudge(elMap.total,     +1);
+            nudge(elMap[to],       +1);
+        }
+    }
+
+    function decrementDeletedApplicationCounts(status) {
+        var elMap = {
+            pending: document.getElementById('statPending'),
+            for_revalidation: document.getElementById('statForRevalidation'),
+            accepted: document.getElementById('statAccepted'),
+            rejected: document.getElementById('statRejected'),
+            archived: document.getElementById('statArchived'),
+            total: document.getElementById('statTotal')
+        };
+
+        function nudge(el) {
+            if (!el) return;
+            var n = parseInt(el.textContent, 10) || 0;
+            el.textContent = Math.max(0, n - 1);
+            el.style.transition = 'none';
+            el.style.transform = 'scale(1.25)';
+            setTimeout(function () {
+                el.style.transition = 'transform .2s ease';
+                el.style.transform = 'scale(1)';
+            }, 0);
+        }
+
+        if (status === 'archived') {
+            nudge(elMap.archived);
+            return;
+        }
+
+        nudge(elMap[status] || elMap.pending);
+        nudge(elMap.total);
+    }
+
+    function showToast(html, type) {
+        var t = document.getElementById('appToast');
+        if (!t) return;
+        t.innerHTML = html;
+        t.classList.add('show');
+        clearTimeout(t._dismissTimer);
+        t._dismissTimer = setTimeout(function () { t.classList.remove('show'); }, 3500);
+    }
+
 
     function escHtml(str) {
         if (!str) return '';
-        var div = document.createElement('div');
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
     }
 
-    function capitalize(s) {
-        return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-    }
+    function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
     function statusLabel(s) {
-        var map = { pending: 'Under Review', reviewed: 'Under Review', accepted: 'Accepted', rejected: 'Rejected' };
+        var map = { pending: 'For Review', for_revalidation: 'For Revalidation', accepted: 'Accepted', rejected: 'Rejected' };
         return map[s] || capitalize(s);
     }
 
-    function formatDate(iso) {
+    function formatDateTime(iso) {
         if (!iso) return '\u2014';
         var d = new Date(iso);
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-    }
-
-    function truncateUrl(url) {
-        if (!url) return '';
-        return url.length > 50 ? url.substring(0, 47) + '\u2026' : url;
+        var m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var hours = d.getHours();
+        var minutes = String(d.getMinutes()).padStart(2, '0');
+        var suffix = hours >= 12 ? 'PM' : 'AM';
+        var hour12 = hours % 12 || 12;
+        return m[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ', ' + hour12 + ':' + minutes + ' ' + suffix;
     }
 
     function siteUrl(path) {
         var base = window.APP_BASE_URL || window.location.origin;
         return base.replace(/\/$/, '') + '/' + path;
+    }
+
+    return function () {
+        if (modalBg) modalBg.classList.remove('open');
+        if (modalBg) modalBg.setAttribute('aria-hidden', 'true');
+        if (actionConfirm) actionConfirm.classList.remove('is-open');
+        if (actionConfirm) actionConfirm.setAttribute('aria-hidden', 'true');
+        if (statusPickerMenu) statusPickerMenu.classList.remove('open');
+        document.body.classList.remove('app-review-modal-open');
+        document.body.classList.remove('app-action-confirm-open');
+        currentId = null;
+        actionConfirmResolver = null;
+        currentAppData = null;
+    };
+    }
+
+    if (window.AdminShell && typeof window.AdminShell.register === 'function') {
+        window.AdminShell.register('applications', { init: init });
+    } else {
+        document.addEventListener('DOMContentLoaded', function () { init(document); });
     }
 })();

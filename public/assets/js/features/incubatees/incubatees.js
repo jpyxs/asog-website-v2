@@ -8,6 +8,8 @@
     var data = window.__ibData;
     if (!data || !data.length) return;
 
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     /* ── DOM refs ── */
     var $    = function (id) { return document.getElementById(id); };
     var stack    = $('ibStack'),
@@ -340,17 +342,45 @@
     }
 
     /* ── Entrance animation ── */
-    gsap.from('.ib-card', {
-        opacity: 0, y: 35, scale: .92,
-        duration: .45, stagger: .07,
-        ease: 'power2.out', delay: .15
-    });
+    var cards = document.querySelectorAll('.ib-card');
 
+    if (cards.length) {
+        if (prefersReducedMotion || typeof gsap === 'undefined') {
+            cards.forEach(function (card) {
+                card.classList.add('ib-card-visible');
+            });
+        } else {
+            // Ensure they start hidden (CSS already does, but this is a safety net)
+            gsap.set(cards, { opacity: 0, y: 35, scale: 0.92 });
+
+            // Animate them in
+            gsap.to(cards, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.45,
+                stagger: 0.07,
+                ease: 'power2.out',
+                delay: 0.15,
+                onComplete: function() {
+                    // Add a class so CSS takes over after the animation
+                    cards.forEach(function(card) {
+                        card.classList.add('ib-card-visible');
+                        // Remove inline styles to let CSS transitions work
+                        card.style.opacity = '';
+                        card.style.transform = '';
+                        card.style.scale = '';
+                    });
+                }
+            });
+        }
+    }
     /* ── Hover tilt ── */
     cards.forEach(function (card) {
         var inner = card.querySelector('.ib-inner');
 
         card.addEventListener('mousemove', function (e) {
+            if (prefersReducedMotion) return;
             if (isOpen) return;
             var r  = card.getBoundingClientRect();
             var cx = r.width / 2, cy = r.height / 2;
@@ -364,6 +394,7 @@
         });
 
         card.addEventListener('mouseleave', function () {
+            if (prefersReducedMotion) return;
             gsap.to(inner, {
                 rotateX: 0, rotateY: 0, y: 0,
                 boxShadow: '0 2px 8px rgba(2,13,24,.03)',
@@ -379,6 +410,9 @@
             }
         });
     });
+
+    window.__ibShowcaseReady = true;
+    window.dispatchEvent(new CustomEvent('ib:ready'));
 
     /* ── Mobile: show preview popup (mini version of desktop big card) ── */
     function showMobilePreview(card, idx) {
@@ -609,12 +643,22 @@
         /* Animate in */
         stack.classList.add('has-active');
         card.classList.add('is-picked');
-        gsap.set(card.querySelector('.ib-inner'), { rotateX: 0, rotateY: 0 });
+        if (!prefersReducedMotion && typeof gsap !== 'undefined') {
+            gsap.set(card.querySelector('.ib-inner'), { rotateX: 0, rotateY: 0 });
+        }
 
         overlay.classList.add('is-open');
         document.body.style.overflow = 'hidden';
 
-        if (isMobileView()) {
+        if (prefersReducedMotion || typeof gsap === 'undefined') {
+            if (isMobileView()) {
+                panel.style.transform = 'translateY(0)';
+            } else {
+                bigCard.style.opacity = '1';
+                bigCard.style.transform = 'none';
+                panel.style.transform = 'none';
+            }
+        } else if (isMobileView()) {
             /* Mobile: slide panel up from bottom, skip big card */
             gsap.set(panel, { x: 0, y: '100%' });
             gsap.to(panel, { y: 0, duration: .4, ease: 'power3.out' });
@@ -631,6 +675,11 @@
     function closeOverlay() {
         if (!isOpen) return;
         if (isFlipped) {
+            if (prefersReducedMotion || typeof gsap === 'undefined') {
+                isFlipped = false;
+                doClose();
+                return;
+            }
             gsap.to(bigInner, { rotateY: 0, duration: .35, ease: 'power2.inOut', onComplete: doClose });
             isFlipped = false;
         } else {
@@ -639,6 +688,23 @@
     }
 
     function doClose() {
+        if (prefersReducedMotion || typeof gsap === 'undefined') {
+            overlay.classList.remove('is-open');
+            stack.classList.remove('has-active');
+            if (activeCard) activeCard.classList.remove('is-picked');
+            if (mobileFlippedCard) {
+                mobileFlippedCard.classList.remove('mob-flipped');
+                mobileFlippedCard = null;
+            }
+            activeCard = null;
+            isOpen = false;
+            document.body.style.overflow = '';
+            panel.style.transform = '';
+            bigCard.style.opacity = '';
+            bigCard.style.transform = '';
+            return;
+        }
+
         if (isMobileView()) {
             /* Mobile: slide panel down to bottom */
             gsap.to(panel, {
@@ -679,6 +745,10 @@
     bigInner.addEventListener('click', function (e) {
         e.stopPropagation();
         isFlipped = !isFlipped;
+        if (prefersReducedMotion || typeof gsap === 'undefined') {
+            bigInner.style.transform = isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)';
+            return;
+        }
         gsap.to(bigInner, { rotateY: isFlipped ? -180 : 0, duration: .55, ease: 'power2.inOut' });
     });
 

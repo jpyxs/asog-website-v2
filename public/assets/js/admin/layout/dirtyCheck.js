@@ -1,0 +1,129 @@
+(function (global) {
+    'use strict';
+
+    var registry = [];
+
+    function serializeForm(form) {
+        var parts = [];
+        var elements = form.elements;
+        var nameCounts = {};
+
+        for (var i = 0; i < elements.length; i++) {
+            var el = elements[i];
+            if (!el.name || el.type === 'submit' || el.type === 'button') continue;
+
+            var val;
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                val = el.checked ? '1' : '0';
+            } else if (el.type === 'file') {
+                // Track identity (name+size), not just count
+                val = el.files
+                    ? Array.prototype.map.call(el.files, function (f) { return f.name + ':' + f.size; }).join(',')
+                    : '';
+            } else {
+                val = el.value;
+            }
+
+            var name = el.name;
+            // Handle dynamic array inputs specifically
+            if (name.endsWith('[]')) {
+                if (!nameCounts[name]) nameCounts[name] = 0;
+                nameCounts[name]++;
+                if (val === '') continue;
+                parts.push(name + '[' + nameCounts[name] + ']=' + val);
+            } else {
+                parts.push(name + '=' + val);
+            }
+        }
+        return parts.join('&');
+    }
+
+    function watch(form, options) {
+        options = options || {};
+        var buttons = options.buttons || [];
+        var baselineState = null;
+
+        function applyButtonState(isDirty) {
+            buttons.forEach(function (btn) {
+                btn.disabled = !isDirty;
+                btn.style.opacity = isDirty ? '1' : '0.6';
+                btn.style.cursor = isDirty ? 'pointer' : 'not-allowed';
+            });
+        }
+
+        function check() {
+            if (baselineState === null) return; // baseline() not called yet
+            applyButtonState(serializeForm(form) !== baselineState);
+        }
+
+        function baseline() {
+            baselineState = serializeForm(form);
+            check();
+        }
+
+        form.addEventListener('input', check);
+        form.addEventListener('change', check);
+
+        // Watch for added/removed rows (Incubatees form)
+        if (typeof MutationObserver !== 'undefined') {
+            new MutationObserver(check).observe(form, { childList: true, subtree: true });
+        }
+
+        (options.watchContainers || []).forEach(function (container) {
+            if (!container || typeof MutationObserver === 'undefined') return;
+            new MutationObserver(check).observe(container, { childList: true, subtree: true });
+        });
+
+        var api = {
+            form: form,
+            baseline: baseline,
+            check: check,
+            isDirty: function () {
+                return baselineState !== null && serializeForm(form) !== baselineState;
+            }
+        };
+
+        registry.push(api);
+        return api;
+    }
+
+    function isAnyDirty() {
+        registry = registry.filter(function (t) { return document.contains(t.form); });
+        return registry.some(function (t) { return t.isDirty(); });
+    }
+
+    global.DirtyCheck = { watch: watch, isAnyDirty: isAnyDirty };
+
+    // Auto-init for static forms with data-dirty-check attribute
+    function autoInit() {
+        document.querySelectorAll('form[data-dirty-check]').forEach(function (form) {
+            // Guard against double-binding if autoInit ever runs more than once,
+            // and skip forms already wired up explicitly via DirtyCheck.watch().
+            if (form.dataset.dirtyCheckBound === '1') return;
+            form.dataset.dirtyCheckBound = '1';
+
+            var btnSelector = form.dataset.dirtyBtn || 'button[type="submit"]';
+
+            // 1. Try finding the button INSIDE the form first
+            var buttons = Array.from(form.querySelectorAll(btnSelector));
+            // 2. If not found inside, search the WHOLE document (for external action bars)
+            if (!buttons.length) {
+                buttons = Array.from(document.querySelectorAll(btnSelector));
+            }
+            // 3. If STILL no buttons found, abort
+            if (!buttons.length) return;
+
+            var tracker = watch(form, { buttons: buttons });
+            tracker.baseline();
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', autoInit);
+    } else {
+        autoInit();
+    }
+    if (typeof MutationObserver !== 'undefined') {
+        new MutationObserver(autoInit).observe(document.body, { childList: true, subtree: true });
+    }
+})(window);

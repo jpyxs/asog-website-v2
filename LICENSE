@@ -1,22 +1,25 @@
-The MIT License (MIT)
+Proprietary License Notice
 
-Copyright (c) 2014-2019 British Columbia Institute of Technology
-Copyright (c) 2019-present CodeIgniter Foundation
+Copyright (c) 2026 ASOG Technology Business Incubator.
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This repository and the application-specific source code, content, branding,
+configuration, documentation, and assets developed for ASOG Technology Business
+Incubator are proprietary. No permission is granted to copy, modify,
+distribute, sublicense, publish, host, sell, or otherwise use this project or
+any substantial portion of it without prior written authorization from the
+ASOG Technology Business Incubator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+Unauthorized use, reproduction, redistribution, or deployment of this software
+is prohibited.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+Third-party components, framework code, libraries, fonts, tools, and other
+dependencies included in or used by this project remain governed by their
+respective licenses. This notice does not alter the license terms of
+CodeIgniter, Composer packages, npm packages, Google libraries, vendor assets,
+or any other third-party open-source component.
+
+If written permission is granted for use of this repository, that permission is
+limited to the scope, duration, and purpose stated in the written authorization.
+
+For permission requests, reuse questions, or licensing concerns, contact ASOG TBI at [asogtbi@cspc.edu.ph](mailto:asogtbi@cspc.edu.ph).

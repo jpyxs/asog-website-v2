@@ -8,34 +8,40 @@
     <div class="max-w-[720px] mx-auto relative z-[2]">
         <!-- Back link -->
         <a href="<?= site_url('news') ?>"
-            class="inline-flex items-center gap-1.5 text-[.65rem] font-semibold tracking-[.1em] uppercase text-dark/30 no-underline mb-8 transition-colors hover:text-gold">
+            class="inline-flex items-center gap-1.5 text-[.65rem] font-semibold tracking-[.1em] uppercase text-dark/30 no-underline mb-10 transition-colors hover:text-gold">
             ← Back to News
         </a>
 
         <!-- Category + Date -->
-        <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-3 mb-3">
             <span
-                class="text-[.55rem] font-semibold tracking-[.18em] uppercase text-gold"><?= esc(ucfirst($post['category'])) ?></span>
+                class="text-[.8rem] font-semibold tracking-[.18em] uppercase text-gold"><?= esc(ucfirst($post['category'])) ?></span>
             <?php if ($post['publishedAt']): ?>
-            <span class="text-[.55rem] text-dark/25">·</span>
+            <span class="text-[.70rem] text-dark/35">·</span>
             <span
-                class="text-[.55rem] font-medium tracking-[.08em] text-dark/30"><?= date('F j, Y', strtotime($post['publishedAt'])) ?></span>
+                class="text-[.84rem] font-medium tracking-[.08em] text-dark/40"><?= date('F j, Y', strtotime($post['publishedAt'])) ?></span>
             <?php endif; ?>
         </div>
 
         <!-- Title -->
-        <h1 class="font-display text-[clamp(1.6rem,3vw,2.6rem)] leading-[1.14] text-dark mb-5">
+        <h1 class="font-display text-[clamp(1.6rem,3vw,2.6rem)] leading-[1.14] text-dark mb-4">
             <?= esc($post['title']) ?></h1>
 
         <!-- Author -->
         <?php if (! empty($post['authorName'])): ?>
-        <div class="text-[.75rem] font-medium text-dark/35 mb-8">By <?= esc($post['authorName']) ?></div>
+        <div class="text-[.95rem] font-medium text-dark/40 mb-8">By <?= esc($post['authorName']) ?></div>
         <?php endif; ?>
 
         <!-- Cover image -->
         <?php if (! empty($post['imagePath'])): ?>
+        <?php 
+            $imgSrc = $post['imagePath'];
+            if (!str_starts_with($imgSrc, 'http://') && !str_starts_with($imgSrc, 'https://') && !str_starts_with($imgSrc, 'data:')) {
+                $imgSrc = site_url($imgSrc);
+            }
+        ?>
         <div class="rounded-lg overflow-hidden mb-10 border border-dark/[.06]">
-            <img src="<?= site_url($post['imagePath']) ?>" alt="<?= esc($post['title']) ?>"
+            <img src="<?= esc($imgSrc, 'attr') ?>" alt="<?= esc($post['title']) ?>"
                 class="w-full max-h-[440px] object-cover" />
         </div>
         <?php endif; ?>
@@ -45,13 +51,32 @@
             <?= $post['content'] ?? '' ?>
         </div>
 
+        <style>
+            .prose-content figure figcaption {
+                font-style: italic;
+                margin-top: .35rem;
+                font-size: .95rem;
+                line-height: 1.5;
+                color: rgba(3, 85, 140, .72);
+            }
+        </style>
+
         <?php
             $postCategory = strtolower((string) ($post['category'] ?? ''));
-            $showStoryShare = true;
+            $showStoryShare = !($isPreview ?? false);
             $shareUrl = current_url();
             $shareTitle = trim((string) ($post['title'] ?? '')) . ' | ASOG TBI';
             $shareDescription = trim(preg_replace('/\s+/', ' ', strip_tags(html_entity_decode((string) ($post['content'] ?? ''), ENT_QUOTES, 'UTF-8'))));
-            $shareImage = ! empty($post['imagePath']) ? site_url($post['imagePath']) : '';
+            
+            $shareImage = '';
+            if (! empty($post['imagePath'])) {
+                $imgSrc = $post['imagePath'];
+                if (!str_starts_with($imgSrc, 'http://') && !str_starts_with($imgSrc, 'https://') && !str_starts_with($imgSrc, 'data:')) {
+                    $imgSrc = site_url($imgSrc);
+                }
+                $shareImage = $imgSrc;
+            }
+
             $encodedUrl = rawurlencode($shareUrl);
             $encodedTitle = rawurlencode($shareTitle);
         ?>
@@ -61,7 +86,7 @@
             data-share-url="<?= esc($shareUrl, 'attr') ?>" data-share-title="<?= esc($shareTitle, 'attr') ?>"
             data-share-description="<?= esc($shareDescription, 'attr') ?>"
             data-share-image="<?= esc($shareImage, 'attr') ?>">
-            <div class="text-[.56rem] font-semibold tracking-[.16em] uppercase text-dark/45 mb-3">Share This Story</div>
+            <div class="text-[.62rem] font-semibold tracking-[.16em] uppercase text-dark/45 mb-3">Share This Story</div>
             <div class="flex flex-wrap items-center gap-2.5">
                 <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $encodedUrl ?>" target="_blank"
                     rel="noopener noreferrer" aria-label="Share on Facebook" title="Share on Facebook"
@@ -107,7 +132,7 @@
             }));
             $relatedPosts = array_slice($relatedPosts, 0, 3);
         ?>
-        <?php if (! empty($relatedPosts)): ?>
+        <?php if (! empty($relatedPosts) && !($isPreview ?? false)): ?>
         <div>
             <h3 class="font-display text-lg text-dark mb-5">More from <em class="italic text-gold">News &amp;
                     Insights</em></h3>

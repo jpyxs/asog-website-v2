@@ -7,7 +7,7 @@
     <?php
     $defaultTitle = 'ASOG Technology Business Incubator';
     $defaultDescription = 'ASOG Technology Business Incubator (ASOG TBI) - Programs, Mentorship, Facilities, News, and Support for Startups in Camarines Sur.';
-    $defaultSocialImage = base_url('assets/img/incubatees.jpg');
+    $defaultSocialImage = base_url('assets/img/incubatees.webp');
 
     $pageTitle = isset($title) && $title !== '' ? $title : $defaultTitle;
     $pageDescription = isset($metaDescription) && $metaDescription !== '' ? $metaDescription : $defaultDescription;
@@ -42,7 +42,7 @@
         "name": "ASOG Technology Business Incubator",
         "alternateName": "ASOG-TBI",
         "url": "<?= base_url() ?>",
-        "logo": "<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>",
+        "logo": "<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp') ?>",
         "description": "Supports startup incubation, mentorship, programs, and innovation development in Camarines Sur.",
         "address": {
             "@type": "PostalAddress",
@@ -72,40 +72,53 @@
     </script>
     <!-- ================== CSS/JS  ===================== -->
     <link href="<?= base_url('style.css') ?>" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <style>
+        .grecaptcha-badge {
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+    </style>
+    <?php if (!empty($extraCss) && is_array($extraCss)): ?>
+        <?php foreach ($extraCss as $css): ?>
+            <link rel="stylesheet" href="<?= esc($css) ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
+    <?php if (empty($hideSiteHeader)): ?>
+    <script src="<?= base_url('assets/loader/vendor/gsap.min.js') ?>"></script>
+    <?php endif; ?>
     <?php if (empty($hideSiteHeader)): ?>
     <script src="<?= base_url('assets/js/features/layout/header.js') ?>" defer></script>
     <?php endif; ?>
 
-    <!-- ================== GOOGLE FONTS  ===================== -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- ================== LOCAL FONTS  ===================== -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/localFonts.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>">
     <!-- ================== FAVICON  ========================== -->
-    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
-    <link rel="apple-touch-icon" href="<?= base_url('icon.png') ?>">
-    <!-- Preload critical WebP logo -->
-    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>"
-        type="image/webp">
+    <link rel="icon" href="<?= base_url('assets/favicon/favicon.ico') ?>" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/favicon/favicon-32x32.png') ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/favicon/favicon-16x16.png') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/favicon/apple-touch-icon.png') ?>">
+    <link rel="manifest" href="<?= base_url('assets/favicon/site.webmanifest') ?>">
     <?php if (! empty($heroPreloadImage)): ?>
     <link rel="preload" as="image" href="<?= esc($heroPreloadImage) ?>" fetchpriority="high">
     <?php endif; ?>
+    <?php if (! empty($isLanding) && empty($hideSiteHeader) && (($showAsogLoader ?? null) !== false) && empty($skipAsogLoaderWords)): ?>
+    <link rel="preload" as="font" href="<?= base_url('assets/loader/fonts/MonasGrotesk-Bold.woff2') ?>" type="font/woff2" crossorigin>
+    <?php endif; ?>
 </head>
 
-<?php $bodyClass = trim('font-body bg-dark text-off overflow-x-hidden ' . (string) ($bodyClass ?? '')); ?>
+<?php $bodyClass = trim('font-body bg-dark text-off overflow-x-hidden ' . (string) ($bodyClass ?? '') . (! empty($isPreview) ? ' has-preview-banner' : '')); ?>
 
 <body class="<?= esc($bodyClass) ?>">
     <?php
     /* ── Nav URLs: always link to dedicated pages ── */
     $navAbout      = site_url('about');
-    $navOurStory   = $navAbout . '#about-panel-1';
+    $navOurStory   = $navAbout . '';
     $navAboutLogo  = site_url('about/logo');
     $navPrograms   = site_url('programs');
-    $navAltitude   = $navPrograms . '#altitude-3d';
+    $navAltitude   = $navPrograms . ' ';
     $navServices   = site_url('services');
     $navFacilities = site_url('facilities');
     $navIncubatees = site_url('incubatees');
@@ -133,13 +146,47 @@
     $isProgramsPage  = $seg1 === 'programs';
     $isLandingPage   = ! empty($isLanding);
     $hideSiteHeader  = ! empty($hideSiteHeader);
+    $showAsogLoader  = ($showAsogLoader ?? null) !== false;
 
-    // $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact'], true)
-    //     || str_starts_with($uriPath, 'apply');
+    $forceWhiteLogoPages = in_array($seg1, ['about', 'programs', 'services', 'facilities', 'news', 'organization', 'contact', 'incubatees'], true)
+        || str_starts_with($uriPath, 'apply');
+
+    $initialNavTheme = $forceWhiteLogoPages ? ' on-blue' : '';
 
     $activeClass = static fn(bool $isActive): string => $isActive ? ' is-active' : '';
     ?>
     <a class="sr-only focus:not-sr-only" href="#main">Skip to content</a>
+
+    <?php if (! empty($isPreview)): ?>
+    <link rel="stylesheet" href="<?= base_url('assets/css/previewBanner.css') ?>">
+    <?php endif; ?>
+
+    <?php if (! empty($isPreview) && empty($hideSiteHeader)): ?>
+    <div class="preview-banner <?= ($isDraft ?? false) ? 'draft' : 'published' ?>" id="previewBanner">
+        <?php if ($isDraft ?? false): ?>
+            Preview Mode — This post is currently a draft and has not been published yet.
+        <?php else: ?>
+            Preview Mode 
+        <?php endif; ?>
+    </div>
+    <script>
+        (function () {
+            var banner = document.getElementById('previewBanner');
+            if (!banner) return;
+            function setOffset() {
+                document.documentElement.style.setProperty('--preview-banner-height', banner.offsetHeight + 'px');
+            }
+            setOffset();
+            window.addEventListener('resize', setOffset);
+        })();
+    </script>
+    <?php endif; ?>
+
+    <?php if ($isLandingPage && ! $hideSiteHeader && $showAsogLoader): ?>
+        <?= view('components/asog_loader', [
+            'skipWordAnimation' => ! empty($skipAsogLoaderWords),
+        ]) ?>
+    <?php endif; ?>
 
     <?php if (! $hideSiteHeader): ?>
 
@@ -154,7 +201,7 @@
 
 
     <nav id="navbar"
-        class="fixed top-0 left-0 right-0 z-[500]<?= $isNewsDetail ? ' logo-color-exception' : '' ?><?= $isProgramsPage ? ' nav-programs-desktop' : '' ?><?= $isLandingPage ? ' landing-nav' : '' ?>">
+        class="fixed top-0 left-0 right-0 z-[500]<?= $initialNavTheme ?><?= $isNewsDetail ? ' logo-color-exception' : '' ?><?= $isProgramsPage ? ' nav-programs-desktop' : '' ?><?= $isLandingPage ? ' landing-nav' : '' ?>">
         <div id="navIn" class="flex items-center px-4 lg:px-10 min-h-20 py-2 lg:py-3">
 
             <!-- desktop left links -->
@@ -189,18 +236,8 @@
 
             <!-- CENTER LOGO -->
             <a href="<?= base_url() ?>" id="navLogo" class="flex no-underline">
-                <picture>
-                    <source srcset="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>"
-                        type="image/webp">
-                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI"
-                        id="navImg" class="h-auto" />
-                </picture>
-                <picture>
-                    <source srcset="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.webp') ?>"
-                        type="image/webp">
-                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png') ?>" alt="ASOG TBI"
-                        id="navImgLandscape" class="object-contain" />
-                </picture>
+                <?= responsiveNavLogo() ?>
+                <?= responsiveNavLogoLandscape() ?>
             </a>
 
             <!-- desktop right links -->
@@ -217,7 +254,7 @@
                 </div>
                 <!-- CTA Button -->
                 <a href="<?= $navCta ?>" data-order="6"
-                    class="nav-btn ml-4 font-body text-[.63rem] font-light tracking-[.13em] uppercase text-white bg-sky border border-sky px-5 py-2 rounded-sm no-underline whitespace-nowrap shrink-0 transition-colors duration-200 hover:bg-sky/80">Be
+                    class="nav-btn ml-4 font-body text-[.63rem] font-semibold tracking-[.13em] uppercase text-navy bg-gold border border-gold px-5 py-2 rounded-sm no-underline whitespace-nowrap shrink-0 transition-colors duration-200 hover:bg-gold-dk">Be
                     an Incubatee</a>
 
                 <!-- COLLAPSED DUPLICATES (appear on scroll via .lo) -->
@@ -243,7 +280,7 @@
                     </div>
                 </div>
                 <a href="<?= $navIncubatees ?>"
-                    class="nl nav-link lo text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 no-underline items-center border-b-2 border-transparent -mb-0.5 whitespace-nowrap hover:text-off hover:border-gold<?= $activeClass($isIncubatees) ?>"
+                   class="nl nav-link lo text-[.68rem] font-medium tracking-[.09em] uppercase text-white/60 no-underline px-4 border-b-2 border-transparent -mb-0.5 whitespace-nowrap transition-all duration-200 hover:text-off hover:border-gold<?= $activeClass($isIncubatees) ?>"
                     data-order="3">Incubatees</a>
             </div>
 
@@ -318,7 +355,7 @@
                 Us</a>
         </nav>
         <a href="<?= $navCta ?>"
-            class="mt-8 text-center font-body text-[.72rem] font-bold tracking-[.14em] uppercase text-white bg-sky px-8 py-4 rounded-sm no-underline transition-colors hover:bg-sky/80">Be
+            class="mt-8 text-center font-body text-[.72rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-4 rounded-sm no-underline transition-colors hover:bg-gold-dk">Be
             an Incubatee</a>
     </div>
     <?php endif; ?>

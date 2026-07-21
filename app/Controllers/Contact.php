@@ -2,8 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Libraries\TransactionalMailer;
+use App\Libraries\RecaptchaVerifier;
+
 class Contact extends BaseController
 {
+    private const MIN_MESSAGE_WORDS = 10;
+    private const MAX_MESSAGE_WORDS = 5000;
+
     public function index(): string
     {
         $data = [
@@ -35,17 +41,51 @@ class Contact extends BaseController
             'message' => $this->request->getPost('message'),
         ];
 
+        $message = trim((string) $data['message']);
+        $wordCount = $message === '' ? 0 : preg_match_all('/\S+/u', $message, $matches);
+
+        if ($message === '') {
+            setToast('error', 'Please fill in all fields correctly.');
+            return redirect()->back()->withInput();
+        }
+
+        if ($wordCount !== false && $wordCount < self::MIN_MESSAGE_WORDS) {
+            setToast('error', 'Message must be at least ' . self::MIN_MESSAGE_WORDS . ' words.');
+            return redirect()->back()->withInput()->with('errors', [
+                'message' => 'Message must be at least ' . self::MIN_MESSAGE_WORDS . ' words.'
+            ]);
+        }
+
+        if ($wordCount !== false && $wordCount > self::MAX_MESSAGE_WORDS) {
+            setToast('error', 'Message cannot exceed ' . self::MAX_MESSAGE_WORDS . ' words.');
+            return redirect()->back()->withInput()->with('errors', [
+                'message' => 'Message cannot exceed ' . self::MAX_MESSAGE_WORDS . ' words.'
+            ]);
+        }
+
+        $data['message'] = $message;
+
         if (! $this->contactModel->validate($data)) {
             setToast('error', 'Please fill in all fields correctly.');
             return redirect()->back()->withInput();
         }
 
-        if (! $this->contactModel->insert($data)) {
+        $recaptcha = new RecaptchaVerifier();
+        if (! $recaptcha->verifyRequest('contact_send')) {
+            setToast('error', $recaptcha->failureMessage());
+            return redirect()->back()->withInput();
+        }
+
+        $messageId = $this->contactModel->insert($data, true);
+        if (! $messageId) {
             log_message('error', 'Contact message DB insert failed.');
             setToast('error', 'Something went wrong. Please try again.');
             return redirect()->back()->withInput();
         }
 
+        $notificationData = $data;
+        $notificationData['id'] = (int) $messageId;
+        $this->notifyDashboard($notificationData);
         $this->notifyAdmin($data);
 
         setToast('success', 'Your message has been sent! We\'ll get back to you soon.');
@@ -57,15 +97,6 @@ class Contact extends BaseController
     // ──────────────────────────────────────────────
     private function notifyAdmin(array $data): void
     {
-        $emailService = \Config\Services::email();
-        $config       = new \Config\Email();
-
-        // Skip silently when SMTP is not configured
-        if (empty($config->SMTPUser) || $config->SMTPUser === 'your-email@gmail.com') {
-            log_message('info', 'Contact notification skipped — SMTP not configured.');
-            return;
-        }
-
         $body = view('emails/contact_notification', [
             'name'    => $data['name'],
             'email'   => $data['email'],
@@ -73,17 +104,34 @@ class Contact extends BaseController
             'sentAt'  => date('F j, Y \a\t g:i A'),
         ]);
 
-        $emailService->setFrom($config->fromEmail, $config->fromName);
-        $emailService->setTo($config->SMTPUser);          // send to the admin's own inbox
-        $emailService->setReplyTo($data['email'], $data['name']);
-        $emailService->setSubject('ASOG TBI — New Contact Message from ' . $data['name']);
-        $emailService->setMessage($body);
-        $emailService->setMailType('html');
+        $mailer = new TransactionalMailer();
+        $gmailConfig = config('GmailApi');
+        $emailConfig = config('Email');
+        $recipient = $gmailConfig->adminRecipient !== ''
+            ? $gmailConfig->adminRecipient
+            : ($gmailConfig->senderEmail !== '' ? $gmailConfig->senderEmail : $emailConfig->fromEmail);
 
-        if (! $emailService->send(false)) {
-            log_message('error', 'Contact notification email failed: ' . $emailService->printDebugger(['headers']));
+        if ($recipient === '') {
+            log_message('info', 'Contact notification skipped - admin recipient is not configured.');
+            return;
+        }
+
+        if (! $mailer->send($recipient, 'ASOG TBI - New Contact Message from ' . $data['name'], $body, [
+            'email' => (string) $data['email'],
+            'name' => (string) $data['name'],
+        ])) {
+            log_message('error', 'Contact notification email failed.');
         } else {
             log_message('info', 'Contact notification sent for: ' . $data['email']);
+        }
+    }
+
+    private function notifyDashboard(array $data): void
+    {
+        try {
+            $this->adminNotificationModel->createContactMessage($data);
+        } catch (\Throwable $e) {
+            log_message('error', '[Contact] createContactMessage notification failed: ' . $e->getMessage());
         }
     }
 }

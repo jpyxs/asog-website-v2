@@ -36,5 +36,11 @@
     .catch(function () {
       window.__ibData = [];
     })
-    .finally(loadAppScript);
+    .finally(function() {
+        loadAppScript();
+        var section = document.getElementById('ibCohortSection');
+        if (section) {
+            section.style.opacity = '1';
+        }
+    });
 })();

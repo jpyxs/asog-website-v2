@@ -2,8 +2,90 @@
      ║  BE AN INCUBATEE — Guidelines (editorial layout)                    ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 
+<!-- ── Application Status Banner (shown only when not yet open or closed) ── -->
+<?php
+    // ── Page-level application window state ──
+    $appState      = $applicationWindow['state'] ?? 'open';
+    $appIsOpen     = ($appState === 'open');
+    $appIsUpcoming = ($appState === 'upcoming');
+    $appIsClosed   = ($appState === 'closed');
+    $showStatusModal = ($appIsUpcoming || $appIsClosed);
+
+    if ($showStatusModal):
+        $statusModalTone = $appIsUpcoming ? 'upcoming' : 'closed';
+        $statusModalTitle = $appIsUpcoming
+            ? 'Applications are not yet open'
+            : 'Applications are closed';
+        $statusModalDateLine = '';
+        if (! empty($showApplicationDates)) {
+            if ($appIsUpcoming && ! empty($applicationStartLabel)) {
+                $statusModalDateLine = 'Starts ' . (string) $applicationStartLabel;
+            } elseif ($appIsClosed && ! empty($applicationDeadlineLabel)) {
+                $statusModalDateLine = 'Ended ' . (string) $applicationDeadlineLabel;
+            }
+        }
+        $statusModalMessage = $appIsUpcoming
+            ? 'Read the application guidelines to check eligibility, evaluation criteria, process, and benefits before submissions begin.'
+            : 'Submissions are paused for now. The application guidelines can help your team prepare for the next application period.';
+        $statusDismissKey = 'asog_apply_status_modal_' . md5(
+            (string) $appState . '|' . (string) ($applicationStartLabel ?? '') . '|' . (string) ($applicationDeadlineLabel ?? '')
+        );
+?>
+<div class="apply-status-modal apply-status-modal--<?= esc($statusModalTone, 'attr') ?>"
+    data-apply-status-modal
+    data-dismiss-key="<?= esc($statusDismissKey, 'attr') ?>"
+    data-overview-target="#application-overview"
+    aria-hidden="true">
+    <button type="button" class="apply-status-modal__backdrop" data-apply-status-close aria-label="Close application status notice" tabindex="-1"></button>
+    <section class="apply-status-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="applyStatusModalTitle"
+        aria-describedby="applyStatusModalDesc"
+        tabindex="-1">
+        <button type="button" class="apply-status-modal__close" data-apply-status-close aria-label="Close application status notice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"></path>
+            </svg>
+        </button>
+
+        <div class="apply-status-modal__mark" aria-hidden="true">
+            <?php if ($appIsUpcoming): ?>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 3.75h10M7 20.25h10"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 3.75v4.4c0 .72.3 1.4.82 1.9L11.25 12l-1.93 1.95a2.68 2.68 0 00-.82 1.9v4.4"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.5 3.75v4.4c0 .72-.3 1.4-.82 1.9L12.75 12l1.93 1.95c.52.5.82 1.18.82 1.9v4.4"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 16.5h4"></path>
+                </svg>
+            <?php else: ?>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 10.75V8a4 4 0 018 0v2.75"></path>
+                    <rect x="5.25" y="10.75" width="13.5" height="9" rx="2.1"></rect>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14.15v2.2"></path>
+                </svg>
+            <?php endif; ?>
+        </div>
+
+        <div class="apply-status-modal__body">
+            <h2 id="applyStatusModalTitle"><?= esc($statusModalTitle) ?></h2>
+            <?php if ($statusModalDateLine !== ''): ?>
+                <p class="apply-status-modal__date">
+                    <?= esc($statusModalDateLine) ?>
+                </p>
+            <?php endif; ?>
+            <p id="applyStatusModalDesc"><?= esc($statusModalMessage) ?></p>
+        </div>
+
+        <div class="apply-status-modal__actions">
+            <button type="button" class="apply-status-modal__primary" data-apply-status-overview>Read application guidelines</button>
+        </div>
+    </section>
+</div>
+<?php endif; ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/apply-status-banner.css') ?>">
+
 <!-- ── 1 · Eligibility — open typography, no containers ── -->
-<section class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
+<section id="application-overview" class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
     <div class="ai-grid"></div>
     <div class="ai-grid-fade"></div>
 
@@ -231,6 +313,20 @@
     </div>
 </section>
 
+<?php
+$applyFaqsVisible = ! empty($showApplyFaqs) && ! empty($faqs);
+$applicationTitle = $appIsOpen
+    ? 'Ready to get started?'
+    : (string) ($applicationWindow['title'] ?? 'Applications are not available');
+$applicationCopy = $appIsOpen
+    ? 'Fill out our application form and the ASOG-TBI team will reach out to schedule your screening and next steps.'
+    : (string) ($applicationWindow['message'] ?? 'Applications are not available right now.');
+if (! $appIsOpen && empty($showApplicationDates) && $appIsUpcoming) {
+    $applicationCopy = 'Applications for the ASOG TBI incubation program are not yet open. Please check back once the application period begins.';
+}
+?>
+
+<?php if (! $applyFaqsVisible): ?>
 <!-- ── 5 · What You'll Receive + CTA — split layout, no card grid ── -->
 <section class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
     <div class="ai-grid"></div>
@@ -238,7 +334,6 @@
 
     <div class="max-w-[880px] mx-auto relative z-[2]">
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-14 lg:gap-20">
-            <!-- Left — benefits as a simple list -->
             <div>
                 <div class="reveal mb-8">
                     <span
@@ -283,20 +378,178 @@
                 </ul>
             </div>
 
-            <!-- Right — CTA block -->
             <div class="reveal flex flex-col justify-center">
                 <h3 class="font-display text-[1.3rem] md:text-[1.5rem] lg:text-[1.7rem] text-dark leading-[1.2] mb-4">
-                    Ready to get started?</h3>
-                <p class="text-[.88rem] lg:text-[.98rem] font-normal leading-[1.65] text-black mb-6">Fill out our
-                    application form and the ASOG TBI team will reach out to schedule your screening and next steps.</p>
+                    <?= esc($applicationTitle) ?></h3>
+                <p class="text-[.88rem] lg:text-[.98rem] font-normal leading-[1.65] text-black mb-6">
+                    <?= esc($applicationCopy) ?>
+                </p>
+                <?php if ($appIsOpen): ?>
                 <a href="<?= site_url('apply/form') ?>"
                     class="inline-block self-start font-body text-[.62rem] lg:text-[.7rem] font-bold tracking-[.14em] uppercase text-dark bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors duration-200 hover:bg-gold-dk">
                     Apply Now →
                 </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </section>
+<?php else: ?>
+<!-- ── 5 · What You'll Receive ── -->
+<section class="relative bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14 overflow-hidden">
+    <div class="ai-grid"></div>
+    <div class="ai-grid-fade"></div>
+
+    <div class="max-w-[880px] mx-auto relative z-[2]">
+        <div class="reveal mb-8">
+            <span
+                class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">05
+                — Benefits</span>
+            <h2 class="font-display text-[1.5rem] md:text-[1.8rem] lg:text-[2.05rem] text-dark leading-[1.15]">
+                What you'll receive</h2>
+        </div>
+        <ul class="reveal grid grid-cols-1 md:grid-cols-2 gap-x-12 list-none p-0 m-0">
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Co-working space &amp; lab access
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Technical mentorship &amp; advisory
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Business model development support
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> IP &amp; legal guidance
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Investor readiness &amp; pitch coaching
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-t border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Networking &amp; partnership opportunities
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-y border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Training workshops &amp; seminars
+            </li>
+            <li
+                class="flex items-center gap-3 py-4 border-y border-dark/[.06] text-[.88rem] lg:text-[.98rem] text-black">
+                <span class="text-gold text-[.7rem]">✓</span> Demo day &amp; showcase events
+            </li>
+        </ul>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if ($applyFaqsVisible): ?>
+<?php
+$faqColumns = array_chunk($faqs, (int) ceil(count($faqs) / 2), true);
+?>
+
+<!-- FAQ section -->
+<section id="apply-faqs" class="relative overflow-hidden bg-navy py-20 md:py-28 px-6 md:px-10 lg:px-14" data-navhint="blue">
+    <div class="ai-grid opacity-30"></div>
+
+    <div class="max-w-[1120px] mx-auto relative z-[2]">
+        <div class="reveal mb-12 md:mb-16 max-w-[720px]">
+            <span
+                class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">
+                06 — FAQ
+            </span>
+            <h2 class="font-display text-[1.5rem] md:text-[1.8rem] lg:text-[2.05rem] text-off leading-[1.15]">
+                <?= esc($faqTitle ?? 'A few things you might be wondering.') ?>
+            </h2>
+            <p class="mt-5 max-w-[590px] text-[.84rem] lg:text-[.94rem] font-light leading-[1.8] text-white/55">
+                <?= esc($faqIntro ?? 'Find quick answers about eligibility, requirements, and what happens after you submit your application.') ?>
+            </p>
+        </div>
+
+        <div class="reveal grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20 items-start">
+            <?php foreach ($faqColumns as $faqColumn): ?>
+            <div class="faq-list">
+                <?php foreach ($faqColumn as $index => $faq): ?>
+                <details class="faq-item group">
+                    <summary class="faq-question">
+                        <span class="flex items-baseline gap-4 md:gap-5">
+                            <span class="text-[.62rem] font-bold tracking-[.18em] text-gold/65">
+                                <?= str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) ?>
+                            </span>
+                            <span><?= esc($faq['question']) ?></span>
+                        </span>
+                        <span class="shrink-0 text-[1.05rem] font-light leading-none text-gold/80 transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span>
+                    </summary>
+                    <div class="faq-answer">
+                        <div>
+                            <p><?= esc($faq['answer']) ?></p>
+                        </div>
+                    </div>
+                </details>
+                <?php endforeach; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if ($applyFaqsVisible): ?>
+<!-- Final application CTA -->
+<section id="application-notice" class="relative overflow-hidden bg-off py-20 md:py-28 px-6 md:px-10 lg:px-14" data-navhint="light">
+    <div class="ai-grid"></div>
+    <div class="ai-grid-fade"></div>
+
+    <div class="reveal max-w-[760px] mx-auto relative z-[2] text-center flex flex-col items-center">
+        <span
+            class="text-[.68rem] md:text-[.74rem] lg:text-[.84rem] font-bold tracking-[.22em] uppercase text-gold block mb-3">
+            <?= $applyFaqsVisible ? '07' : '06' ?> — Apply
+        </span>
+        <h2 class="font-display text-[2rem] md:text-[2.65rem] lg:text-[3rem] text-dark leading-[1.08]">
+            <?= esc($applicationTitle) ?>
+        </h2>
+        <p class="mt-5 mb-8 max-w-[590px] text-[.88rem] lg:text-[.98rem] font-normal leading-[1.75] text-black">
+            <?= esc($applicationCopy) ?>
+        </p>
+        <?php if (! empty($showApplicationDates)): ?>
+            <?php if ($appIsOpen && ! empty($applicationDeadlineLabel)): ?>
+                <p class="mb-6 inline-flex items-center justify-center gap-2 text-[.68rem] md:text-[.74rem] font-bold leading-none tracking-[.16em] uppercase text-dark/70">
+                    <svg class="w-4 h-4 flex-none text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                    </svg>
+                    Ends
+                    <strong class="text-gold font-bold"><?= esc((string) $applicationDeadlineLabel) ?></strong>
+                </p>
+            <?php elseif ($appIsUpcoming && ! empty($applicationStartLabel)): ?>
+                <p class="mb-6 inline-flex items-center justify-center gap-2 text-[.68rem] md:text-[.74rem] font-bold leading-none tracking-[.16em] uppercase text-dark/70">
+                    <svg class="w-4 h-4 flex-none text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                    </svg>
+                    Starts
+                    <strong class="text-gold font-bold"><?= esc((string) $applicationStartLabel) ?></strong>
+                </p>
+            <?php elseif ($appIsClosed && ! empty($applicationDeadlineLabel)): ?>
+                <p class="mb-6 inline-flex items-center justify-center gap-2 text-[.68rem] md:text-[.74rem] font-bold leading-none tracking-[.16em] uppercase text-dark/70">
+                    <svg class="w-4 h-4 flex-none text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                    </svg>
+                    Ended
+                    <strong class="text-gold font-bold"><?= esc((string) $applicationDeadlineLabel) ?></strong>
+                </p>
+            <?php endif; ?>
+        <?php endif; ?>
+        <?php if ($appIsOpen): ?>
+        <a href="<?= site_url('apply/form') ?>"
+            class="inline-block font-body text-[.62rem] lg:text-[.7rem] font-bold tracking-[.14em] uppercase text-dark bg-gold px-9 py-4 rounded-sm no-underline transition-colors duration-200 hover:bg-gold-dk">
+            Apply Now <span aria-hidden="true">&rarr;</span>
+        </a>
+        <?php endif; ?>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- Evaluation bar animation -->
 <script src="<?= base_url('assets/js/features/incubatees/incubateesApplyPage.js') ?>" defer></script>

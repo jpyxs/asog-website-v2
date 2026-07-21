@@ -2,10 +2,28 @@
     </div>
 </div>
 
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<?= view('admin/components/delete_confirm_modal') ?>
+<?= view('admin/components/discard_changes_modal') ?>
+
+<script src="<?= base_url('assets/js/admin/layout/scrollRestore.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/quill/quill.min.js') ?>"></script>
 <script id="adminQuillBootstrap"
     data-base-url="<?= esc(rtrim(site_url(), '/'), 'attr') ?>"
     src="<?= base_url('assets/js/admin/layout/quill.js') ?>"
     defer></script>
+<script src="<?= base_url('assets/js/admin/customSelect.js') ?>"></script>
+<script src="<?= base_url('assets/js/admin/layout/adminShell.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/layout/deleteConfirm.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/layout/notifications.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/settings/leanCanvas.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/settings/index.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/posts/index.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/incubatees/index.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/organization/index.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/applications/index.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/messages/index.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/admins/index.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/layout/dirtyCheck.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/admin/layout/discardChanges.js') ?>"></script>
 </body>
 </html>

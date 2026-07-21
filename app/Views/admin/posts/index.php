@@ -1,30 +1,100 @@
-<link rel="stylesheet" href="<?= base_url('assets/css/adminPosts.css') ?>">
+<?php
+$currentSearch = $search ?? '';
+$currentStatus = $status ?? 'all';
+$currentCategory = $category ?? 'all';
+$currentSort = $sort ?? 'default';
 
-<div class="toolbar">
-    <span class="count"><?= count($posts ?? []) ?> posts</span>
+if (! function_exists('postAdminUrl')) {
+    function postAdminUrl(int $page, string $search, string $status, string $category, string $sort = 'default'): string
+    {
+        $params = [
+            'page' => $page,
+            'search' => $search,
+            'status' => $status,
+            'category' => $category,
+            'sort' => $sort,
+        ];
+        $params = array_filter($params, static fn ($value): bool => $value !== '' && $value !== 'all' && $value !== 'default' && $value !== 1);
+
+        return site_url('admin/posts') . (empty($params) ? '' : '?' . http_build_query($params));
+    }
+}
+
+$nextDateSort = $currentSort === 'date_desc' ? 'date_asc' : 'date_desc';
+$dateSortUrl = postAdminUrl(1, $currentSearch, $currentStatus, $currentCategory, $nextDateSort);
+$dateSortLabel = $currentSort === 'date_asc' ? 'Oldest first' : ($currentSort === 'date_desc' ? 'Newest first' : 'Sort by date');
+$dateSortClass = $currentSort === 'date_asc' ? 'sorted-asc' : ($currentSort === 'date_desc' ? 'sorted-desc' : '');
+?>
+
+<div class="posts-admin-toolbar">
+    <div>
+        <span class="posts-admin-count"><?= $total ?? count($posts ?? []) ?> posts</span>
+        <p>Manage news and updates shown across the public website.</p>
+    </div>
     <div class="toolbar-actions">
         <?php if (!empty($supportsSortOrder)): ?>
-            <button type="button" class="btn btn-o" id="featuredOrderBtn">Order featured</button>
+            <button type="button" class="btn btn-o" id="featuredOrderBtn">Reorder Featured Stories</button>
         <?php endif; ?>
         <a href="<?= site_url('admin/posts/create') ?>" class="btn btn-p">New post</a>
     </div>
 </div>
 
 <?php
-$featuredStories = array_values(array_filter($posts ?? [], static function ($post) {
+$featuredStories = $featuredStories ?? array_values(array_filter($posts ?? [], static function ($post) {
     return ! empty($post['isFeatured']);
 }));
 ?>
+
+<div class="app-filter-bar posts-admin-filter">
+    <div class="filter-slot">
+        <form method="GET" action="<?= site_url('admin/posts') ?>" class="app-filter-form" id="filterForm">
+            <div class="app-search-wrap">
+                <svg class="app-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" name="search" id="postSearchInput" class="app-input-search"
+                       placeholder="Search by title, category, author..."
+                       value="<?= esc($currentSearch) ?>">
+            </div>
+            <select name="status" class="app-select-filter" id="statusFilterSelect">
+                <option value="all" <?= $currentStatus === 'all' ? 'selected' : '' ?>>All Statuses</option>
+                <option value="published" <?= $currentStatus === 'published' ? 'selected' : '' ?>>Published</option>
+                <option value="draft" <?= $currentStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
+                <option value="featured" <?= $currentStatus === 'featured' ? 'selected' : '' ?>>Featured</option>
+            </select>
+            <select name="category" class="app-select-filter" id="categoryFilterSelect">
+                <option value="all" <?= $currentCategory === 'all' ? 'selected' : '' ?>>All Categories</option>
+                <option value="news" <?= $currentCategory === 'news' ? 'selected' : '' ?>>News</option>
+                <option value="events" <?= $currentCategory === 'events' ? 'selected' : '' ?>>Events</option>
+                <option value="features" <?= $currentCategory === 'features' ? 'selected' : '' ?>>Features</option>
+            </select>
+            <?php if ($currentSort !== 'default'): ?>
+                <input type="hidden" name="sort" value="<?= esc($currentSort) ?>">
+            <?php endif; ?>
+            <button type="submit" class="app-btn-search">Search</button>
+            <?php if ($currentSearch !== '' || $currentStatus !== 'all' || $currentCategory !== 'all' || $currentSort !== 'default'): ?>
+                <a href="<?= site_url('admin/posts') ?>" class="app-btn-clear">Clear</a>
+            <?php endif; ?>
+        </form>
+    </div>
+</div>
 
 <?php if (!empty($supportsSortOrder)): ?>
 <div class="feature-order-modal" id="featureOrderModal" aria-hidden="true">
     <div class="feature-order-backdrop" data-close-modal="true"></div>
     <div class="feature-order-dialog" role="dialog" aria-modal="true" aria-labelledby="featureOrderTitle">
         <div class="feature-order-head">
-            <h3 id="featureOrderTitle">Featured Stories Order</h3>
-            <button type="button" class="feature-order-close" data-close-modal="true" aria-label="Close">&times;</button>
+            <div>
+                <span class="feature-order-kicker">Landing slider</span>
+                <h3 id="featureOrderTitle">Reorder Featured Stories</h3>
+            </div>
+            <button type="button" class="feature-order-close" data-close-modal="true" aria-label="Close">
+                <svg fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
-        <p class="feature-order-help">Drag stories to reorder. Top item appears first on the landing featured slider.</p>
+        <p class="feature-order-help">Drag stories into the order visitors should see them on the landing page.</p>
 
         <form action="<?= site_url('admin/posts/featured-order') ?>" method="POST" id="featureOrderForm">
             <?= csrf_field() ?>
@@ -50,30 +120,60 @@ $featuredStories = array_values(array_filter($posts ?? [], static function ($pos
     </div>
 </div>
 <?php endif; ?>
-
-<?php if (empty($posts)): ?>
-    <div class="empty-row">No posts yet. <a href="<?= site_url('admin/posts/create') ?>">Create one.</a></div>
-<?php else: ?>
+<div class="posts-admin-content">
     <table class="posts-tbl">
+        <colgroup>
+            <col class="posts-col-cover">
+            <col class="posts-col-title">
+            <col class="posts-col-category">
+            <col class="posts-col-status">
+            <col class="posts-col-date">
+            <col class="posts-col-actions">
+        </colgroup>
         <thead>
             <tr>
-                <th></th>
+                <th>Cover</th>
                 <th>Title</th>
                 <th>Category</th>
                 <th>Status</th>
-                <th>Date</th>
-                <th></th>
+                <th class="sortable <?= esc($dateSortClass, 'attr') ?>">
+                    <a href="<?= esc($dateSortUrl, 'attr') ?>" aria-label="<?= esc($dateSortLabel, 'attr') ?>">
+                        Date <span class="sort-icon"></span>
+                    </a>
+                </th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($posts as $p): ?>
+            <?php if (empty($posts)): ?>
+                <tr>
+                    <td colspan="6" class="posts-empty-cell">
+                        <?= ($currentSearch !== '' || $currentStatus !== 'all' || $currentCategory !== 'all' || $currentSort !== 'default') ? 'No posts match the current filters.' : 'No posts yet.' ?>
+                        <?php if ($currentSearch === '' && $currentStatus === 'all' && $currentCategory === 'all'): ?>
+                            <a href="<?= site_url('admin/posts/create') ?>">Create one.</a>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php else: ?>
+                <?php foreach ($posts as $p): ?>
                 <tr>
                     <td>
                         <?php if (! empty($p['imagePath'])): ?>
-                            <img src="<?= site_url($p['imagePath']) ?>" alt="" class="tbl-thumb"/>
+                            <span class="tbl-thumb-frame">
+                                <img src="<?= site_url($p['imagePath']) ?>" alt="" class="tbl-thumb" onerror="this.parentNode.classList.add('is-missing'); this.removeAttribute('src');"/>
+                                <span class="tbl-thumb-empty" aria-hidden="true">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.75 6.75A2 2 0 016.75 4.75h10.5a2 2 0 012 2v10.5a2 2 0 01-2 2H6.75a2 2 0 01-2-2V6.75z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 15.75l2.65-2.65a1.2 1.2 0 011.7 0l1.15 1.15 1.65-1.65a1.2 1.2 0 011.7 0l2.15 2.15M8.5 8.75h.01" />
+                                    </svg>
+                                </span>
+                            </span>
                         <?php else: ?>
                             <span class="tbl-thumb-empty">
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.75 6.75A2 2 0 016.75 4.75h10.5a2 2 0 012 2v10.5a2 2 0 01-2 2H6.75a2 2 0 01-2-2V6.75z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 15.75l2.65-2.65a1.2 1.2 0 011.7 0l1.15 1.15 1.65-1.65a1.2 1.2 0 011.7 0l2.15 2.15M8.5 8.75h.01" />
+                                </svg>
                             </span>
                         <?php endif; ?>
                     </td>
@@ -93,92 +193,60 @@ $featuredStories = array_values(array_filter($posts ?? [], static function ($pos
                     <td style="font-size:.72rem;color:#94a3b8;white-space:nowrap"><?= $p['publishedAt'] ? date('M j, Y', strtotime($p['publishedAt'])) : '—' ?></td>
                     <td>
                         <div class="acts">
-                            <a href="<?= site_url('news/' . $p['slug']) ?>" target="_blank" title="Preview">
+                            <a href="<?= site_url('admin/posts/' . $p['id'] . '/preview') ?>" target="_blank" class="act-btn preview" title="Preview" aria-label="Preview post">
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </a>
-                            <a href="<?= site_url('admin/posts/' . $p['id'] . '/edit') ?>" title="Edit">
-                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 7.125L16.862 4.487"/><path stroke-linecap="round" stroke-linejoin="round" d="M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                            <a href="<?= site_url('admin/posts/' . $p['id'] . '/edit') ?>" class="act-btn edit" title="Edit" aria-label="Edit post">
+                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 7.125L16.862 4.487"/><path stroke-linecap="round" stroke-linejoin="round" d="M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                             </a>
-                            <form action="<?= site_url('admin/posts/' . $p['id']) ?>" method="POST" onsubmit="return confirm('Delete this post?')">
+                            <form action="<?= site_url('admin/posts/' . $p['id']) ?>" method="POST" data-admin-delete-confirm data-confirm-title="Delete post?" data-confirm-message="This removes the post, its public news page, and its image reference from the website. This action cannot be undone.">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="del" title="Delete">
-                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                                <button type="submit" class="act-btn delete del" title="Delete" aria-label="Delete post">
+                                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 </button>
                             </form>
                         </div>
                     </td>
                 </tr>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </tbody>
     </table>
 
-<?php endif; ?>
+    <?php if (!empty($totalPages) && $totalPages > 1): ?>
+        <div class="tbl-pagination">
+            <span class="pag-info">Showing <?= ($currentPage - 1) * $perPage + 1 ?>&ndash;<?= min($currentPage * $perPage, $total) ?> of <?= $total ?></span>
+            <div class="pag-controls">
+                <?php $prevDisabled = $currentPage <= 1; ?>
+                <a class="pag-btn<?= $prevDisabled ? ' pag-disabled' : '' ?>"
+                   href="<?= $prevDisabled ? '#' : postAdminUrl($currentPage - 1, $currentSearch, $currentStatus, $currentCategory, $currentSort) ?>" aria-label="Previous">&larr;</a>
+                <?php
+                $range = 1;
+                $pages = [];
+                for ($i = 1; $i <= $totalPages; $i++) {
+                    if ($i === 1 || $i === $totalPages || ($i >= $currentPage - $range && $i <= $currentPage + $range)) {
+                        $pages[] = $i;
+                    }
+                }
+                $prev = null;
+                foreach ($pages as $p):
+                    if ($prev !== null && $p - $prev > 1): ?>
+                        <span class="pag-ellipsis">&hellip;</span>
+                    <?php endif; ?>
+                    
+                    <?php if ($p === $currentPage): ?>
+                        <span class="pag-btn pag-active"><?= $p ?></span>
+                    <?php else: ?>
+                        <a class="pag-btn" href="<?= postAdminUrl($p, $currentSearch, $currentStatus, $currentCategory, $currentSort) ?>"><?= $p ?></a>
+                    <?php endif; ?>
+                <?php $prev = $p; endforeach; ?>
+                
+                <?php $nextDisabled = $currentPage >= $totalPages; ?>
+                <a class="pag-btn<?= $nextDisabled ? ' pag-disabled' : '' ?>"
+                   href="<?= $nextDisabled ? '#' : postAdminUrl($currentPage + 1, $currentSearch, $currentStatus, $currentCategory, $currentSort) ?>" aria-label="Next">&rarr;</a>
+            </div>
+        </div>
+    <?php endif; ?>
 
-<?php if (!empty($supportsSortOrder)): ?>
-<script>
-(function () {
-    var modal = document.getElementById('featureOrderModal');
-    var openBtn = document.getElementById('featuredOrderBtn');
-    var list = document.getElementById('featureOrderList');
-    if (!modal || !openBtn || !list) return;
-
-    function openModal() {
-        modal.classList.add('is-open');
-        modal.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-        modal.classList.remove('is-open');
-        modal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-    }
-
-    openBtn.addEventListener('click', openModal);
-    modal.addEventListener('click', function (event) {
-        if (event.target.matches('[data-close-modal="true"]')) {
-            closeModal();
-        }
-    });
-
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && modal.classList.contains('is-open')) {
-            closeModal();
-        }
-    });
-
-    var dragging = null;
-
-    list.addEventListener('dragstart', function (event) {
-        var item = event.target.closest('.feature-order-item');
-        if (!item) return;
-        dragging = item;
-        item.classList.add('is-dragging');
-        event.dataTransfer.effectAllowed = 'move';
-    });
-
-    list.addEventListener('dragend', function () {
-        if (dragging) {
-            dragging.classList.remove('is-dragging');
-        }
-        dragging = null;
-    });
-
-    list.addEventListener('dragover', function (event) {
-        if (!dragging) return;
-        event.preventDefault();
-        var over = event.target.closest('.feature-order-item');
-        if (!over || over === dragging) return;
-
-        var rect = over.getBoundingClientRect();
-        var before = event.clientY < rect.top + rect.height / 2;
-        if (before) {
-            list.insertBefore(dragging, over);
-        } else {
-            list.insertBefore(dragging, over.nextSibling);
-        }
-    });
-})();
-</script>
-<?php endif; ?>
+</div>

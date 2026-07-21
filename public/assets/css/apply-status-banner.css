@@ -1,0 +1,284 @@
+.apply-status-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 4vw, 2rem);
+    font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.apply-status-modal.is-open {
+    display: flex;
+}
+
+.apply-status-modal.is-closing {
+    display: flex;
+}
+
+.apply-status-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(16, 32, 51, .62);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    opacity: 0;
+    animation: apply-status-backdrop-in .18s ease-out forwards;
+}
+
+.apply-status-modal.is-closing .apply-status-modal__backdrop {
+    animation: apply-status-backdrop-out .18s ease-in forwards;
+}
+
+.apply-status-modal__dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 560px);
+    max-height: min(86vh, 680px);
+    overflow-y: auto;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .94), rgba(248, 246, 242, .98)),
+        #F8F6F2;
+    border: 1px solid rgba(16, 32, 51, .12);
+    border-radius: .65rem;
+    box-shadow: 0 24px 70px rgba(16, 32, 51, .24);
+    padding: clamp(1.15rem, 4vw, 1.65rem);
+    padding-bottom: clamp(.85rem, 3vw, 1rem);
+    color: #102033;
+    transform: translateY(12px) scale(.985);
+    opacity: 0;
+    outline: none;
+    animation: apply-status-dialog-in .22s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+
+.apply-status-modal.is-closing .apply-status-modal__dialog {
+    animation: apply-status-dialog-out .18s ease-in forwards;
+}
+
+.apply-status-modal__close {
+    position: absolute;
+    top: .8rem;
+    right: .8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(16, 32, 51, .12);
+    border-radius: .35rem;
+    background: rgba(255, 255, 255, .72);
+    color: rgba(16, 32, 51, .62);
+    cursor: pointer;
+    transition: border-color .16s ease, color .16s ease, background .16s ease;
+}
+
+.apply-status-modal__close:hover,
+.apply-status-modal__close:focus-visible {
+    border-color: rgba(16, 32, 51, .28);
+    background: #fff;
+    color: #102033;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(248, 175, 33, .16);
+}
+
+.apply-status-modal__close svg {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 17px;
+    height: 17px;
+    transform: translate(-50%, -50%);
+}
+
+.apply-status-modal__mark {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1.05rem;
+    border-radius: 999px;
+    border: 1px solid rgba(248, 175, 33, .24);
+    background: rgba(248, 175, 33, .09);
+    color: #B97808;
+}
+
+.apply-status-modal--closed .apply-status-modal__mark {
+    border-color: rgba(190, 18, 60, .16);
+    background: rgba(190, 18, 60, .06);
+    color: #9f1239;
+}
+
+.apply-status-modal__mark svg {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 25px;
+    height: 25px;
+    transform: translate(-50%, -50%);
+}
+
+.apply-status-modal--closed .apply-status-modal__mark svg {
+    width: 23px;
+    height: 23px;
+    transform: translate(-50%, -55%);
+}
+
+.apply-status-modal__body {
+    display: grid;
+    gap: .8rem;
+    justify-items: center;
+    padding: 0 2rem;
+    text-align: center;
+}
+
+.apply-status-modal__body h2 {
+    margin: 0;
+    max-width: 420px;
+    color: #0b315f;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(1.65rem, 6vw, 2.35rem);
+    font-weight: 400;
+    line-height: 1.04;
+}
+
+.apply-status-modal__date {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin: 0;
+    border: 1px solid rgba(16, 32, 51, .08);
+    border-radius: .35rem;
+    background: #fff;
+    color: rgba(16, 32, 51, .72);
+    padding: .48rem .62rem;
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1;
+}
+
+.apply-status-modal__body p:not(.apply-status-modal__date) {
+    margin: 0;
+    max-width: 480px;
+    color: rgba(16, 32, 51, .72);
+    font-size: .92rem;
+    font-weight: 400;
+    line-height: 1.72;
+}
+
+.apply-status-modal__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .65rem;
+    margin-top: 1.35rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(16, 32, 51, .08);
+}
+
+.apply-status-modal__primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    border-radius: .28rem;
+    padding: .78rem 1rem;
+    font: inherit;
+    font-size: .66rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    line-height: 1;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease;
+}
+
+.apply-status-modal__primary {
+    border: 1px solid #F8AF21;
+    background: #F8AF21;
+    color: #102033;
+}
+
+.apply-status-modal__primary:hover,
+.apply-status-modal__primary:focus-visible {
+    background: #F8AF21;
+    border-color: #d89010;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(248, 175, 33, .18);
+}
+
+html.apply-status-modal-lock,
+html.apply-status-modal-lock body {
+    overflow: hidden !important;
+}
+
+@keyframes apply-status-backdrop-in {
+    to { opacity: 1; }
+}
+
+@keyframes apply-status-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes apply-status-dialog-in {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes apply-status-dialog-out {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(8px) scale(.985);
+    }
+}
+
+@media (max-width: 640px) {
+    .apply-status-modal {
+        align-items: flex-end;
+        padding: .75rem;
+    }
+
+    .apply-status-modal__dialog {
+        width: 100%;
+        max-height: 88vh;
+        border-radius: .65rem .65rem .45rem .45rem;
+        padding: 1rem;
+    }
+
+    .apply-status-modal__body {
+        padding: 0 1.8rem;
+    }
+
+    .apply-status-modal__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .apply-status-modal__primary {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .apply-status-modal__backdrop,
+    .apply-status-modal__dialog,
+    .apply-status-modal__primary {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        opacity: 1;
+    }
+}

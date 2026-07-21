@@ -1,9 +1,61 @@
 (function() {
+    function formatFileSize(bytes) {
+        if (bytes >= 1048576) {
+            return (bytes / 1048576).toFixed(1).replace(/\.0$/, '') + ' MB';
+        }
+
+        if (bytes >= 1024) {
+            return (bytes / 1024).toFixed(1).replace(/\.0$/, '') + ' KB';
+        }
+
+        return bytes + ' bytes';
+    }
+
+    function isWithinMaxSize(file, maxBytes) {
+        if (!file || !maxBytes) {
+            return true;
+        }
+
+        return file.size <= maxBytes;
+    }
+
+    function setHelpState(helpEl, defaultText, message, isError) {
+        if (!helpEl) {
+            return;
+        }
+
+        helpEl.textContent = message || defaultText;
+        helpEl.classList.toggle('is-error', !!isError);
+    }
+
+    function isSquareImage(file) {
+        return new Promise(function(resolve) {
+            var url = URL.createObjectURL(file);
+            var img = new Image();
+
+            img.onload = function() {
+                URL.revokeObjectURL(url);
+                resolve(img.naturalWidth === img.naturalHeight);
+            };
+
+            img.onerror = function() {
+                URL.revokeObjectURL(url);
+                resolve(false);
+            };
+
+            img.src = url;
+        });
+    }
+
     /* ── Logo Upload Zone ── */
     var zone = document.getElementById('uploadZone');
     var input = document.getElementById('logoInput');
     var preview = document.getElementById('uploadPreview');
     var label = document.getElementById('uploadLabel');
+    var logoHelp = document.getElementById('logoUploadHelp');
+    var logoDefaultHelp = logoHelp ? logoHelp.textContent : '';
+    var logoMaxBytes = parseInt(input && input.dataset.maxBytes ? input.dataset.maxBytes : '0', 10) || 0;
+    var logoMaxLabel = input && input.dataset.maxLabel ? input.dataset.maxLabel : formatFileSize(logoMaxBytes);
 
     if (preview.querySelector('img')) label.style.display = 'none';
 
@@ -15,6 +67,13 @@
     input.addEventListener('change', function() {
         var file = this.files[0];
         if (!file) return;
+        if (!isWithinMaxSize(file, logoMaxBytes)) {
+            this.value = '';
+            setHelpState(logoHelp, logoDefaultHelp, 'Selected file is ' + formatFileSize(file.size) + '. Maximum is ' + logoMaxLabel + '.', true);
+            return;
+        }
+
+        setHelpState(logoHelp, logoDefaultHelp, logoDefaultHelp, false);
         var reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = '<img src="' + e.target.result + '" alt="">';
@@ -38,6 +97,11 @@
         zone.style.background = '';
         var files = e.dataTransfer.files;
         if (files.length > 0 && files[0].type.startsWith('image/')) {
+            if (!isWithinMaxSize(files[0], logoMaxBytes)) {
+                setHelpState(logoHelp, logoDefaultHelp, 'Selected file is ' + formatFileSize(files[0].size) + '. Maximum is ' + logoMaxLabel + '.', true);
+                return;
+            }
+
             input.files = files;
             input.dispatchEvent(new Event('change'));
         }
@@ -48,8 +112,15 @@
     var inputW = document.getElementById('logoWhiteInput');
     var previewW = document.getElementById('uploadPreviewWhite');
     var labelW = document.getElementById('uploadLabelWhite');
+    var logoWhiteHelp = document.getElementById('logoWhiteUploadHelp');
+    var logoWhiteDefaultHelp = logoWhiteHelp ? logoWhiteHelp.textContent : '';
+    var logoWhiteMaxBytes = parseInt(inputW && inputW.dataset.maxBytes ? inputW.dataset.maxBytes : '0', 10) || 0;
+    var logoWhiteMaxLabel = inputW && inputW.dataset.maxLabel ? inputW.dataset.maxLabel : formatFileSize(logoWhiteMaxBytes);
 
-    if (previewW.querySelector('img')) labelW.style.display = 'none';
+    if (previewW.querySelector('img')) {
+        previewW.classList.add('has-preview');
+        labelW.style.display = 'none';
+    }
 
     zoneW.addEventListener('click', function(e) {
         if (e.target === inputW) return;
@@ -59,9 +130,17 @@
     inputW.addEventListener('change', function() {
         var file = this.files[0];
         if (!file) return;
+        if (!isWithinMaxSize(file, logoWhiteMaxBytes)) {
+            this.value = '';
+            setHelpState(logoWhiteHelp, logoWhiteDefaultHelp, 'Selected file is ' + formatFileSize(file.size) + '. Maximum is ' + logoWhiteMaxLabel + '.', true);
+            return;
+        }
+
+        setHelpState(logoWhiteHelp, logoWhiteDefaultHelp, logoWhiteDefaultHelp, false);
         var reader = new FileReader();
         reader.onload = function(e) {
-            previewW.innerHTML = '<img src="' + e.target.result + '" alt="" style="background:#03355a;padding:.5rem;border-radius:.3rem;filter:brightness(0) invert(1)">';
+            previewW.innerHTML = '<img class="upload-preview-white-logo" src="' + e.target.result + '" alt="">';
+            previewW.classList.add('has-preview');
             labelW.style.display = 'none';
         };
         reader.readAsDataURL(file);
@@ -82,6 +161,11 @@
         zoneW.style.background = '';
         var files = e.dataTransfer.files;
         if (files.length > 0 && files[0].type.startsWith('image/')) {
+            if (!isWithinMaxSize(files[0], logoWhiteMaxBytes)) {
+                setHelpState(logoWhiteHelp, logoWhiteDefaultHelp, 'Selected file is ' + formatFileSize(files[0].size) + '. Maximum is ' + logoWhiteMaxLabel + '.', true);
+                return;
+            }
+
             inputW.files = files;
             inputW.dispatchEvent(new Event('change'));
         }
@@ -91,6 +175,8 @@
     /* ── Founders Repeater ── */
     var tmRows = document.getElementById('tmRows');
     var tmAdd = document.getElementById('tmAdd');
+    var tmHelp = document.getElementById('tmUploadHelp');
+    var tmDefaultHelp = tmHelp ? tmHelp.textContent : '';
 
     function bindTmPhotoInput(fileInput) {
         if (!fileInput || fileInput.dataset.bound === '1') return;
@@ -101,6 +187,31 @@
 
         function applySelectedFile(file) {
             if (!file || !file.type || file.type.indexOf('image/') !== 0) return;
+            var maxBytes = parseInt(fileInput.dataset.maxBytes || '0', 10) || 0;
+            if (!isWithinMaxSize(file, maxBytes)) {
+                fileInput.value = '';
+                setHelpState(tmHelp, tmDefaultHelp, 'Founder photo is ' + formatFileSize(file.size) + '. Maximum is ' + formatFileSize(maxBytes) + '.', true);
+                return;
+            }
+
+            var aspect = (fileInput.dataset.aspect || '').toLowerCase();
+            if (aspect === 'square') {
+                isSquareImage(file).then(function(isSquare) {
+                    if (!isSquare) {
+                        fileInput.value = '';
+                        setHelpState(tmHelp, tmDefaultHelp, 'Founder photos must be square (1:1). Please crop the image before uploading.', true);
+                        return;
+                    }
+
+                    setHelpState(tmHelp, tmDefaultHelp, tmDefaultHelp, false);
+                    var dt = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    fileInput.dispatchEvent(new Event('change'));
+                });
+                return;
+            }
+
             var dt = new DataTransfer();
             dt.items.add(file);
             fileInput.files = dt.files;
@@ -134,6 +245,33 @@
         fileInput.addEventListener('change', function() {
             var file = fileInput.files[0];
             if (!file) return;
+            var maxBytes = parseInt(fileInput.dataset.maxBytes || '0', 10) || 0;
+            if (!isWithinMaxSize(file, maxBytes)) {
+                fileInput.value = '';
+                setHelpState(tmHelp, tmDefaultHelp, 'Founder photo is ' + formatFileSize(file.size) + '. Maximum is ' + formatFileSize(maxBytes) + '.', true);
+                return;
+            }
+
+            var aspect = (fileInput.dataset.aspect || '').toLowerCase();
+            if (aspect === 'square') {
+                isSquareImage(file).then(function(isSquare) {
+                    if (!isSquare) {
+                        fileInput.value = '';
+                        setHelpState(tmHelp, tmDefaultHelp, 'Founder photos must be square (1:1). Please crop the image before uploading.', true);
+                        return;
+                    }
+
+                    setHelpState(tmHelp, tmDefaultHelp, tmDefaultHelp, false);
+                    renderPreview(file);
+                });
+                return;
+            }
+
+            renderPreview(file);
+        });
+
+        function renderPreview(file) {
+            
             var reader = new FileReader();
             reader.onload = function(ev) {
                 // Update preview without destroying the file input
@@ -151,10 +289,13 @@
                 }
                 // Clear the existing photo path since we have a new upload
                 var hidden = zone.querySelector('input[name="tm_photo_existing[]"]');
-                if (hidden) hidden.value = '';
+                if (hidden) {
+                    hidden.value = '';
+                    hidden.dispatchEvent(new Event('input', { bubbles: true }));
+                }
             };
             reader.readAsDataURL(file);
-        });
+        }
     }
 
     tmRows.querySelectorAll('.tm-photo-input').forEach(bindTmPhotoInput);
@@ -165,7 +306,7 @@
         row.innerHTML =
             '<label class="tm-photo-zone">' +
                 '<input type="hidden" name="tm_photo_existing[]" value="">' +
-                '<input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*">' +
+                '<input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*" data-aspect="square">' +
                 '<span class="tm-photo-placeholder">Founder<br>Photo</span>' +
             '</label>' +
             '<input type="text" name="tm_name[]" placeholder="Name">' +
@@ -189,7 +330,7 @@
                 if (zone) {
                     zone.innerHTML =
                         '<input type="hidden" name="tm_photo_existing[]" value="">' +
-                        '<input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*">' +
+                        '<input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*" data-aspect="square">' +
                         '<span class="tm-photo-placeholder">Founder<br>Photo</span>';
                     bindTmPhotoInput(zone.querySelector('.tm-photo-input'));
                 }
@@ -243,3 +384,71 @@
         });
     }
 })();
+
+// ── Submission Guard for Founder Rows ── //
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('incubateeForm');
+    var tmRowsContainer = document.getElementById('tmRows');
+    
+    if (!form || !tmRowsContainer) return;
+
+    // Highlight name field when photo is chosen
+    tmRowsContainer.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('tm-photo-input')) {
+            var row = e.target.closest('.tm-row');
+            if (!row) return;
+            
+            var nameInput = row.querySelector('input[name="tm_name[]"]');
+            if (!nameInput) return;
+
+            if (e.target.files && e.target.files.length > 0) {
+                nameInput.placeholder = "Name (Required)";
+                nameInput.style.borderColor = "#03558C"; 
+            }
+        }
+    });
+
+    // Catch empty names if photo or title exists
+    form.addEventListener('submit', function(e) {
+        var rows = tmRowsContainer.querySelectorAll('.tm-row');
+        var formIsInvalid = false;
+
+        rows.forEach(function(row) {
+            var fileInput = row.querySelector('.tm-photo-input');
+            var existingInput = row.querySelector('input[name="tm_photo_existing[]"]');
+            var nameInput = row.querySelector('input[name="tm_name[]"]');
+            var roleInput = row.querySelector('input[name="tm_role[]"]');
+
+            if (nameInput) {
+                var hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+                var hasExistingFile = existingInput && existingInput.value.trim() !== '';
+                var hasRole = roleInput && roleInput.value.trim() !== '';
+                var isNameEmpty = nameInput.value.trim() === '';
+
+                if (isNameEmpty && (hasNewFile || hasExistingFile || hasRole)) {
+                    e.preventDefault();
+                    formIsInvalid = true;
+
+                    nameInput.required = true;
+                    nameInput.placeholder = "Name is required.";
+                    nameInput.style.borderColor = "#ef4444";
+                    
+                    nameInput.addEventListener('input', function() {
+                        this.setCustomValidity('');
+                        this.style.borderColor = '';
+                    }, { once: true });
+
+                    nameInput.setCustomValidity("Please specify the name of this founder. A founder cannot be saved without a name.");
+                }
+            }
+        });
+
+        if (formIsInvalid) {
+            var firstError = tmRowsContainer.querySelector('input[style*="rgb(239, 68, 68)"]');
+            if (firstError) {
+                firstError.focus();
+                firstError.reportValidity();
+            }
+        }
+    });
+});

@@ -1,5 +1,23 @@
-document.addEventListener('DOMContentLoaded', function () {
-    var configEl = document.getElementById('incubateesConfig');
+(function () {
+function init(root) {
+    root = root || document;
+    var on = window.AdminShell && typeof window.AdminShell.on === 'function'
+        ? function (target, eventName, selectorOrHandler, handler, options) {
+            return window.AdminShell.on(root, target, eventName, selectorOrHandler, handler, options);
+        }
+        : function (target, eventName, selectorOrHandler, handler, options) {
+            var listener = typeof selectorOrHandler === 'function'
+                ? selectorOrHandler
+                : function (event) {
+                    var matched = event.target && event.target.closest ? event.target.closest(selectorOrHandler) : null;
+                    if (!matched || (target !== document && target !== window && !target.contains(matched))) return;
+                    handler.call(matched, event, matched);
+                };
+            target.addEventListener(eventName, listener, options || false);
+            return function () { target.removeEventListener(eventName, listener, options || false); };
+        };
+
+    var configEl = root.querySelector('#incubateesConfig');
     if (!configEl) {
         return;
     }
@@ -10,15 +28,15 @@ document.addEventListener('DOMContentLoaded', function () {
     var csrfName = configEl.dataset.csrfTokenName || '';
     var csrfValue = configEl.dataset.csrfTokenValue || '';
 
-    var cmOverlay = document.getElementById('cmOverlay');
-    var cmManageBtn = document.getElementById('cmManageBtn');
-    var cmCloseBtn = document.getElementById('cmCloseBtn');
-    var cmAddBtn = document.getElementById('cmAddBtn');
-    var cmBody = document.getElementById('cmBody');
-    var cmTotal = document.getElementById('cmTotal');
+    var cmOverlay = root.querySelector('#cmOverlay');
+    var cmManageBtn = root.querySelector('#cmManageBtn');
+    var cmCloseBtn = root.querySelector('#cmCloseBtn');
+    var cmAddBtn = root.querySelector('#cmAddBtn');
+    var cmBody = root.querySelector('#cmBody');
+    var cmTotal = root.querySelector('#cmTotal');
 
     function getCohortCount() {
-        return document.querySelectorAll('#cmBody tr[data-id]').length;
+        return root.querySelectorAll('#cmBody tr[data-id]').length;
     }
 
     function updateCohortCount() {
@@ -40,22 +58,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (cmManageBtn) {
-        cmManageBtn.addEventListener('click', openCohortModal);
+        on(cmManageBtn, 'click', openCohortModal);
     }
 
     if (cmCloseBtn) {
-        cmCloseBtn.addEventListener('click', closeCohortModal);
+        on(cmCloseBtn, 'click', closeCohortModal);
     }
 
     if (cmOverlay) {
-        cmOverlay.addEventListener('click', function (event) {
+        on(cmOverlay, 'click', function (event) {
             if (event.target === cmOverlay) {
                 closeCohortModal();
             }
         });
     }
 
-    document.addEventListener('keydown', function (event) {
+    on(document, 'keydown', function (event) {
         if (event.key === 'Escape') {
             closeCohortModal();
         }
@@ -96,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            var emptyState = document.getElementById('cmEmptyState');
+            var emptyState = root.querySelector('#cmEmptyState');
             if (emptyState) {
                 emptyState.remove();
             }
@@ -142,56 +160,67 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function deleteCohort(id, name, rowEl) {
         if (!deleteBaseUrl) return;
-        if (!confirm('Delete ' + name + '?\nThis cannot be undone.')) {
-            return;
-        }
 
-        var payload = {};
-        payload[csrfName] = csrfValue;
+        // Change note: cohort deletes are AJAX, so they use the shared modal promise before fetch.
+        var confirmDelete = window.AdminDeleteConfirm
+            ? window.AdminDeleteConfirm.ask({
+                title: 'Delete cohort?',
+                message: 'This removes the "' + name + '" cohort from the cohort filters and manager. This action cannot be undone.',
+            })
+            : Promise.resolve(confirm('Delete ' + name + '?\nThis cannot be undone.'));
 
-        fetch(deleteBaseUrl + id + '/delete', {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-            if (!data.ok) {
-                alert(data.error || 'Failed to delete');
+        confirmDelete.then(function (confirmed) {
+            if (!confirmed) {
                 return;
             }
 
-            if (rowEl) {
-                rowEl.remove();
-            }
+            var payload = {};
+            payload[csrfName] = csrfValue;
 
-            updateCohortCount();
-
-            if (getCohortCount() === 0) {
-                var body = document.querySelector('.cm-modal-body');
-                if (body && !document.getElementById('cmEmptyState')) {
-                    var empty = document.createElement('div');
-                    empty.className = 'cm-empty-state';
-                    empty.id = 'cmEmptyState';
-                    empty.textContent = 'No cohorts yet. Add one below.';
-                    body.appendChild(empty);
+            fetch(deleteBaseUrl + id + '/delete', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (!data.ok) {
+                    alert(data.error || 'Failed to delete');
+                    return;
                 }
-            }
-        })
-        .catch(function () {
-            alert('Network error');
+
+                if (rowEl) {
+                    rowEl.remove();
+                }
+
+                updateCohortCount();
+
+                if (getCohortCount() === 0) {
+                    var body = root.querySelector('.cm-modal-body');
+                    if (body && !root.querySelector('#cmEmptyState')) {
+                        var empty = document.createElement('div');
+                        empty.className = 'cm-empty-state';
+                        empty.id = 'cmEmptyState';
+                        empty.textContent = 'No cohorts yet. Add one below.';
+                        body.appendChild(empty);
+                    }
+                }
+            })
+            .catch(function () {
+                alert('Network error');
+            });
         });
     }
 
     if (cmAddBtn) {
-        cmAddBtn.addEventListener('click', addCohort);
+        on(cmAddBtn, 'click', addCohort);
     }
 
     if (cmBody) {
-        cmBody.addEventListener('click', function (event) {
+        on(cmBody, 'click', function (event) {
             var btn = event.target.closest('.cm-del-btn');
             if (!btn || btn.disabled) return;
 
@@ -202,9 +231,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    var table = document.getElementById('incubateeTable');
-    var filterButtons = document.querySelectorAll('#cohortFilterBtns .filter-btn');
-    var status = document.getElementById('reorderStatus');
+    var table = root.querySelector('#incubateeTable');
+    var filterButtons = root.querySelectorAll('#cohortFilterBtns .filter-btn');
+    var reorderBtn = root.querySelector('#incReorderBtn');
 
     if (!table) {
         return;
@@ -212,29 +241,250 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var body = table.querySelector('tbody');
     var draggedRow = null;
+    var dragPlaceholder = null;
+    var dragPreview = null;
+    var dragOffsetX = 0;
+    var dragOffsetY = 0;
+    var activePointerId = null;
+    var isReorderMode = false;
+    var activeFilter = 'all';
+    var reorderSnapshot = '';
 
     function getRows() {
         return Array.from(body.querySelectorAll('tr.drag-row'));
     }
 
-    function setStatus(message, isError) {
-        if (!status) return;
-        status.textContent = message;
-        status.style.color = isError ? '#dc2626' : '#94a3b8';
+    function getVisibleRows() {
+        return getRows().filter(function (row) {
+            return row.style.display !== 'none';
+        });
+    }
+
+    function rowsForCurrentScope() {
+        return activeFilter === 'all' ? getRows() : getVisibleRows();
+    }
+
+    function currentOrderSignature() {
+        return rowsForCurrentScope().map(function (row) {
+            return row.dataset.id || '';
+        }).join('|');
+    }
+
+    function createDragPlaceholder(row) {
+        var placeholder = document.createElement('tr');
+        var cell = document.createElement('td');
+        placeholder.className = 'drag-placeholder-row';
+        cell.colSpan = Math.max(row.children.length, 1);
+        cell.style.height = Math.max(row.getBoundingClientRect().height, 52) + 'px';
+        placeholder.appendChild(cell);
+        return placeholder;
+    }
+
+    function setDragPreview(event, row) {
+        if (!event.dataTransfer || typeof event.dataTransfer.setDragImage !== 'function') {
+            return;
+        }
+
+        var previewTable = document.createElement('table');
+        var previewBody = document.createElement('tbody');
+        var previewRow = row.cloneNode(true);
+        var rect = row.getBoundingClientRect();
+        previewTable.className = 'inc-drag-preview';
+        previewTable.style.width = rect.width + 'px';
+        previewRow.classList.remove('dragging', 'drag-hidden', 'drop-target');
+        previewBody.appendChild(previewRow);
+        previewTable.appendChild(previewBody);
+        document.body.appendChild(previewTable);
+        dragPreview = previewTable;
+        event.dataTransfer.setDragImage(previewTable, Math.min(32, rect.width / 2), Math.min(24, rect.height / 2));
+        requestAnimationFrame(function () {
+            if (dragPreview) {
+                dragPreview.remove();
+                dragPreview = null;
+            }
+        });
+    }
+
+    function createPointerPreview(row) {
+        var previewTable = document.createElement('table');
+        var previewBody = document.createElement('tbody');
+        var previewRow = row.cloneNode(true);
+        var rect = row.getBoundingClientRect();
+        previewTable.className = 'inc-drag-preview inc-pointer-drag-preview';
+        previewTable.style.width = rect.width + 'px';
+        previewRow.classList.remove('dragging', 'drag-hidden', 'drop-target');
+        previewBody.appendChild(previewRow);
+        previewTable.appendChild(previewBody);
+        document.body.appendChild(previewTable);
+        dragPreview = previewTable;
+    }
+
+    function movePointerPreview(event) {
+        if (!dragPreview) return;
+        dragPreview.style.transform = 'translate3d(' + (event.clientX - dragOffsetX) + 'px,' + (event.clientY - dragOffsetY) + 'px,0)';
+    }
+
+    function movePlaceholderFromPoint(clientX, clientY) {
+        if (!draggedRow || !dragPlaceholder) return;
+        var targetRow = document.elementFromPoint(clientX, clientY)?.closest('tr.drag-row');
+        if (!targetRow || !targetRow.classList.contains('is-reorderable') || targetRow === draggedRow) return;
+
+        var targetRect = targetRow.getBoundingClientRect();
+        var after = (clientY - targetRect.top) > (targetRect.height / 2);
+        body.querySelectorAll('.drop-target').forEach(function (row) {
+            row.classList.remove('drop-target');
+        });
+        targetRow.classList.add('drop-target');
+
+        if (after) {
+            targetRow.after(dragPlaceholder);
+        } else {
+            targetRow.before(dragPlaceholder);
+        }
+    }
+
+    function onPointerMove(event) {
+        if (activePointerId !== null && event.pointerId !== activePointerId) return;
+        event.preventDefault();
+        movePointerPreview(event);
+        movePlaceholderFromPoint(event.clientX, event.clientY);
+    }
+
+    function onPointerUp(event) {
+        if (activePointerId !== null && event.pointerId !== activePointerId) return;
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+        document.removeEventListener('pointercancel', onPointerCancel);
+        clearDragState(true);
+    }
+
+    function onPointerCancel(event) {
+        if (activePointerId !== null && event.pointerId !== activePointerId) return;
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+        document.removeEventListener('pointercancel', onPointerCancel);
+        clearDragState(false);
+    }
+
+    function clearDragState(commitDrop) {
+        body.querySelectorAll('.drop-target').forEach(function (row) {
+            row.classList.remove('drop-target');
+        });
+
+        if (draggedRow) {
+            draggedRow.classList.remove('dragging', 'drag-hidden');
+            if (dragPlaceholder && dragPlaceholder.parentNode) {
+                if (commitDrop) {
+                    dragPlaceholder.parentNode.insertBefore(draggedRow, dragPlaceholder);
+                }
+                dragPlaceholder.remove();
+            }
+        } else if (dragPlaceholder) {
+            dragPlaceholder.remove();
+        }
+
+        if (dragPreview) {
+            dragPreview.remove();
+        }
+
+        draggedRow = null;
+        dragPlaceholder = null;
+        dragPreview = null;
+        activePointerId = null;
+    }
+
+    function startPointerDrag(event, row) {
+        if (!isReorderMode || !row || !row.classList.contains('is-reorderable')) return;
+        if (event.button !== undefined && event.button !== 0) return;
+
+        var rect = row.getBoundingClientRect();
+        activePointerId = event.pointerId;
+        draggedRow = row;
+        dragOffsetX = event.clientX - rect.left;
+        dragOffsetY = event.clientY - rect.top;
+        dragPlaceholder = createDragPlaceholder(row);
+        row.after(dragPlaceholder);
+        createPointerPreview(row);
+        movePointerPreview(event);
+        row.classList.add('dragging', 'drag-hidden');
+        event.preventDefault();
+
+        document.addEventListener('pointermove', onPointerMove, { passive: false });
+        document.addEventListener('pointerup', onPointerUp);
+        document.addEventListener('pointercancel', onPointerCancel);
+    }
+
+    function isInteractiveTarget(target) {
+        return Boolean(target.closest('a, button, input, select, textarea, label, .act-btn'));
+    }
+
+    function showAdminToast(type, message) {
+        var styles = {
+            success: { bg: '#f0fdf4', fg: '#166534', border: '#bbf7d0' },
+            error: { bg: '#fef2f2', fg: '#991b1b', border: '#fecaca' },
+            warning: { bg: '#fffbeb', fg: '#92400e', border: '#fde68a' },
+            info: { bg: '#f0f7ff', fg: '#1e40af', border: '#bfdbfe' }
+        };
+        var tone = styles[type] || styles.info;
+        var toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:1.1rem;right:1.1rem;z-index:9999;background:' + tone.bg + ';border:1px solid ' + tone.border + ';padding:.55rem .9rem;border-radius:.3rem;font-size:.78rem;font-family:\'DM Sans\',sans-serif;color:' + tone.fg + ';max-width:340px;opacity:0;transform:translateY(-8px);transition:opacity .25s,transform .25s';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        requestAnimationFrame(function () {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        });
+        setTimeout(function () {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-8px)';
+            setTimeout(function () { toast.remove(); }, 250);
+        }, 3500);
+    }
+
+    function setReorderMode(enabled) {
+        isReorderMode = enabled;
+        reorderSnapshot = enabled ? currentOrderSignature() : '';
+        table.classList.toggle('is-reorder-mode', enabled);
+        if (reorderBtn) {
+            reorderBtn.textContent = enabled ? 'Save order' : 'Re-order';
+            reorderBtn.classList.toggle('btn-p', enabled);
+            reorderBtn.classList.toggle('btn-o', !enabled);
+        }
+        filterButtons.forEach(function (button) {
+            button.disabled = enabled && (button.dataset.filter || 'all') !== activeFilter;
+        });
+
+        getRows().forEach(function (row) {
+            var canDrag = enabled && row.style.display !== 'none';
+            row.draggable = false;
+            row.classList.toggle('is-reorderable', canDrag);
+        });
+    }
+
+    function updateReorderAvailability() {
+        if (!reorderBtn) return;
+        var canReorder = getVisibleRows().length > 1;
+        reorderBtn.disabled = !canReorder;
+        reorderBtn.title = canReorder ? '' : 'At least two visible incubatees are needed to reorder.';
+        if (!canReorder && isReorderMode) {
+            setReorderMode(false);
+        } else {
+            setReorderMode(isReorderMode);
+        }
     }
 
     function saveOrder() {
-        if (!reorderUrl) return;
+        if (!reorderUrl) return Promise.resolve(false);
 
         var formData = new FormData();
-        getRows().forEach(function (row) {
+        var rowsToSave = rowsForCurrentScope();
+        rowsToSave.forEach(function (row) {
             formData.append('order[]', row.dataset.id);
         });
+        formData.append('cohort', activeFilter);
         formData.append(csrfName, csrfValue);
 
-        setStatus('Saving order...', false);
-
-        fetch(reorderUrl, {
+        return fetch(reorderUrl, {
             method: 'POST',
             headers: {'X-Requested-With': 'XMLHttpRequest'},
             body: formData
@@ -242,13 +492,15 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(function (response) { return response.json(); })
         .then(function (data) {
             if (data.ok) {
-                setStatus('Order saved.', false);
-            } else {
-                setStatus(data.error || 'Unable to save order.', true);
+                showAdminToast('success', 'Order saved.');
+                return true;
             }
+            showAdminToast('error', data.error || 'Unable to save order.');
+            return false;
         })
         .catch(function () {
-            setStatus('Network error while saving order.', true);
+            showAdminToast('error', 'Network error while saving order.');
+            return false;
         });
     }
 
@@ -257,16 +509,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function applyFilter(filterName) {
+        activeFilter = filterName || 'all';
         var wanted = normalizeCohort(filterName);
+        var visibleCount = 0;
         getRows().forEach(function (row) {
             var rowCohort = normalizeCohort(row.dataset.cohort);
             var matches = wanted === 'all' || rowCohort === wanted;
             row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
         });
+
+        var emptyState = root.querySelector('#cohortEmptyState');
+        if (emptyState) {
+            emptyState.style.display = visibleCount === 0 ? '' : 'none';
+        }
+
+        updateReorderAvailability();
     }
 
     filterButtons.forEach(function (button) {
-        button.addEventListener('click', function () {
+        on(button, 'click', function () {
+            if (isReorderMode) {
+                return;
+            }
             filterButtons.forEach(function (btn) {
                 btn.classList.remove('active');
             });
@@ -275,28 +540,71 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    body.addEventListener('dragstart', function (event) {
+    if (reorderBtn) {
+        on(reorderBtn, 'click', function () {
+            if (reorderBtn.disabled) return;
+
+            if (!isReorderMode) {
+                setReorderMode(true);
+                return;
+            }
+
+            if (currentOrderSignature() === reorderSnapshot) {
+                showAdminToast('info', 'No order changes to save.');
+                setReorderMode(false);
+                updateReorderAvailability();
+                return;
+            }
+
+            reorderBtn.disabled = true;
+            reorderBtn.textContent = 'Saving...';
+            saveOrder().then(function (saved) {
+                if (saved) {
+                    setReorderMode(false);
+                } else {
+                    setReorderMode(true);
+                }
+                updateReorderAvailability();
+            });
+        });
+    }
+
+    on(body, 'pointerdown', function (event) {
         var row = event.target.closest('tr.drag-row');
         if (!row) return;
-        draggedRow = row;
-        row.classList.add('dragging');
-        event.dataTransfer.effectAllowed = 'move';
+        if (!event.target.closest('.drag-handle') && isInteractiveTarget(event.target)) return;
+        startPointerDrag(event, row);
     });
 
-    body.addEventListener('dragend', function () {
-        if (draggedRow) {
-            draggedRow.classList.remove('dragging');
+    on(body, 'dragstart', function (event) {
+        var row = event.target.closest('tr.drag-row');
+        if (!isReorderMode || !row || !row.classList.contains('is-reorderable')) {
+            event.preventDefault();
+            return;
         }
-        draggedRow = null;
-        body.querySelectorAll('.drop-target').forEach(function (row) {
-            row.classList.remove('drop-target');
+        draggedRow = row;
+        dragPlaceholder = createDragPlaceholder(row);
+        row.after(dragPlaceholder);
+        row.classList.add('dragging');
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', row.dataset.id || '');
+        setDragPreview(event, row);
+        requestAnimationFrame(function () {
+            if (draggedRow === row) {
+                row.classList.add('drag-hidden');
+            }
         });
     });
 
-    body.addEventListener('dragover', function (event) {
+    on(body, 'dragend', function () {
+        clearDragState(false);
+    });
+
+    on(body, 'dragover', function (event) {
+        if (!isReorderMode || !draggedRow || !dragPlaceholder) return;
         event.preventDefault();
         var targetRow = event.target.closest('tr.drag-row');
-        if (!targetRow || !draggedRow || targetRow === draggedRow) return;
+        if (!targetRow || !targetRow.classList.contains('is-reorderable') || targetRow === draggedRow) return;
 
         var targetRect = targetRow.getBoundingClientRect();
         var after = (event.clientY - targetRect.top) > (targetRect.height / 2);
@@ -307,23 +615,36 @@ document.addEventListener('DOMContentLoaded', function () {
         targetRow.classList.add('drop-target');
 
         if (after) {
-            targetRow.after(draggedRow);
+            targetRow.after(dragPlaceholder);
         } else {
-            targetRow.before(draggedRow);
+            targetRow.before(dragPlaceholder);
         }
     });
 
-    body.addEventListener('drop', function (event) {
+    on(body, 'drop', function (event) {
+        if (!isReorderMode || !draggedRow) return;
         event.preventDefault();
-        body.querySelectorAll('.drop-target').forEach(function (row) {
-            row.classList.remove('drop-target');
-        });
-        if (draggedRow) {
-            draggedRow.classList.remove('dragging');
-        }
-        saveOrder();
-        draggedRow = null;
+        clearDragState(true);
     });
 
     applyFilter('all');
-});
+
+    return function () {
+        closeCohortModal();
+        if (isReorderMode) {
+            setReorderMode(false);
+        }
+        clearDragState(false);
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+        document.removeEventListener('pointercancel', onPointerCancel);
+        document.body.style.overflow = '';
+    };
+}
+
+if (window.AdminShell && typeof window.AdminShell.register === 'function') {
+    window.AdminShell.register('incubatees', { init: init });
+} else {
+    document.addEventListener('DOMContentLoaded', function () { init(document); });
+}
+})();

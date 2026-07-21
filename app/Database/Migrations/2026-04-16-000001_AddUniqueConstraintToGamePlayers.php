@@ -6,6 +6,13 @@ use CodeIgniter\Database\Migration;
 
 class AddUniqueConstraintToGamePlayers extends Migration
 {
+    private function hasUniqueIndex(string $table, string $indexName): bool
+    {
+        $indexes = $this->db->getIndexData($table);
+
+        return isset($indexes[$indexName]);
+    }
+
     public function up(): void
     {
         // Step 1: Find and deactivate older duplicate entries (keep only the most recent per firstName+lastName+school)
@@ -31,19 +38,21 @@ class AddUniqueConstraintToGamePlayers extends Migration
         }
         
         // Step 2: Add unique composite index on firstName, lastName, and school
-        $this->db->query(
-            'ALTER TABLE `game_players`
-            ADD UNIQUE INDEX `idx_game_players_first_last_school_unique` (
-                `firstName`(60),
-                `lastName`(60),
-                `school`(190)
-            )'
-        );
+        if (! $this->hasUniqueIndex('game_players', 'idx_game_players_first_last_school_unique')) {
+            $this->db->query(
+                'ALTER TABLE `game_players`
+                ADD UNIQUE INDEX `idx_game_players_first_last_school_unique` (
+                    `firstName`(60),
+                    `lastName`(60),
+                    `school`(190)
+                )'
+            );
+        }
     }
 
     public function down(): void
     {
-        if ($this->db->getIndexData('game_players')['idx_game_players_first_last_school_unique'] ?? false) {
+        if ($this->hasUniqueIndex('game_players', 'idx_game_players_first_last_school_unique')) {
             $this->db->query('ALTER TABLE `game_players` DROP INDEX `idx_game_players_first_last_school_unique`');
         }
     }

@@ -3,17 +3,18 @@
      ║  Horizontal cohort tabs · Card grid · Panel detail            ║
      ╚══════════════════════════════════════════════════════════════╝ -->
 <?php
+helper('incubatees');
+
 $cohorts        = $cohorts ?? [];
 $allIncubatees  = $allIncubatees ?? [];
 $hasIncubatees  = ! empty($allIncubatees);
 $hasCohorts     = ! empty($cohorts);
-$sealUrl        = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
+$sealPath       = 'assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2';
+$sealUrl        = base_url($sealPath . '.webp');
 $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
 ?>
 
 <link rel="stylesheet" href="<?= base_url('assets/css/incubatees.css') ?>">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    crossorigin="anonymous" referrerpolicy="no-referrer">
 
 <section class="ib-s relative min-h-screen py-20 pb-16">
     <div class="ib-w mx-auto px-6 md:px-10 lg:px-14">
@@ -33,7 +34,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
         <!-- ═══════ CARD GRID (all cohorts, filtered by tab) ═══════ -->
         <div id="ibStack" class="ib-stack flex flex-wrap gap-5 justify-center relative">
             <?php foreach ($allIncubatees as $i => $inc): ?>
-            <div class="ib-card cursor-pointer relative" data-ix="<?= $i ?>"
+            <div class="ib-card cursor-pointer relative" id="<?= esc(incubatee_anchor_id($inc)) ?>" data-ix="<?= $i ?>"
                 data-cohort="<?= esc($inc['cohort'] ?? '') ?>"
                 <?php if (($inc['cohort'] ?? '') !== $firstCohort): ?>style="display:none" <?php endif; ?>>
                 <div class="ib-inner relative w-full h-full rounded-xl">
@@ -48,7 +49,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
                         <div class="ib-portrait w-full flex-1 flex items-center justify-center relative">
                             <div class="ib-logo-box">
                                 <?php if (! empty($inc['logoPath'])): ?>
-                                <img src="<?= base_url(esc($inc['logoPath'])) ?>" alt="<?= esc($inc['companyName']) ?>">
+                                <?= responsiveUploadImg($inc['logoPath'], 'incubatees', $inc['companyName'], '', true) ?>
                                 <?php else: ?>
                                 <span class="ib-init"><?= strtoupper(substr($inc['companyName'], 0, 1)) ?></span>
                                 <?php endif; ?>
@@ -89,8 +90,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
         <div id="ibComingSoon" class="text-center py-16"
             style="display:<?= ($hasCohorts && $cohorts[0]['_count'] === 0) ? 'block' : 'none' ?>">
             <div class="mb-6">
-                <img src="<?= site_url('assets/img/icons8-rocket-launch-94.png') ?>" alt="Coming Soon"
-                    class="w-128 h-128 mx-auto opacity-50" />
+                <?= responsiveStaticImg('assets/img/icons8-rocket-launch-94', 'default', 'Coming Soon', 'w-128 h-128 mx-auto opacity-50', true) ?>
             </div>
             <h3 class="font-display text-2xl text-dark mb-3">
                 <span id="ibCSLabel"><?= esc($firstCohort) ?></span> — Coming Soon
@@ -99,7 +99,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
                 Incubatees for this cohort will be announced soon.
             </p>
             <a href="<?= site_url('apply') ?>"
-                class="inline-block mt-6 text-[.7rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-navy/85">
+                class="inline-block mt-6 text-[.7rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-gold-dk">
                 Apply Now
             </a>
         </div>
@@ -108,7 +108,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
         <div class="text-center py-12 reveal">
             <p class="text-dark/35 text-[.88rem] mb-6">No cohorts have been announced yet.</p>
             <a href="<?= site_url('apply') ?>"
-                class="inline-block text-[.7rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-navy/85">
+                class="inline-block text-[.7rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-gold-dk">
                 Apply Now
             </a>
         </div>
@@ -118,7 +118,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
 </section>
 
 <?php if ($hasIncubatees): ?>
-<?= view('incubatees/partials/_overlay', ['sealUrl' => $sealUrl]) ?>
+<?= view('incubatees/partials/_overlay', ['sealUrl' => base_url($sealPath . '.webp')]) ?>
 <?= view('incubatees/partials/_panel') ?>
 
 <!-- Mobile Preview Modal -->
@@ -177,6 +177,7 @@ $firstCohort    = $hasCohorts ? $cohorts[0]['name'] : '';
     </div>
 </div>
 
+<script src="<?= base_url('assets/loader/vendor/gsap.min.js') ?>" defer></script>
 <script src="<?= base_url('assets/js/features/incubatees/incubateesLoader.js') ?>" defer
     data-api-url="<?= site_url('api/incubatees') ?>"
     data-app-script="<?= base_url('assets/js/features/incubatees/incubatees.js') ?>"></script>

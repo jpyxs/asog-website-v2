@@ -14,29 +14,103 @@ class Dashboard extends BaseController
      
     public function index()
     {
+        $role       = (string) session()->get('admin_role');
         $postCounts = $this->postModel->getCounts();
-        $appCounts  = $this->applicationModel->getCounts();
 
         $data = [
-            'pageTitle'       => 'Dashboard',
-            'activePage'      => 'dashboard',
-            'totalPosts'      => $postCounts['total'],
-            'publishedPosts'  => $postCounts['published'],
-            'draftPosts'      => $postCounts['drafts'],
-            'featuredPosts'   => $postCounts['featured'],
-            'recentPosts'     => $this->postModel->orderBy('createdAt', 'DESC')->findAll(5),
-            'totalApps'       => $appCounts['total'],
-            'pendingApps'     => $appCounts['pending'],
-            'acceptedApps'    => $appCounts['accepted'],
-            'rejectedApps'    => $appCounts['rejected'],
-            'recentApps'      => $this->applicationModel->getAll(5),
-            'unreadMessages'  => $this->contactModel->countUnread(),
-            'recentIncubatees'=> $this->incubateeModel->orderBy('createdAt', 'DESC')->findAll(5),
-            'recentAdmins'    => $this->adminModel->orderBy('createdAt', 'DESC')->findAll(5),
+            'pageTitle'      => 'Dashboard',
+            'activePage'     => 'dashboard',
+            'role'           => $role,
+            'totalPosts'     => $postCounts['total'],
+            'publishedPosts' => $postCounts['published'],
+            'draftPosts'     => $postCounts['drafts'],
+            'featuredPosts'  => $postCounts['featured'],
+            'recentPosts'    => $this->postModel->orderBy('createdAt', 'DESC')->findAll(5),
         ];
+
+        if (in_array($role, ['admin', 'superadmin'], true)) {
+            $appCounts                = $this->applicationModel->getCounts();
+            $data['totalApps']        = $appCounts['total'];
+            $data['pendingApps']      = $appCounts['pending'];
+            $data['acceptedApps']     = $appCounts['accepted'];
+            $data['rejectedApps']     = $appCounts['rejected'];
+            $data['recentApps']       = $this->applicationModel->getAll(5);
+            $data['unreadMessages']   = $this->contactModel->countUnread();
+            $data['recentIncubatees'] = $this->incubateeModel->orderBy('createdAt', 'DESC')->findAll(5);
+        }
+
+        if ($role === 'superadmin') {
+            $data['recentAdmins'] = $this->adminModel->orderBy('createdAt', 'DESC')->findAll(5);
+        }
 
         return view('admin/layout/header', $data)
              . view('admin/dashboard', $data)
              . view('admin/layout/footer');
+    }
+
+    public function sidebarStatus()
+    {
+        $role = (string) session()->get('admin_role');
+        $adminId = (int) session()->get('admin_id');
+        $roleLabel = [
+            'superadmin' => 'Super Admin',
+            'admin'      => 'Admin',
+            'editor'     => 'Editor',
+        ][$role] ?? ucfirst($role ?: 'User');
+
+        $unreadMessages = in_array($role, ['admin', 'superadmin'], true)
+            ? $this->contactModel->countUnread()
+            : 0;
+        $unreadNotifications = 0;
+        $notifications = [];
+
+        if ($adminId > 0 && in_array($role, ['editor', 'admin', 'superadmin'], true)) {
+            try {
+                $unreadNotifications = $this->adminNotificationModel->countUnreadForAdmin($adminId, $role);
+                $notificationRows = $this->adminNotificationModel->getLatestForAdmin($adminId, $role, 9);
+                $hasMoreNotifications = count($notificationRows) > 8;
+                $notificationRows = array_slice($notificationRows, 0, 8);
+                $notifications = NotificationsAdmin::formatNotifications($notificationRows);
+            } catch (\Throwable $e) {
+                $unreadNotifications = 0;
+                $notifications = [];
+                $hasMoreNotifications = false;
+            }
+        }
+
+        $nav = ['dashboard', 'posts', 'incubatees', 'faqs', 'settings'];
+        if (in_array($role, ['admin', 'superadmin'], true)) {
+            $nav[] = 'applications';
+            $nav[] = 'organization';
+            $nav[] = 'messages';
+        }
+        if ($role === 'superadmin') {
+            $nav[] = 'admins';
+        }
+
+        return $this->response
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->setJSON([
+                'ok' => true,
+                'user' => [
+                    'name'      => (string) session()->get('admin_name'),
+                    'email'     => (string) session()->get('admin_email'),
+                    'role'      => $role,
+                    'roleLabel' => $roleLabel,
+                ],
+                'counts' => [
+                    'unreadMessages'      => $unreadMessages,
+                    'unreadNotifications' => $unreadNotifications,
+                ],
+                'notifications' => [
+                    'items'       => $notifications,
+                    'unreadCount' => $unreadNotifications,
+                    'hasMore'     => $hasMoreNotifications ?? false,
+                    'nextOffset'  => count($notifications),
+                ],
+                'nav' => [
+                    'allowed' => $nav,
+                ],
+            ]);
     }
 }

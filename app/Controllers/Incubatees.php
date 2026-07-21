@@ -2,6 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Libraries\ImageUpload;
+use App\Libraries\RecaptchaVerifier;
+use App\Libraries\TransactionalMailer;
+use App\Models\FaqModel;
+use App\Models\IncubateeApplicationModel;
+use App\Models\LandingSettingModel;
+
 class Incubatees extends BaseController
 {
     public function index()
@@ -34,11 +41,49 @@ class Incubatees extends BaseController
 
     public function apply(): string
     {
+        $faqModel = new FaqModel();
+        $settings = new LandingSettingModel();
+        $showDeadline = trim((string) $settings->getValue(
+            LandingSettingModel::KEY_APPLY_SHOW_DEADLINE,
+            '1'
+        )) !== '0';
+        $showApplyFaqs = trim((string) $settings->getValue(
+            LandingSettingModel::KEY_APPLY_SHOW_FAQS,
+            '1'
+        )) !== '0';
+        $applicationDeadline = $showDeadline
+            ? $this->normalizeApplicationDate($settings->getValue(LandingSettingModel::KEY_APPLY_END_DATE, ''))
+            : '';
+        $applicationStartDate = $showDeadline
+            ? $this->normalizeApplicationDate($settings->getValue(LandingSettingModel::KEY_APPLY_START_DATE, ''))
+            : '';
+        $applicationWindow = $this->applicationWindowStatus();
+
         $data = [
             'title'        => 'Be an Incubatee - ASOG TBI',
             'heroSubtitle' => 'Join the Program',
             'heroTitle'    => 'Be an Incubatee',
             'heroDesc'     => 'Apply to the ASOG TBI incubation program and turn your innovation into a market-ready solution.',
+            'faqs'         => $showApplyFaqs ? $faqModel->getPublished() : [],
+            'showApplyFaqs' => $showApplyFaqs,
+            'faqTitle'     => $settings->getValue(
+                LandingSettingModel::KEY_APPLY_FAQ_TITLE,
+                'A few things you might be wondering.'
+            ),
+            'faqIntro'     => $settings->getValue(
+                LandingSettingModel::KEY_APPLY_FAQ_INTRO,
+                'Find quick answers about eligibility, requirements, and what happens after you submit your application.'
+            ),
+            'allowDuplicateEmails' => $this->allowDuplicateEmails(),
+            'applicationWindow' => $applicationWindow,
+            'showApplicationDates' => $showDeadline,
+            'showApplicationDeadline' => $showDeadline && $applicationDeadline !== '' && ! empty($applicationWindow['isOpen']),
+            'applicationStartLabel' => $applicationStartDate !== ''
+                ? $this->formatApplicationDate($applicationStartDate)
+                : '',
+            'applicationDeadlineLabel' => $applicationDeadline !== ''
+                ? $this->formatApplicationDate($applicationDeadline)
+                : '',
         ];
 
         return view('templates/header', $data)
@@ -72,14 +117,14 @@ class Incubatees extends BaseController
             . view('templates/footer');
     }
 
-    public function applyForm(): string
+    public function applyForm()
     {
-        $data = [
-            'title'        => 'Application Form - ASOG TBI',
-            'heroSubtitle' => 'Incubation Program',
-            'heroTitle'    => 'Application Form',
-            'heroDesc'     => 'Fill out the form below to apply for incubation at ASOG TBI.',
-        ];
+        $window = $this->applicationWindowStatus();
+        if (! $window['isOpen']) {
+            return redirect()->to(site_url('apply#application-notice'));
+        }
+
+        $data = $this->buildApplyFormViewData();
 
         return view('templates/header', $data)
             . view('templates/page_hero', $data)
@@ -89,6 +134,13 @@ class Incubatees extends BaseController
 
     public function applyFormStore(): \CodeIgniter\HTTP\ResponseInterface
     {
+        $window = $this->applicationWindowStatus();
+        if (! $window['isOpen']) {
+            return $this->response
+                ->setStatusCode(403)
+                ->setBody('Application submissions are currently unavailable. Please visit the application overview for current availability.');
+        }
+
         $applicationModel = $this->applicationModel;
         
         $data = [
@@ -98,10 +150,36 @@ class Incubatees extends BaseController
             'shortTermGoals'        => $this->request->getPost('shortTermGoals') ?? null,
             'videoPresentationLink' => $this->request->getPost('videoPresentationLink'),
             'applicantName'         => $this->request->getPost('applicantName'),
-            'applicantEmail'        => $this->request->getPost('applicantEmail'),
-            'contactNumber'         => $this->request->getPost('contactNumber'),
-            'applicationStatus'     => 'pending',
+            'applicantEmail'        => trim((string) $this->request->getPost('applicantEmail')),
+            'contactNumber'         => preg_replace('/\D+/', '', (string) $this->request->getPost('contactNumber')),
+            'privacyAgreement'      => (string) ($this->request->getPost('privacyAgreement') ?? ''),
+            'applicationStatus'     => IncubateeApplicationModel::STATUS_PENDING,
         ];
+
+        if ($this->requestBodyExceededPhpLimits()) {
+            return $this->renderApplyFormResponse(
+                $data,
+                [],
+                $this->uploadLimitExceededMessage(),
+                413
+            );
+        }
+
+        if ($this->request->getPost('privacyAgreement') !== '1') {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', ['privacyAgreement' => 'Please confirm your privacy consent before continuing.']);
+        }
+
+        $recaptcha = new RecaptchaVerifier();
+        if (! $recaptcha->verifyRequest('application_submit')) {
+            return $this->renderApplyFormResponse(
+                $data,
+                [],
+                $recaptcha->failureMessage(),
+                422
+            );
+        }
 
         // Validate
         if (! $applicationModel->validate($data)) {
@@ -110,13 +188,58 @@ class Incubatees extends BaseController
                 ->with('errors', $applicationModel->errors());
         }
 
+        if (! $this->allowDuplicateEmails() && $applicationModel->emailExists($data['applicantEmail'])) {
+            return $this->renderApplyFormResponse(
+                $data,
+                ['applicantEmail' => $applicationModel->duplicateEmailMessage()],
+                null,
+                422
+            );
+        }
+
+        $teamCvUploadError = $this->multipleUploadErrorMessage(
+            $this->request->getFileMultiple('teamCv') ?? [],
+            'One or more CV files'
+        );
+        if ($teamCvUploadError !== null) {
+            return $this->renderApplyFormResponse($data, [], $teamCvUploadError, 413);
+        }
+
+        $leanCanvasUploadError = $this->uploadErrorMessage(
+            $this->request->getFile('leanCanvas'),
+            'Your Lean Canvas file'
+        );
+        if ($leanCanvasUploadError !== null) {
+            return $this->renderApplyFormResponse(
+                $data,
+                ['leanCanvas' => $leanCanvasUploadError],
+                null,
+                413
+            );
+        }
+
         // Handle file upload (Curriculum Vitae for team members)
         if ($this->request->getFileMultiple('teamCv')) {
             $files = $this->request->getFileMultiple('teamCv');
             $uploadedPaths = [];
+            $seenFiles = [];
+
+            if (count($files) > 10) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Only up to 10 CV files can be uploaded.');
+            }
 
             foreach ($files as $file) {
                 if ($file->isValid() && ! $file->hasMoved()) {
+                    $fileKey = $file->getClientName() . '|' . $file->getSize();
+                    if (isset($seenFiles[$fileKey])) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'Duplicate CV files are not allowed.');
+                    }
+                    $seenFiles[$fileKey] = true;
+
                     // Validate file type and size
                     if ($file->getSize() > 104857600) { // 100 MB
                         return redirect()->back()
@@ -130,7 +253,7 @@ class Incubatees extends BaseController
                             ->with('error', 'Only PDF files are accepted for CV.');
                     }
 
-                    $newName = $file->getRandomName();
+                    $newName = ImageUpload::readableFileName($file, 'team-cv', 'pdf');
                     $file->move(WRITEPATH . 'uploads/applications', $newName);
                     $uploadedPaths[] = 'uploads/applications/' . $newName;
                 }
@@ -161,7 +284,7 @@ class Incubatees extends BaseController
                     ->with('errors', array_merge($applicationModel->errors(), ['leanCanvas' => 'Only PDF or Word (.docx) files are accepted for the Lean Canvas.']));
             }
 
-            $newName = $leanCanvasFile->getRandomName();
+            $newName = ImageUpload::readableFileName($leanCanvasFile, 'lean-canvas');
             $leanCanvasFile->move(WRITEPATH . 'uploads/applications', $newName);
             $data['leanCanvasPath'] = 'uploads/applications/' . $newName;
         } else {
@@ -172,12 +295,27 @@ class Incubatees extends BaseController
         }
 
         // Save application
-        if ($applicationModel->insert($data)) {
+        $applicationId = $applicationModel->insert($data);
+        if ($applicationId) {
+            $notificationData = $data;
+            $notificationData['id'] = (int) $applicationId;
+            $this->notifyNewApplication($notificationData);
+
             // Send a copy of their responses via email
             $this->sendConfirmationEmail($data);
 
             return redirect()->to(site_url('apply/form/thank-you'))
-                ->with('success', 'Your application has been submitted successfully!');
+                ->with('success', 'Your application has been submitted successfully!')
+                ->with('application_submitted', true);
+        }
+
+        if ($applicationModel->isDuplicateEmailDbError()) {
+            return $this->renderApplyFormResponse(
+                $data,
+                ['applicantEmail' => $applicationModel->duplicateEmailMessage()],
+                null,
+                422
+            );
         }
 
         return redirect()->back()
@@ -185,20 +323,226 @@ class Incubatees extends BaseController
             ->with('error', 'Unable to submit application. Please try again.');
     }
 
+    public function revalidateForm(string $token)
+    {
+        $app = $this->applicationModel->findByRevalidationToken($token);
+
+        if (! $app || ! $this->applicationModel->isRevalidationLinkUsable($app)) {
+            return $this->renderRevalidationUnavailable();
+        }
+
+        $data = $this->buildApplyFormViewData($app, [], null, [
+            'isRevalidation' => true,
+            'revalidationToken' => $token,
+            'revalidationAction' => site_url('apply/revalidate/' . $token),
+            'revalidationRemark' => $app['statusRemark'] ?? '',
+            'revalidationExpiresAt' => $app['revalidationTokenExpiresAt'] ?? '',
+            'existingTeamCvPath' => $app['teamCvPath'] ?? '',
+            'existingLeanCanvasPath' => $app['leanCanvasPath'] ?? '',
+        ]);
+
+        return view('templates/header', $data)
+            . view('templates/page_hero', $data)
+            . view('incubatees/apply_form', $data)
+            . view('templates/footer');
+    }
+
+    public function revalidateFormStore(string $token): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $applicationModel = $this->applicationModel;
+        $app = $applicationModel->findByRevalidationToken($token);
+
+        if (! $app || ! $applicationModel->isRevalidationLinkUsable($app)) {
+            return $this->renderRevalidationUnavailable();
+        }
+
+        $data = [
+            'startupName'           => $this->request->getPost('startupName'),
+            'startupDescription'    => $this->request->getPost('startupDescription'),
+            'mainRisk'              => $this->request->getPost('mainRisk') ?? null,
+            'shortTermGoals'        => $this->request->getPost('shortTermGoals') ?? null,
+            'videoPresentationLink' => $this->request->getPost('videoPresentationLink'),
+            'applicantName'         => $this->request->getPost('applicantName'),
+            'applicantEmail'        => trim((string) $this->request->getPost('applicantEmail')),
+            'contactNumber'         => $this->request->getPost('contactNumber'),
+            'privacyAgreement'      => (string) ($this->request->getPost('privacyAgreement') ?? ''),
+            'applicationStatus'     => IncubateeApplicationModel::STATUS_PENDING,
+        ];
+
+        if ($this->requestBodyExceededPhpLimits()) {
+            return $this->renderRevalidationFormResponse($token, $app, $data, [], $this->uploadLimitExceededMessage(), 413);
+        }
+
+        if ($this->request->getPost('privacyAgreement') !== '1') {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', ['privacyAgreement' => 'Please confirm your privacy consent before continuing.']);
+        }
+
+        $recaptcha = new RecaptchaVerifier();
+        if (! $recaptcha->verifyRequest('application_revalidate')) {
+            return $this->renderRevalidationFormResponse(
+                $token,
+                $app,
+                $data,
+                [],
+                $recaptcha->failureMessage(),
+                422
+            );
+        }
+
+        if (! $applicationModel->validate($data)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $applicationModel->errors());
+        }
+
+        $teamCvUploadError = $this->multipleUploadErrorMessage(
+            $this->request->getFileMultiple('teamCv') ?? [],
+            'One or more CV files'
+        );
+        if ($teamCvUploadError !== null) {
+            return $this->renderRevalidationFormResponse($token, $app, $data, [], $teamCvUploadError, 413);
+        }
+
+        $leanCanvasUploadError = $this->uploadErrorMessage(
+            $this->request->getFile('leanCanvas'),
+            'Your Lean Canvas file'
+        );
+        if ($leanCanvasUploadError !== null) {
+            return $this->renderRevalidationFormResponse(
+                $token,
+                $app,
+                $data,
+                ['leanCanvas' => $leanCanvasUploadError],
+                null,
+                413
+            );
+        }
+
+        $data['teamCvPath'] = $app['teamCvPath'] ?? null;
+        $files = $this->request->getFileMultiple('teamCv') ?? [];
+        if ($this->hasUploadedFile($files)) {
+            $uploadedPaths = [];
+            $seenFiles = [];
+
+            if (count($files) > 10) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Only up to 10 CV files can be uploaded.');
+            }
+
+            foreach ($files as $file) {
+                if ($file->isValid() && ! $file->hasMoved()) {
+                    $fileKey = $file->getClientName() . '|' . $file->getSize();
+                    if (isset($seenFiles[$fileKey])) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'Duplicate CV files are not allowed.');
+                    }
+                    $seenFiles[$fileKey] = true;
+
+                    if ($file->getSize() > 104857600) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'CV file exceeds 100 MB limit.');
+                    }
+
+                    if ($file->getMimeType() !== 'application/pdf') {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'Only PDF files are accepted for CV.');
+                    }
+
+                    $newName = ImageUpload::readableFileName($file, 'team-cv', 'pdf');
+                    $file->move(WRITEPATH . 'uploads/applications', $newName);
+                    $uploadedPaths[] = 'uploads/applications/' . $newName;
+                }
+            }
+
+            if (! empty($uploadedPaths)) {
+                $data['teamCvPath'] = implode(',', $uploadedPaths);
+            }
+        }
+
+        $data['leanCanvasPath'] = $app['leanCanvasPath'] ?? null;
+        $leanCanvasFile = $this->request->getFile('leanCanvas');
+        if ($leanCanvasFile && $leanCanvasFile->isValid() && ! $leanCanvasFile->hasMoved()) {
+            $allowedMimes = [
+                'application/pdf',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ];
+
+            if ($leanCanvasFile->getSize() > 10485760) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('errors', array_merge($applicationModel->errors(), ['leanCanvas' => 'Lean Canvas file exceeds the 10 MB limit.']));
+            }
+
+            if (! in_array($leanCanvasFile->getMimeType(), $allowedMimes, true)) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('errors', array_merge($applicationModel->errors(), ['leanCanvas' => 'Only PDF or Word (.docx) files are accepted for the Lean Canvas.']));
+            }
+
+            $newName = ImageUpload::readableFileName($leanCanvasFile, 'lean-canvas');
+            $leanCanvasFile->move(WRITEPATH . 'uploads/applications', $newName);
+            $data['leanCanvasPath'] = 'uploads/applications/' . $newName;
+        }
+
+        if (empty($data['leanCanvasPath'])) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', array_merge($applicationModel->errors(), ['leanCanvas' => 'Please upload your completed Lean Canvas (.docx or PDF).']));
+        }
+
+        $updateData = $data;
+        unset($updateData['privacyAgreement']);
+        $updateData['statusRemark'] = $app['statusRemark'] ?? null;
+        $updateData['revalidationTokenHash'] = null;
+        $updateData['revalidationTokenExpiresAt'] = null;
+        $updateData['revalidatedAt'] = date('Y-m-d H:i:s');
+
+        if ($applicationModel->update((int) $app['id'], $updateData)) {
+            $notificationData = $updateData;
+            $notificationData['id'] = (int) $app['id'];
+            $this->notifyRevalidationResubmitted($notificationData);
+
+            $this->sendConfirmationEmail($data, true);
+
+            return redirect()->to(site_url('apply/form/thank-you'))
+                ->with('success', 'Your application has been updated successfully!')
+                ->with('application_submitted', true);
+        }
+
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Unable to update application. Please try again.');
+    }
+
     // ──────────────────────────────────────────────
     // EMAIL — send applicant a copy of their responses
     // ──────────────────────────────────────────────
-    private function sendConfirmationEmail(array $data): void
+    private function notifyNewApplication(array $application): void
     {
-        $email = \Config\Services::email();
-
-        // Skip silently if SMTP is not configured
-        $config = new \Config\Email();
-        if (empty($config->SMTPUser) || $config->SMTPUser === 'your-email@gmail.com') {
-            log_message('info', 'Confirmation email skipped — SMTP credentials not configured in .env');
-            return;
+        try {
+            $this->adminNotificationModel->createNewApplication($application);
+        } catch (\Throwable $e) {
+            log_message('error', '[Incubatees] createNewApplication notification failed: ' . $e->getMessage());
         }
+    }
 
+    private function notifyRevalidationResubmitted(array $application): void
+    {
+        try {
+            $this->adminNotificationModel->createRevalidationResubmitted($application);
+        } catch (\Throwable $e) {
+            log_message('error', '[Incubatees] createRevalidationResubmitted notification failed: ' . $e->getMessage());
+        }
+    }
+
+    private function sendConfirmationEmail(array $data, bool $isUpdate = false): void
+    {
         $body = view('emails/application_confirmation', [
             'applicantName'         => $data['applicantName'],
             'applicantEmail'        => $data['applicantEmail'],
@@ -208,16 +552,13 @@ class Incubatees extends BaseController
             'mainRisk'              => $data['mainRisk'] ?? '',
             'shortTermGoals'        => $data['shortTermGoals'] ?? '',
             'videoPresentationLink' => $data['videoPresentationLink'] ?? '',
+            'isUpdate'              => $isUpdate,
         ]);
 
-        $email->setFrom($config->fromEmail, $config->fromName);
-        $email->setTo($data['applicantEmail']);
-        $email->setSubject('ASOG TBI — Application Received');
-        $email->setMessage($body);
-        $email->setMailType('html');
+        $mailer = new TransactionalMailer();
 
-        if (! $email->send(false)) {
-            log_message('error', 'Confirmation email failed: ' . $email->printDebugger(['headers']));
+        if (! $mailer->send($data['applicantEmail'], $isUpdate ? 'ASOG TBI - Updated Application Received' : 'ASOG TBI - Application Received', $body)) {
+            log_message('error', 'Confirmation email failed.');
         } else {
             log_message('info', 'Confirmation email sent to: ' . $data['applicantEmail']);
         }
@@ -235,13 +576,17 @@ class Incubatees extends BaseController
             return $this->response->setJSON(['exists' => false]);
         }
 
-        $exists = $this->applicationModel->getByEmail($email) !== null;
+        $exists = ! $this->allowDuplicateEmails() && $this->applicationModel->emailExists($email);
 
         return $this->response->setJSON(['exists' => $exists]);
     }
 
-    public function applyFormThankYou(): string
+    public function applyFormThankYou()
     {
+        if (! session()->getFlashdata('application_submitted')) {
+            return redirect()->to(site_url('apply/form'));
+        }
+
         $data = [
             'title' => 'Application Submitted - ASOG TBI',
         ];
@@ -249,6 +594,276 @@ class Incubatees extends BaseController
         return view('templates/header', $data)
             . view('incubatees/apply_thank_you', $data)
             . view('templates/footer');
+    }
+
+    private function allowDuplicateEmails(): bool
+    {
+        $settings = new LandingSettingModel();
+        $raw = trim((string) $settings->getValue(
+            LandingSettingModel::KEY_APPLY_ALLOW_DUPLICATE_EMAILS,
+            '0'
+        ));
+
+        return $raw === '1';
+    }
+
+    private function applicationWindowStatus(): array
+    {
+        $settings = new LandingSettingModel();
+        $startDate = $this->normalizeApplicationDate($settings->getValue(
+            LandingSettingModel::KEY_APPLY_START_DATE,
+            ''
+        ));
+        $endDate = $this->normalizeApplicationDate($settings->getValue(
+            LandingSettingModel::KEY_APPLY_END_DATE,
+            ''
+        ));
+        $today = (new \DateTimeImmutable('today', new \DateTimeZone(config('App')->appTimezone)))->format('Y-m-d');
+
+        if ($startDate !== '' && $today < $startDate) {
+            return [
+                'isOpen' => false,
+                'state' => 'upcoming',
+                'title' => 'Applications are not yet open',
+                'message' => 'Applications for the ASOG TBI incubation program are not yet open. Please check back once the application period begins.',
+            ];
+        }
+
+        if ($endDate !== '' && $today > $endDate) {
+            return [
+                'isOpen' => false,
+                'state' => 'closed',
+                'title' => 'Applications are closed',
+                'message' => 'The current application period for the ASOG TBI incubation program has ended. Please check back for future application announcements.',
+            ];
+        }
+
+        return [
+            'isOpen' => true,
+            'state' => 'open',
+            'title' => '',
+            'message' => '',
+        ];
+    }
+
+    private function normalizeApplicationDate(?string $value): string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+        if (! $date || $date->format('Y-m-d') !== $value) {
+            return '';
+        }
+
+        return $value;
+    }
+
+    private function formatApplicationDate(string $date): string
+    {
+        return (new \DateTimeImmutable($date))->format('F j, Y');
+    }
+
+    private function buildApplyFormViewData(array $formInput = [], array $formErrors = [], ?string $formError = null, array $extra = []): array
+    {
+        // Resolve the Lean Canvas template URL from admin settings.
+        // When none is uploaded, return empty — the view will show a disabled
+        // download button with a message instead of falling back to a built-in default.
+        $landingSettings = new LandingSettingModel();
+        $templateRelativePath = trim((string) $landingSettings->getValue(LandingSettingModel::KEY_APPLY_LEAN_CANVAS_TEMPLATE, ''));
+        $leanCanvasTemplateUrl = '';
+        $leanCanvasTemplateName = '';
+
+        if ($templateRelativePath !== '') {
+            $fullPath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR
+                . ltrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $templateRelativePath), DIRECTORY_SEPARATOR);
+            if (is_file($fullPath)) {
+                $leanCanvasTemplateUrl = site_url('uploads/' . str_replace('\\', '/', $templateRelativePath));
+                $leanCanvasTemplateName = basename($templateRelativePath);
+            }
+        }
+
+        return array_merge([
+            'title' => 'Application Form - ASOG TBI',
+            'heroSubtitle' => 'Incubation Program',
+            'heroTitle' => ! empty($extra['isRevalidation']) ? 'Update Application' : 'Application Form',
+            'heroDesc' => ! empty($extra['isRevalidation'])
+                ? 'Review the remarks from our team and update your existing ASOG TBI application.'
+                : 'Fill out the form below to apply for incubation at ASOG TBI.',
+            'allowDuplicateEmails' => $this->allowDuplicateEmails(),
+            'serverPostMaxSize' => (string) ini_get('post_max_size'),
+            'serverUploadMaxFilesize' => (string) ini_get('upload_max_filesize'),
+            'formInput' => $formInput,
+            'formErrors' => $formErrors,
+            'formError' => $formError,
+            'leanCanvasTemplateUrl'  => $leanCanvasTemplateUrl,
+            'leanCanvasTemplateName' => $leanCanvasTemplateName,
+        ], $extra);
+    }
+
+    private function renderApplyFormResponse(
+        array $formInput = [],
+        array $formErrors = [],
+        ?string $formError = null,
+        int $statusCode = 200
+    ): \CodeIgniter\HTTP\ResponseInterface {
+        $data = $this->buildApplyFormViewData($formInput, $formErrors, $formError);
+        $html = view('templates/header', $data)
+            . view('templates/page_hero', $data)
+            . view('incubatees/apply_form', $data)
+            . view('templates/footer');
+
+        return $this->response
+            ->setStatusCode($statusCode)
+            ->setBody($html);
+    }
+
+    private function renderRevalidationFormResponse(
+        string $token,
+        array $app,
+        array $formInput = [],
+        array $formErrors = [],
+        ?string $formError = null,
+        int $statusCode = 200
+    ): \CodeIgniter\HTTP\ResponseInterface {
+        $data = $this->buildApplyFormViewData(array_merge($app, $formInput), $formErrors, $formError, [
+            'isRevalidation' => true,
+            'revalidationToken' => $token,
+            'revalidationAction' => site_url('apply/revalidate/' . $token),
+            'revalidationRemark' => $app['statusRemark'] ?? '',
+            'revalidationExpiresAt' => $app['revalidationTokenExpiresAt'] ?? '',
+            'existingTeamCvPath' => $app['teamCvPath'] ?? '',
+            'existingLeanCanvasPath' => $app['leanCanvasPath'] ?? '',
+        ]);
+
+        $html = view('templates/header', $data)
+            . view('templates/page_hero', $data)
+            . view('incubatees/apply_form', $data)
+            . view('templates/footer');
+
+        return $this->response
+            ->setStatusCode($statusCode)
+            ->setBody($html);
+    }
+
+    private function renderRevalidationUnavailable(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $data = [
+            'title' => 'Application Update Unavailable - ASOG TBI',
+        ];
+
+        $html = view('templates/header', $data)
+            . view('incubatees/revalidation_unavailable', $data)
+            . view('templates/footer');
+
+        return $this->response
+            ->setStatusCode(404)
+            ->setBody($html);
+    }
+
+    private function hasUploadedFile(array $files): bool
+    {
+        foreach ($files as $file) {
+            if ($file && $file->getError() !== UPLOAD_ERR_NO_FILE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function requestBodyExceededPhpLimits(): bool
+    {
+        $contentLength = (int) ($this->request->getServer('CONTENT_LENGTH') ?? 0);
+        if ($contentLength <= 0) {
+            return false;
+        }
+
+        $contentType = strtolower($this->request->getHeaderLine('Content-Type'));
+        if (! str_contains($contentType, 'multipart/form-data')) {
+            return false;
+        }
+
+        $limitBytes = $this->parseIniSizeToBytes((string) ini_get('post_max_size'));
+        if ($limitBytes !== null && $contentLength > $limitBytes) {
+            return true;
+        }
+
+        return empty($this->request->getPost()) && empty($this->request->getFiles());
+    }
+
+    private function uploadLimitExceededMessage(): string
+    {
+        $perFileLimit = $this->uploadMaxFilesizeLabel();
+        $totalLimit = trim((string) ini_get('post_max_size'));
+        $totalLimitText = $totalLimit !== '' ? $totalLimit : 'the current server limit';
+
+        return 'Your submission was too large for the server to process. '
+            . 'The current server limits are ' . $perFileLimit . ' per file and '
+            . $totalLimitText . ' total per submission. '
+            . 'Please upload fewer or smaller files, then try again.';
+    }
+
+    private function uploadErrorMessage($file, string $label): ?string
+    {
+        if ($file === null) {
+            return null;
+        }
+
+        $error = $file->getError();
+        if ($error === UPLOAD_ERR_OK || $error === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+            return $label . ' exceeds the current server upload limit of '
+                . $this->uploadMaxFilesizeLabel() . ' per file.';
+        }
+
+        return $label . ' could not be uploaded. Please try again.';
+    }
+
+    private function multipleUploadErrorMessage(array $files, string $label): ?string
+    {
+        foreach ($files as $file) {
+            $message = $this->uploadErrorMessage($file, $label);
+            if ($message !== null) {
+                return $message;
+            }
+        }
+
+        return null;
+    }
+
+    private function uploadMaxFilesizeLabel(): string
+    {
+        $limit = trim((string) ini_get('upload_max_filesize'));
+
+        return $limit !== '' ? $limit : 'the current server limit';
+    }
+
+    private function parseIniSizeToBytes(string $value): ?int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        if (! preg_match('/^(\d+)([KMG]?)$/i', $value, $matches)) {
+            return null;
+        }
+
+        $bytes = (int) $matches[1];
+        $unit = strtoupper($matches[2] ?? '');
+
+        return match ($unit) {
+            'G' => $bytes * 1024 * 1024 * 1024,
+            'M' => $bytes * 1024 * 1024,
+            'K' => $bytes * 1024,
+            default => $bytes,
+        };
     }
 
 }

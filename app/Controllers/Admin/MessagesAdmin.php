@@ -4,27 +4,43 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 
-/**
- * MessagesAdmin — View & manage contact-form submissions.
- *
- * Routes: admin/messages, admin/messages/(:num), etc.
- */
 class MessagesAdmin extends BaseController
 {
-    /**
-     * List all contact messages.
-     *
-     * Retrieves all messages and prepares total, unread, and read counts
-     * for the admin list view.
-     */
-     
     public function index()
     {
+        $view   = $this->request->getGet('view') ?? 'inbox';
+        $view   = in_array($view, ['inbox', 'all', 'archived'], true) ? $view : 'inbox';
+        $search = trim($this->request->getGet('search') ?? '');
+        $date   = $this->request->getGet('date') ?? 'all';
+        $date   = in_array($date, ['all', 'today', 'week'], true) ? $date : 'all';
+        $page   = max(1, (int) ($this->request->getGet('page') ?? 1));
+
+        $archiveFilter = match ($view) {
+            'archived' => 1,
+            'all'      => null,
+            default    => 0,
+        };
+
+        $result = $this->contactModel->getFiltered(
+            $archiveFilter,
+            $search,
+            $date,
+            $page,
+            10
+        );
+
         $data = [
-            'pageTitle'  => 'Messages',
-            'activePage' => 'messages',
-            'messages'   => $this->contactModel->getAll(),
-            'counts'     => $this->contactModel->getCounts(),
+            'pageTitle'     => 'Messages',
+            'activePage'    => 'messages',
+            'messages'      => $result['messages'],
+            'total'         => $result['total'],
+            'currentPage'   => $result['page'],
+            'totalPages'    => $result['totalPages'],
+            'perPage'       => $result['perPage'],
+            'counts'        => $this->contactModel->getCounts(),
+            'activeView'    => $view,
+            'currentSearch' => $search,
+            'currentDate'   => $date,
         ];
 
         return view('admin/layout/header', $data)
@@ -32,11 +48,6 @@ class MessagesAdmin extends BaseController
              . view('admin/layout/footer');
     }
 
-    /**
-     * This method retrieves a specific message by ID and returns it as JSON.
-     * When a message is viewed, it is automatically marked as read if it was previously unread.
-     * If the message is not found, it returns a 404 error response. 
-     */
     public function show(int $id)
     {
         $msg = $this->contactModel->find($id);
@@ -45,7 +56,6 @@ class MessagesAdmin extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['error' => 'Message not found.']);
         }
 
-        // Auto-mark as read when viewed
         if (! $msg['isRead']) {
             $this->contactModel->markRead($id);
             $msg['isRead'] = 1;
@@ -53,10 +63,6 @@ class MessagesAdmin extends BaseController
 
         return $this->response->setJSON($msg);
     }
-    /**
-     * This method toggles the read/unread status of a message. It retrieves the message by ID, checks its current read status, and updates it to the opposite state. The response includes the new read status and a message indicating whether it was marked as read or unread. If the message is not found, it returns a 404 error response.
-     * This allows admins to easily manage the read status of messages directly from the message list without needing to view each message individually.
-     */
 
     public function toggleRead(int $id)
     {
@@ -76,13 +82,6 @@ class MessagesAdmin extends BaseController
         ]);
     }
 
-    /**
-     * Delete a message.
-     *
-     * Removes a message by ID and returns a JSON response.
-     * Returns 404 when the message does not exist.
-     */
-
     public function delete(int $id)
     {
         $msg = $this->contactModel->find($id);
@@ -97,5 +96,56 @@ class MessagesAdmin extends BaseController
             'success' => true,
             'message' => 'Message deleted.',
         ]);
+    }
+
+    public function bulkAction()
+    {
+        $body   = $this->request->getJSON(true) ?? [];
+        $action = trim((string) ($body['action'] ?? ''));
+        $ids    = array_values(array_filter(array_map('intval', (array) ($body['ids'] ?? []))));
+
+        $validActions = ['mark_read', 'mark_unread', 'delete', 'archive', 'unarchive'];
+        if (empty($ids) || ! in_array($action, $validActions, true)) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'error' => 'Invalid request.']);
+        }
+
+        if ($action === 'archive' || $action === 'unarchive') {
+            $targetArchived = $action === 'archive' ? 0 : 1;
+            $messages = $this->contactModel
+                ->select('id')
+                ->whereIn('id', $ids)
+                ->where('isArchived', $targetArchived)
+                ->findAll();
+            $ids = array_map(static fn (array $message): int => (int) $message['id'], $messages);
+
+            if (empty($ids)) {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'success' => false,
+                    'error'   => $action === 'archive'
+                        ? 'Selected messages are already archived.'
+                        : 'Selected messages are already in the inbox.',
+                ]);
+            }
+        }
+
+        $count = count($ids);
+
+        match ($action) {
+            'mark_read'   => $this->contactModel->bulkMarkRead($ids),
+            'mark_unread' => $this->contactModel->bulkMarkUnread($ids),
+            'delete'      => $this->contactModel->bulkDelete($ids),
+            'archive'     => $this->contactModel->bulkArchive($ids),
+            'unarchive'   => $this->contactModel->bulkUnarchive($ids),
+        };
+
+        $labels = [
+            'mark_read'   => $count . ' message' . ($count !== 1 ? 's' : '') . ' marked as read.',
+            'mark_unread' => $count . ' message' . ($count !== 1 ? 's' : '') . ' marked as unread.',
+            'delete'      => $count . ' message' . ($count !== 1 ? 's' : '') . ' deleted.',
+            'archive'     => $count . ' message' . ($count !== 1 ? 's' : '') . ' archived.',
+            'unarchive'   => $count . ' message' . ($count !== 1 ? 's' : '') . ' moved to inbox.',
+        ];
+
+        return $this->response->setJSON(['success' => true, 'message' => $labels[$action]]);
     }
 }

@@ -18,6 +18,10 @@ $routes->get('/landing', 'Landing::index');
 $routes->match(['GET', 'HEAD'], '/sitemap.xml', 'Sitemap::index');
 $routes->get('/about', 'About::index');
 $routes->get('/about/logo', 'About::logo');
+$routes->get('/asog-tbi-website-app', 'Legal::appInfo');
+$routes->get('/privacy-policy', 'Legal::privacyPolicy');
+$routes->get('/terms-of-service', 'Legal::termsOfService');
+$routes->get('/deployment/run-migrations', 'Deployment::runMigrations');
 
 /*
  * ────────────────────────────────────────────────────────────────────────────
@@ -34,6 +38,8 @@ $routes->get('/apply/form', 'Incubatees::applyForm');
 $routes->post('/apply/form', 'Incubatees::applyFormStore');
 $routes->get('/apply/form/check-email', 'Incubatees::checkEmail');
 $routes->get('/apply/form/thank-you', 'Incubatees::applyFormThankYou');
+$routes->get('/apply/revalidate/(:segment)', 'Incubatees::revalidateForm/$1');
+$routes->post('/apply/revalidate/(:segment)', 'Incubatees::revalidateFormStore/$1');
 
 // Legacy apply paths: keep working but redirect to canonical /apply URLs
 $routes->addRedirect('/incubatees/apply', '/apply', 301);
@@ -68,7 +74,9 @@ $routes->post('/api/games/guess-startup/abandon', 'Api\Games::abandon');
  * Post images live in public/uploads/posts/ and are served directly.
  * ────────────────────────────────────────────────────────────────────────────
  */
-$routes->get('uploads/applications/(.+)', 'Uploads::serve/$1');
+$routes->get('uploads/applications/(.+)', 'Uploads::serve/applications/$1');
+$routes->get('uploads/templates/(.+)', 'Uploads::serve/templates/$1');
+$routes->options('uploads/(.+)', 'Uploads::options/$1');
 
 /*
  * ────────────────────────────────────────────────────────────────────────────
@@ -79,61 +87,138 @@ $routes->get('/asog-admin', 'Auth::login');
 $routes->post('/asog-admin', 'Auth::authenticate');
 $routes->get('/asog-admin/google', 'Auth::google');
 $routes->get('/asog-admin/google/callback', 'Auth::googleCallback');
+$routes->group('asog-admin/gmail-api', ['filter' => 'auth'], function ($routes) {
+    $routes->group('', ['filter' => 'role:superadmin'], function ($routes) {
+        $routes->get('connect', 'Admin\GmailApiSetup::connect');
+        $routes->get('callback', 'Admin\GmailApiSetup::callback');
+    });
+});
 $routes->get('/asog-admin/logout', 'Auth::logout');
+$routes->get('/asog-admin/forgot-password', 'Auth::forgotPassword');
+$routes->post('/asog-admin/forgot-password', 'Auth::sendResetLink');
+$routes->get('/asog-admin/reset-password/(:segment)', 'Auth::resetPassword/$1');
+$routes->post('/asog-admin/reset-password/(:segment)', 'Auth::updateForgottenPassword/$1');
 
 /*
  * ────────────────────────────────────────────────────────────────────────────
  * ADMIN DASHBOARD & CONTENT MANAGEMENT ROUTES (Protected by Auth Middleware)
  * ────────────────────────────────────────────────────────────────────────────
  */
-$routes->group('admin', ['filter' => 'auth'], function($routes) {
-    // Dashboard
-    $routes->get('/', 'Admin\Dashboard::index');
-    
-    // Posts / Blog Management
-    $routes->get('posts', 'Admin\PostsAdmin::index');
-    $routes->get('posts/create', 'Admin\PostsAdmin::create');
-    $routes->post('posts', 'Admin\PostsAdmin::store');
-    $routes->post('posts/upload-image', 'Admin\PostsAdmin::uploadImage');
-    $routes->post('posts/featured-order', 'Admin\PostsAdmin::saveFeaturedOrder');
-    $routes->get('posts/(:num)/edit', 'Admin\PostsAdmin::edit/$1');
-    $routes->put('posts/(:num)', 'Admin\PostsAdmin::update/$1');
-    $routes->delete('posts/(:num)', 'Admin\PostsAdmin::delete/$1');
+$routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
-    // Incubatee Applications
-    $routes->get('applications', 'Admin\ApplicationsAdmin::index');
-    $routes->get('applications/(:num)', 'Admin\ApplicationsAdmin::show/$1');
-    $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
+    // Self-service Google linking for any signed-in admin role.
+    $routes->get('google-account', 'Admin\GoogleAccount::index');
+    $routes->get('google-account/connect', 'Admin\GoogleAccount::connect');
+    $routes->get('google-account/callback', 'Admin\GoogleAccount::callback');
+    $routes->post('google-account/unlink', 'Admin\GoogleAccount::unlink');
+    $routes->get('settings', 'Admin\SettingsAdmin::index');
+    $routes->post('settings/password', 'Admin\SettingsAdmin::updatePassword');
+    $routes->get('sidebar/status', 'Admin\Dashboard::sidebarStatus');
+    $routes->get('notifications', 'Admin\NotificationsAdmin::index');
+    $routes->put('notifications/(:num)/read', 'Admin\NotificationsAdmin::markRead/$1');
+    $routes->put('notifications/read-all', 'Admin\NotificationsAdmin::markAllRead');
 
-    // Contact Messages
-    $routes->get('messages', 'Admin\MessagesAdmin::index');
-    $routes->get('messages/(:num)', 'Admin\MessagesAdmin::show/$1');
-    $routes->put('messages/(:num)/read', 'Admin\MessagesAdmin::toggleRead/$1');
-    $routes->delete('messages/(:num)', 'Admin\MessagesAdmin::delete/$1');
+    // ── editor + admin + superadmin ──────────────────────────────────────
+    $routes->group('', ['filter' => 'role:editor'], function ($routes) {
+        $routes->get('/', 'Admin\Dashboard::index');
 
-    // Incubatees Management
-    $routes->get('incubatees', 'Admin\IncubateesAdmin::index');
-    $routes->get('incubatees/create', 'Admin\IncubateesAdmin::create');
-    $routes->post('incubatees', 'Admin\IncubateesAdmin::store');
-    $routes->post('incubatees/reorder', 'Admin\IncubateesAdmin::saveOrder');
-    $routes->post('incubatees/landing-filter', 'Admin\IncubateesAdmin::updateLandingFilter');
-    $routes->get('incubatees/(:num)/edit', 'Admin\IncubateesAdmin::edit/$1');
-    $routes->post('incubatees/(:num)/update', 'Admin\IncubateesAdmin::update/$1');
-    $routes->post('incubatees/(:num)/delete', 'Admin\IncubateesAdmin::delete/$1');
+        // Posts / Blog Management
+        $routes->get('posts', 'Admin\PostsAdmin::index');
+        $routes->get('posts/create', 'Admin\PostsAdmin::create');
+        $routes->post('posts', 'Admin\PostsAdmin::store');
+        $routes->post('posts/upload-image', 'Admin\PostsAdmin::uploadImage');
+        $routes->get('posts/(:num)/preview', 'Admin\PostsAdmin::previewById/$1');
+        $routes->post('posts/(:num)/preview', 'Admin\PostsAdmin::previewById/$1');
+        $routes->post('posts/featured-order', 'Admin\PostsAdmin::saveFeaturedOrder');
+        $routes->get('posts/(:num)/edit', 'Admin\PostsAdmin::edit/$1');
+        $routes->post('posts/(:num)', 'Admin\PostsAdmin::update/$1');
+        $routes->put('posts/(:num)', 'Admin\PostsAdmin::update/$1');
+        $routes->delete('posts/(:num)', 'Admin\PostsAdmin::delete/$1');
 
-    // Cohort Management (AJAX)
-    $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
-    $routes->post('cohorts/(:num)/delete', 'Admin\IncubateesAdmin::deleteCohort/$1');
+        // Incubatees Management
+        $routes->get('incubatees', 'Admin\IncubateesAdmin::index');
+        $routes->get('incubatees/create', 'Admin\IncubateesAdmin::create');
+        $routes->post('incubatees', 'Admin\IncubateesAdmin::store');
+        $routes->post('incubatees/reorder', 'Admin\IncubateesAdmin::saveOrder');
+        $routes->get('incubatees/(:num)/edit', 'Admin\IncubateesAdmin::edit/$1');
+        $routes->post('incubatees/(:num)/update', 'Admin\IncubateesAdmin::update/$1');
+        $routes->post('incubatees/(:num)/delete', 'Admin\IncubateesAdmin::delete/$1');
 
-    // Games Management
-    $routes->get('games', 'Admin\GamesAdmin::index');
-    $routes->post('games/guess-startup/availability', 'Admin\GamesAdmin::updateGuessStartupAvailability');
+        // Cohort Management (AJAX)
+        $routes->post('cohorts/add', 'Admin\IncubateesAdmin::addCohort');
+        $routes->post('cohorts/(:num)/delete', 'Admin\IncubateesAdmin::deleteCohort/$1');
 
-    // Admin Account Management
-    $routes->get('admins', 'Admin\AdminsManagement::index');
-    $routes->get('admins/create', 'Admin\AdminsManagement::create');
-    $routes->post('admins', 'Admin\AdminsManagement::store');
-    $routes->get('admins/(:num)/edit', 'Admin\AdminsManagement::edit/$1');
-    $routes->put('admins/(:num)', 'Admin\AdminsManagement::update/$1');
-    $routes->delete('admins/(:num)', 'Admin\AdminsManagement::delete/$1');
+        // Apply Page FAQ Management
+        $routes->get('faqs', 'Admin\FaqsAdmin::index');
+        $routes->post('faqs', 'Admin\FaqsAdmin::store');
+        $routes->post('faqs/section', 'Admin\FaqsAdmin::updateSection');
+        $routes->post('faqs/(:num)/update', 'Admin\FaqsAdmin::update/$1');
+        $routes->post('faqs/(:num)/move/(:alpha)', 'Admin\FaqsAdmin::move/$1/$2');
+        $routes->post('faqs/(:num)/delete', 'Admin\FaqsAdmin::delete/$1');
+    });
+
+    // ── admin + superadmin ───────────────────────────────────────────────
+    $routes->group('', ['filter' => 'role:admin'], function ($routes) {
+
+        // Incubatee Applications
+        $routes->get('applications', 'Admin\ApplicationsAdmin::index');
+        $routes->get('applications/(:num)', 'Admin\ApplicationsAdmin::show/$1');
+        $routes->put('applications/(:num)/status', 'Admin\ApplicationsAdmin::updateStatus/$1');
+        $routes->put('applications/(:num)/remark', 'Admin\ApplicationsAdmin::updateRemark/$1');
+        $routes->put('applications/(:num)/toggle-archive', 'Admin\ApplicationsAdmin::toggleArchive/$1');
+        $routes->delete('applications/(:num)', 'Admin\ApplicationsAdmin::delete/$1');
+        $routes->post('applications/bulk', 'Admin\ApplicationsAdmin::bulk');
+
+        // Contact Messages
+        $routes->get('messages', 'Admin\MessagesAdmin::index');
+        $routes->get('messages/(:num)', 'Admin\MessagesAdmin::show/$1');
+        $routes->put('messages/(:num)/read', 'Admin\MessagesAdmin::toggleRead/$1');
+        $routes->delete('messages/(:num)', 'Admin\MessagesAdmin::delete/$1');
+        $routes->post('messages/bulk', 'Admin\MessagesAdmin::bulkAction');
+
+        // Organization
+        $routes->get('organization', 'Admin\OrganizationAdmin::index');
+        $routes->get('organization/modal', 'Admin\OrganizationAdmin::modalCreate');
+        $routes->get('organization/modal/(:num)', 'Admin\OrganizationAdmin::modalEdit/$1');
+        $routes->post('organization/modal', 'Admin\OrganizationAdmin::modalStore');
+        $routes->post('organization/modal/(:num)', 'Admin\OrganizationAdmin::modalUpdate/$1');
+        $routes->post('organization/reorder', 'Admin\OrganizationAdmin::saveOrder');
+        $routes->get('organization/members/create', 'Admin\OrganizationAdmin::create');
+        $routes->post('organization/members', 'Admin\OrganizationAdmin::store');
+        $routes->get('organization/members/(:num)/edit', 'Admin\OrganizationAdmin::edit/$1');
+        $routes->post('organization/members/(:num)/update', 'Admin\OrganizationAdmin::update/$1');
+        $routes->post('organization/members/(:num)/delete', 'Admin\OrganizationAdmin::delete/$1');
+        $routes->post('organization/members/(:num)/move/(:alpha)', 'Admin\OrganizationAdmin::move/$1/$2');
+
+        // Legacy redirect for old bookmarks
+        $routes->addRedirect('games', 'admin/settings');
+    });
+
+    // ── superadmin only ──────────────────────────────────────────────────
+    $routes->group('', ['filter' => 'role:superadmin'], function ($routes) {
+
+        // Site Settings
+        $routes->post('settings/guess-startup/availability', 'Admin\SettingsAdmin::updateGuessStartupAvailability');
+        $routes->post('settings/interns-visibility', 'Admin\SettingsAdmin::updateInternsVisibility');
+        $routes->post('settings/homepage-incubatees-filter', 'Admin\SettingsAdmin::updateLandingFilter');
+        $routes->post('settings/applications', 'Admin\SettingsAdmin::updateApplicationSettings');
+        $routes->post('settings/site-experience', 'Admin\SettingsAdmin::updateSiteExperience');
+
+        // Lean Canvas Template Management
+        $routes->post('settings/lean-canvas-template', 'Admin\SettingsAdmin::uploadLeanCanvasTemplate');
+        $routes->post('settings/lean-canvas-template/delete', 'Admin\SettingsAdmin::deleteLeanCanvasTemplate');
+
+        // Account Management
+        $routes->get('accounts', 'Admin\AdminsManagement::index');
+        $routes->get('accounts/modal', 'Admin\AdminsManagement::modalCreate');
+        $routes->get('accounts/modal/(:num)', 'Admin\AdminsManagement::modalEdit/$1');
+        $routes->post('accounts/modal', 'Admin\AdminsManagement::modalStore');
+        $routes->post('accounts/modal/(:num)', 'Admin\AdminsManagement::modalUpdate/$1');
+        $routes->post('accounts/(:num)/welcome-email', 'Admin\AdminsManagement::sendWelcomeEmail/$1');
+        $routes->get('accounts/create', 'Admin\AdminsManagement::create');
+        $routes->post('accounts', 'Admin\AdminsManagement::store');
+        $routes->get('accounts/(:num)/edit', 'Admin\AdminsManagement::edit/$1');
+        $routes->put('accounts/(:num)', 'Admin\AdminsManagement::update/$1');
+        $routes->delete('accounts/(:num)', 'Admin\AdminsManagement::delete/$1');
+    });
 });

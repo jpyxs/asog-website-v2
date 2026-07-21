@@ -1,18 +1,18 @@
 <?php
 $isEdit = $admin !== null;
-$pageTitle = $isEdit ? 'Edit Admin Account' : 'Add Admin';
+$pageTitle = $isEdit ? 'Edit Account' : 'New Account';
 ?>
 
 <link rel="stylesheet" href="<?= base_url('assets/css/adminAdmins.css') ?>">
 
 <div style="margin-bottom: 1.5rem;">
-    <a href="<?= site_url('admin/admins') ?>" style="display:inline-flex;align-items:center;gap:0.35rem;color:#475569;text-decoration:none;font-weight:500;transition:color 0.15s;">
+    <a href="<?= site_url('admin/accounts') ?>" style="display:inline-flex;align-items:center;gap:0.35rem;color:#475569;text-decoration:none;font-weight:500;transition:color 0.15s;">
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         Go Back
     </a>
 </div>
 
-<form action="<?= site_url($isEdit ? 'admin/admins/' . $admin['id'] : 'admin/admins') ?>" method="POST" class="form-container">
+<form action="<?= site_url($isEdit ? 'admin/accounts/' . $admin['id'] : 'admin/accounts') ?>" method="POST" class="form-container" data-dirty-check data-dirty-btn=".btn-p">
     <?= csrf_field() ?>
     <?php if ($isEdit): ?>
         <input type="hidden" name="_method" value="PUT">
@@ -21,6 +21,15 @@ $pageTitle = $isEdit ? 'Edit Admin Account' : 'Add Admin';
     <h2><?= $pageTitle ?></h2>
 
     <div class="form-grid">
+        <div class="form-group">
+            <label for="fullName">Full name *</label>
+            <input type="text" id="fullName" name="fullName"
+                value="<?= esc($isEdit ? ($admin['fullName'] ?? '') : old('fullName')) ?>"
+                maxlength="150"
+                required
+                placeholder="Juan Dela Cruz">
+        </div>
+
         <div class="form-group">
             <label for="email">Email *</label>
             <input type="email" id="email" name="email" 
@@ -40,37 +49,13 @@ $pageTitle = $isEdit ? 'Edit Admin Account' : 'Add Admin';
     </div>
 
     <?php if ($isEdit): ?>
-    <div class="form-sep"></div>
-    <h3>Google OAuth</h3>
-
-    <div class="form-grid">
-        <div class="form-group">
-            <label for="googleEmail">Google Email</label>
-            <input type="email" id="googleEmail" name="googleEmail" 
-                value="<?= esc($admin['googleEmail'] ?? '') ?>" 
-                placeholder="user@gmail.com">
-        </div>
-
-        <div class="form-group">
-            <label for="googleSub">Google ID</label>
-            <input type="text" id="googleSub" name="googleSub" 
-                value="<?= esc($admin['googleSub'] ?? '') ?>" 
-                placeholder="Google account identifier">
-        </div>
-    </div>
-
-    <div class="form-group checkbox">
-        <input type="checkbox" id="isActive" name="isActive" 
-            value="1" 
-            <?= $admin['isActive'] ? 'checked' : '' ?>>
-        <label for="isActive">Active</label>
-    </div>
+        <input type="hidden" name="isActive" value="<?= ! empty($admin['isActive']) ? '1' : '0' ?>">
     <?php endif; ?>
 
     <div class="form-actions">
         <button type="submit" class="btn btn-p">
-            <?= $isEdit ? 'Update' : 'Add Admin' ?>
+            <?= $isEdit ? 'Update' : 'Add Account' ?>
         </button>
-        <a href="<?= site_url('admin/admins') ?>" class="btn btn-o">Cancel</a>
+        <a href="<?= site_url('admin/accounts') ?>" class="btn btn-o">Cancel</a>
     </div>
 </form>

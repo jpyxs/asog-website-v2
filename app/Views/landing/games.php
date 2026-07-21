@@ -25,7 +25,7 @@
     }
 
     #games .games-kicker {
-        color: #d69a2a;
+        color: #F8AF21;
     }
 
     #games .games-title {

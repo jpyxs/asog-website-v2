@@ -75,6 +75,10 @@
     margin-bottom: 1.2rem;
 }
 
+.card--full {
+    grid-column: 1 / -1;
+}
+
 .card {
     background: #fff;
     border: 1px solid #eceae6;
@@ -285,6 +289,11 @@
 .tag-accepted {
     background: #ecfdf5;
     color: #065f46;
+}
+
+.tag-for_revalidation {
+    background: #fff7ed;
+    color: #c2410c;
 }
 
 .tag-rejected {

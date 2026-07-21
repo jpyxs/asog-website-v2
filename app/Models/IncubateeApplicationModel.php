@@ -30,6 +30,12 @@ class IncubateeApplicationModel extends Model
         'applicantEmail',
         'contactNumber',
         'applicationStatus',
+        'statusRemark',
+        'revalidationTokenHash',
+        'revalidationTokenExpiresAt',
+        'revalidationRequestedAt',
+        'revalidatedAt',
+        'isArchived',
     ];
 
     protected $validationRules = [
@@ -41,8 +47,9 @@ class IncubateeApplicationModel extends Model
         'leanCanvasPath'           => 'max_length[500]',
         'videoPresentationLink'    => 'required|valid_url|max_length[500]',
         'applicantName'            => 'required|regex_match[/^[A-Za-z\s,\.]+$/]|max_length[255]',
-        'applicantEmail'           => 'required|valid_email|max_length[255]|is_unique[incubatee_applications.applicantEmail]',
-        'contactNumber'            => 'required|regex_match[/^[0-9\s\-\+\(\)]+$/]|max_length[20]',
+        'applicantEmail'           => 'required|valid_email|max_length[255]',
+        'contactNumber'            => 'required|regex_match[/^09[0-9]{9}$/]|max_length[11]',
+        'statusRemark'             => 'permit_empty|max_length[2000]',
     ];
 
     protected $validationMessages = [
@@ -70,14 +77,35 @@ class IncubateeApplicationModel extends Model
             'required'     => 'Email is required.',
             'valid_email'  => 'Please enter a valid email address.',
             'max_length'   => 'Email cannot exceed 255 characters.',
-            'is_unique'    => 'This email has already been used in a previous application.',
         ],
         'contactNumber' => [
             'required'     => 'Contact number is required.',
             'regex_match'  => 'Please enter a valid contact number.',
-            'max_length'   => 'Contact number cannot exceed 20 characters.',
+            'max_length'   => 'Contact number cannot exceed 11 digits.',
         ],
     ];
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_FOR_REVALIDATION = 'for_revalidation';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REJECTED = 'rejected';
+
+    public const STATUS_LABELS = [
+        self::STATUS_PENDING => 'For Review',
+        self::STATUS_FOR_REVALIDATION => 'For Revalidation',
+        self::STATUS_ACCEPTED => 'Accepted',
+        self::STATUS_REJECTED => 'Rejected',
+    ];
+
+    public static function allowedStatuses(): array
+    {
+        return array_keys(self::STATUS_LABELS);
+    }
+
+    public static function statusLabel(string $status): string
+    {
+        return self::STATUS_LABELS[$status] ?? ucfirst(str_replace('_', ' ', $status));
+    }
 
     // ─── Query Helpers ────────────────────────────────────
 
@@ -86,12 +114,74 @@ class IncubateeApplicationModel extends Model
     **/
     public function getCounts(): array
     {
-        $total    = $this->countAllResults();
-        $pending  = $this->where('applicationStatus', 'pending')->countAllResults();
-        $accepted = $this->where('applicationStatus', 'accepted')->countAllResults();
-        $rejected = $this->where('applicationStatus', 'rejected')->countAllResults();
+        $total    = $this->where('isArchived', 0)->countAllResults();
+        $pending  = $this->where('isArchived', 0)->where('applicationStatus', self::STATUS_PENDING)->countAllResults();
+        $forRevalidation = $this->where('isArchived', 0)->where('applicationStatus', self::STATUS_FOR_REVALIDATION)->countAllResults();
+        $accepted = $this->where('isArchived', 0)->where('applicationStatus', self::STATUS_ACCEPTED)->countAllResults();
+        $rejected = $this->where('isArchived', 0)->where('applicationStatus', self::STATUS_REJECTED)->countAllResults();
+        $archived = $this->where('isArchived', 1)->countAllResults();
 
-        return compact('total', 'pending', 'accepted', 'rejected');
+        return compact('total', 'pending', 'forRevalidation', 'accepted', 'rejected', 'archived');
+    }
+
+    /**  
+     * Return filtered and sorted applications.
+    **/
+    public function getFilteredApplications(string $search = '', string $status = 'active', string $sort = 'createdAt', string $direction = 'DESC', int $limit = 0, int $offset = 0): array
+    {
+        $builder = $this->builder();
+
+        if ($status === 'archived') {
+            $builder->where('isArchived', 1);
+        } else {
+            $builder->where('isArchived', 0);
+            if ($status !== 'active' && $status !== 'all') {
+                $builder->where('applicationStatus', $status);
+            }
+        }
+
+        if (! empty($search)) {
+            $builder->groupStart()
+                    ->like('applicantName', $search)
+                    ->orLike('startupName', $search)
+                    ->orLike('applicantEmail', $search)
+                    ->groupEnd();
+        }
+
+        $allowed   = ['applicantName', 'startupName', 'applicantEmail', 'createdAt', 'applicationStatus'];
+        $sort      = in_array($sort, $allowed, true) ? $sort : 'createdAt';
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+        $builder->orderBy($sort, $direction);
+
+        if ($limit > 0) {
+            $builder->limit($limit, $offset);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function countFilteredApplications(string $search = '', string $status = 'active'): int
+    {
+        $builder = $this->builder();
+
+        if ($status === 'archived') {
+            $builder->where('isArchived', 1);
+        } else {
+            $builder->where('isArchived', 0);
+            if ($status !== 'active' && $status !== 'all') {
+                $builder->where('applicationStatus', $status);
+            }
+        }
+
+        if (! empty($search)) {
+            $builder->groupStart()
+                    ->like('applicantName', $search)
+                    ->orLike('startupName', $search)
+                    ->orLike('applicantEmail', $search)
+                    ->groupEnd();
+        }
+
+        return (int) $builder->countAllResults();
     }
 
     /**  
@@ -109,7 +199,7 @@ class IncubateeApplicationModel extends Model
     **/
     public function getPending(int $limit = 0)
     {
-        $builder = $this->where('applicationStatus', 'pending')
+        $builder = $this->where('applicationStatus', self::STATUS_PENDING)
                         ->orderBy('createdAt', 'DESC');
 
         return $limit > 0 ? $builder->findAll($limit) : $builder->findAll();
@@ -120,23 +210,125 @@ class IncubateeApplicationModel extends Model
     **/
     public function getByEmail(string $email)
     {
-        return $this->where('applicantEmail', $email)
-                    ->first();
+        $email = strtolower(trim($email));
+        if ($email === '') {
+            return null;
+        }
+
+        return $this->builder()
+                    ->where('LOWER(applicantEmail)', $email)
+                    ->limit(1)
+                    ->get()
+                    ->getRowArray();
+    }
+
+    public function emailExists(string $email): bool
+    {
+        $email = strtolower(trim($email));
+        if ($email === '') {
+            return false;
+        }
+
+        return $this->builder()
+            ->select('id')
+            ->where('LOWER(applicantEmail)', $email)
+            ->where('applicationStatus !=', self::STATUS_REJECTED)
+            ->limit(1)
+            ->get()
+            ->getRowArray() !== null;
+    }
+
+    public function emailExistsExcept(string $email, int $exceptId): bool
+    {
+        $email = strtolower(trim($email));
+        if ($email === '') {
+            return false;
+        }
+
+        return $this->builder()
+            ->select('id')
+            ->where('LOWER(applicantEmail)', $email)
+            ->where('id !=', $exceptId)
+            ->where('applicationStatus !=', self::STATUS_REJECTED)
+            ->limit(1)
+            ->get()
+            ->getRowArray() !== null;
+    }
+
+    public function duplicateEmailMessage(): string
+    {
+        return 'This email has already been used in a previous application.';
+    }
+
+    public function getDbError(): array
+    {
+        return $this->db->error();
+    }
+
+    public function isDuplicateEmailDbError(): bool
+    {
+        $error = $this->getDbError();
+        $message = strtolower((string) ($error['message'] ?? ''));
+
+        if ($message === '') {
+            return false;
+        }
+
+        return str_contains($message, 'duplicate')
+            && str_contains($message, 'applicantemail');
     }
 
     /**  
      * Set the applicationStatus of a given record.
      * @param  int    $id     Primary-key ID
-     * @param  string $status One of: pending, reviewed, accepted, rejected
+     * @param  string $status One of the STATUS_* constants.
      * @return bool
     **/
-    public function updateStatus(int $id, string $status): bool
+    public function updateStatus(int $id, string $status, ?string $remark = null): bool
     {
-        $allowed = ['pending', 'reviewed', 'accepted', 'rejected'];
-        if (! in_array($status, $allowed, true)) {
+        if (! in_array($status, self::allowedStatuses(), true)) {
             return false;
         }
 
-        return $this->update($id, ['applicationStatus' => $status]);
+        return $this->update($id, [
+            'applicationStatus' => $status,
+            'statusRemark'      => $remark !== null && trim($remark) !== '' ? trim($remark) : null,
+        ]);
+    }
+
+    public function findByRevalidationToken(string $token): ?array
+    {
+        $token = trim($token);
+        if ($token === '') {
+            return null;
+        }
+
+        $hash = hash('sha256', $token);
+
+        return $this->builder()
+            ->where('revalidationTokenHash', $hash)
+            ->where('applicationStatus', self::STATUS_FOR_REVALIDATION)
+            ->where('isArchived', 0)
+            ->limit(1)
+            ->get()
+            ->getRowArray() ?: null;
+    }
+
+    public function isRevalidationLinkUsable(array $app): bool
+    {
+        if (($app['applicationStatus'] ?? null) !== self::STATUS_FOR_REVALIDATION) {
+            return false;
+        }
+
+        if (! empty($app['isArchived'])) {
+            return false;
+        }
+
+        $expiresAt = (string) ($app['revalidationTokenExpiresAt'] ?? '');
+        if ($expiresAt === '') {
+            return false;
+        }
+
+        return strtotime($expiresAt) !== false && strtotime($expiresAt) >= time();
     }
 }

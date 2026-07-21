@@ -22,18 +22,42 @@
 
         <?php
         $programs = [
-            ['Mentorship from experts in AI, engineering, &amp; business', 'End-to-end startup support &mdash; from co-working spaces and prototyping labs to seed funding guidance.'],
-            ['Startup Bootcamps &amp; Training', 'Industry experts and academic mentors deliver hands-on workshops and tailored training for founders.'],
-            ['Prototyping &amp; product development', 'Navigate patents, trademarks, and IP strategy with our dedicated Intellectual Property Management Unit.'],
-            ['IP assistance (patents, trademarks, etc.)', 'Bridge the gap between academic research and market-ready innovations with our tech transfer partnerships.'],
-            ['Market validation support', 'Connect with industry partners, pilot customers, and distribution channels to accelerate go-to-market strategies.'],
-            ['Access to funding networks', 'Leverage prototyping labs and technical expertise to refine your MVP and iterate toward product-market fit.'],
-            ['Free co-working space', 'Access seed capital opportunities, investor matchmaking, and grant writing support for early-stage ventures.'],
-            ['Pitching opportunities &amp; networking', 'Join pitch nights, demo days, and founder meetups that build lasting connections across the startup ecosystem.'],
+            [
+                'title' => 'Mentorship from experts in AI, engineering, &amp; business',
+                'desc'  => 'Bridge the gap between academic research and market-ready innovations with our tech transfer partnerships.'
+            ],
+            [
+                'title' => 'Startup Bootcamps &amp; Training',
+                'desc'  => 'Industry experts and academic mentors deliver hands-on workshops and tailored training for founders.'
+            ],
+            [
+                'title' => 'Prototyping &amp; product development',
+                'desc'  => 'Leverage prototyping labs and technical expertise to refine your MVP and iterate toward product-market fit.'
+            ],
+            [
+                'title' => 'IP assistance (patents, trademarks, etc.)',
+                'desc'  => 'Navigate patents, trademarks, and IP strategy with our dedicated Intellectual Property Management Unit.'
+            ],
+            [
+                'title' => 'Market validation support',
+                'desc'  => 'Connect with industry partners, pilot customers, and distribution channels to accelerate go-to-market strategies.'
+            ],
+            [
+                'title' => 'Access to funding networks',
+                'desc'  => 'Access seed capital opportunities, investor matchmaking, and grant writing support for early-stage ventures.'
+            ],
+            [
+                'title' => 'Free co-working space',
+                'desc'  => 'End-to-end startup support &mdash; from co-working spaces and prototyping labs to seed funding guidance.'
+            ],
+            [
+                'title' => 'Pitching opportunities &amp; networking',
+                'desc'  => 'Join pitch nights, demo days, and founder meetups that build lasting connections across the startup ecosystem.'
+            ],
         ];
         $total = count($programs);
         ?>
-
+ 
         <!-- Card track -->
         <div class="overflow-hidden reveal-group">
             <div id="progSlider" class="flex" data-total="<?= $total ?>">
@@ -41,9 +65,9 @@
                 <div class="prog-card shrink-0 box-border py-2" data-ix="<?= $i ?>">
                     <div class="h-full px-6 md:px-7<?= $i > 0 ? ' border-l border-white/[.08]' : '' ?>">
                         <span
-                            class="block text-[.5rem] font-semibold tracking-[.22em] uppercase text-gold/70 mb-4"><?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?></span>
-                        <h3 class="font-display text-[1.05rem] text-off mb-3 leading-snug"><?= $prog[0] ?></h3>
-                        <p class="text-[.78rem] font-light leading-[1.8] text-white/60"><?= $prog[1] ?></p>
+                            class="block text-[.7rem] font-semibold tracking-[.22em] uppercase text-gold/80 mb-4"><?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?></span>
+                        <h3 class="font-display text-[1.05rem] text-off mb-3 leading-snug"><?= $prog['title'] ?></h3>
+                        <p class="text-[.78rem] font-light leading-[1.8] text-white/60"><?= $prog['desc'] ?></p>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -53,7 +77,7 @@
         <!-- Bottom nav: arrows + page indicator -->
         <div class="flex items-center justify-center gap-4 mt-14 md:mt-16 reveal">
             <button id="progPrev" aria-label="Previous"
-                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/[.15] flex items-center justify-center text-white/40 cursor-pointer opacity-30 pointer-events-none overflow-hidden"
+                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/30 flex items-center justify-center text-white/50 cursor-pointer opacity-50 pointer-events-none overflow-hidden"
                 style="transition:border-color .3s,color .3s,background .3s,opacity .3s,transform .2s">
                 <span
                     class="absolute inset-0 rounded-full bg-gold/0 group-hover/btn:bg-gold/[.12] transition-all duration-300"></span>
@@ -63,14 +87,14 @@
                 </svg>
             </button>
             <div class="flex items-center gap-2">
-                <span class="block w-3 h-[1px] bg-gold/30"></span>
+                <span class="block w-3 h-[1px] bg-gold/50"></span>
                 <span id="progPage"
-                    class="text-[.58rem] font-semibold tracking-[.2em] text-white/45 min-w-[2.5rem] text-center select-none"
-                    style="font-variant-numeric:tabular-nums">1 / 2</span>
-                <span class="block w-3 h-[1px] bg-gold/30"></span>
+                    class="text-[.65rem] font-semibold tracking-[.2em] text-white/50 min-w-[2.5rem] text-center select-none"
+                    style="font-variant-numeric:tabular-nums"></span>
+                <span class="block w-3 h-[1px] bg-gold/50"></span>
             </div>
             <button id="progNext" aria-label="Next"
-                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/[.15] flex items-center justify-center text-white/40 cursor-pointer overflow-hidden"
+                class="group/btn relative w-11 h-11 md:w-12 md:h-12 rounded-full border border-white/30 flex items-center justify-center text-white/50 cursor-pointer overflow-hidden"
                 style="transition:border-color .3s,color .3s,background .3s,opacity .3s,transform .2s">
                 <span
                     class="absolute inset-0 rounded-full bg-gold/0 group-hover/btn:bg-gold/[.12] transition-all duration-300"></span>

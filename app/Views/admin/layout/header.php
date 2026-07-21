@@ -1,58 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }</script>
+    <style>html, body { overflow-anchor: none; }</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title><?= esc($pageTitle ?? 'Admin') ?> — ASOG TBI</title>
-    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet"/>
-    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet"/>
+    <link rel="icon" href="<?= base_url('assets/favicon/favicon.ico') ?>" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/favicon/favicon-32x32.png') ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/favicon/favicon-16x16.png') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/favicon/apple-touch-icon.png') ?>">
+    <link rel="manifest" href="<?= base_url('assets/favicon/site.webmanifest') ?>">
+    <link rel="preload" as="font" href="<?= base_url('assets/fonts/dm-sans-normal-400.ttf') ?>" type="font/ttf" crossorigin>
+    <link rel="preload" as="font" href="<?= base_url('assets/fonts/dm-sans-normal-600.ttf') ?>" type="font/ttf" crossorigin>
+    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI_full-colored_stacked-white.webp') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/localFonts.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/quill/quill.snow.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/adminLayout.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/adminCustomSelect.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/adminPosts.css') ?>">
 </head>
-<body>
+<body
+    data-admin-sidebar-status-url="<?= site_url('admin/sidebar/status') ?>"
+    data-admin-login-url="<?= site_url('asog-admin') ?>"
+>
 <div class="shell">
 
     <aside class="side">
         <div class="side-brand">
-            <h2>ASOG TBI</h2>
-            <span>Content Manager</span>
+            <?= responsiveStaticImg('assets/img/ASOG TBI/WebP/ASOG-TBI_full-colored_stacked-white', 'default', 'ASOG TBI', 'side-logo') ?>
+            <div class="side-brand-text">
+                <h2>ASOG TBI</h2>
+                <span>Content Manager</span>
+            </div>
         </div>
         <div class="side-sep"></div>
 
         <div class="side-label">Menu</div>
+        <?php
+            $sessionRole = (string) session()->get('admin_role');
+            $sessionRoleLabel = [
+                'superadmin' => 'Super Admin',
+                'admin' => 'Admin',
+                'editor' => 'Editor',
+            ][$sessionRole] ?? ucfirst($sessionRole ?: 'User');
+        ?>
         <nav class="side-nav">
-            <a href="<?= site_url('admin') ?>" class="<?= ($activePage ?? '') === 'dashboard' ? 'on' : '' ?>">
+            <a href="<?= site_url('admin') ?>" class="<?= ($activePage ?? '') === 'dashboard' ? 'on' : '' ?>" data-admin-nav-key="dashboard">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
                 Dashboard
             </a>
-            <a href="<?= site_url('admin/posts') ?>" class="<?= ($activePage ?? '') === 'posts' ? 'on' : '' ?>">
+            <a href="<?= site_url('admin/posts') ?>" class="<?= ($activePage ?? '') === 'posts' ? 'on' : '' ?>" data-admin-nav-key="posts">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h10"/></svg>
                 Posts
             </a>
-            <a href="<?= site_url('admin/applications') ?>" class="<?= ($activePage ?? '') === 'applications' ? 'on' : '' ?>">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                Applications
-            </a>
-            <a href="<?= site_url('admin/incubatees') ?>" class="<?= ($activePage ?? '') === 'incubatees' ? 'on' : '' ?>">
+            <a href="<?= site_url('admin/incubatees') ?>" class="<?= ($activePage ?? '') === 'incubatees' ? 'on' : '' ?>" data-admin-nav-key="incubatees">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 Incubatees
             </a>
-            <a href="<?= site_url('admin/games') ?>" class="<?= ($activePage ?? '') === 'games' ? 'on' : '' ?>">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.868v4.264a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 1.76-.39 3.43-1.09 4.93a2 2 0 01-1.58 1.11 48.2 48.2 0 01-12.66 0 2 2 0 01-1.58-1.11A11.96 11.96 0 013 12c0-1.76.39-3.43 1.09-4.93a2 2 0 011.58-1.11 48.2 48.2 0 0112.66 0 2 2 0 011.58 1.11c.7 1.5 1.09 3.17 1.09 4.93z"/></svg>
-                Games
+            <a href="<?= site_url('admin/faqs') ?>" class="<?= ($activePage ?? '') === 'faqs' ? 'on' : '' ?>" data-admin-nav-key="faqs">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9a3.75 3.75 0 117.252 1.344c-.584 1.238-1.98 1.656-2.73 2.406-.45.45-.75.9-.75 1.5M12 18h.008"/><circle cx="12" cy="12" r="9"/></svg>
+                FAQs
+            </a>
+            <?php if (in_array($sessionRole, ['admin', 'superadmin'], true)): ?>
+            <a href="<?= site_url('admin/applications') ?>" class="<?= ($activePage ?? '') === 'applications' ? 'on' : '' ?>" data-admin-nav-key="applications">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Applications
+            </a>
+            <a href="<?= site_url('admin/organization') ?>" class="<?= ($activePage ?? '') === 'organization' ? 'on' : '' ?>" data-admin-nav-key="organization">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4l8 4-8 4-8-4 8-4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 12l8 4 8-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l8 4 8-4"/></svg>
+                Organization
             </a>
             <?php $unreadMsgCount = (int) ($adminUnreadMessageCount ?? 0); ?>
-            <a href="<?= site_url('admin/messages') ?>" class="<?= ($activePage ?? '') === 'messages' ? 'on' : '' ?>" style="position:relative">
+            <a href="<?= site_url('admin/messages') ?>" class="<?= ($activePage ?? '') === 'messages' ? 'on' : '' ?>" data-admin-nav-key="messages">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 Messages
                 <?php if ($unreadMsgCount > 0): ?>
-                    <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#03558C;color:#fff;font-size:.5rem;font-weight:700;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px"><?= $unreadMsgCount ?></span>
+                    <span class="side-count" data-admin-sidebar-count><?= $unreadMsgCount > 9 ? '9+' : $unreadMsgCount ?></span>
                 <?php endif; ?>
             </a>
-            <a href="<?= site_url('admin/admins') ?>" class="<?= ($activePage ?? '') === 'admins' ? 'on' : '' ?>">
+            <?php endif; ?>
+            <?php if ($sessionRole === 'superadmin'): ?>
+            <a href="<?= site_url('admin/accounts') ?>" class="<?= ($activePage ?? '') === 'admins' ? 'on' : '' ?>" data-admin-nav-key="admins">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
-                Admins
+                Accounts
+            </a>
+            <?php endif; ?>
+            <a href="<?= site_url('admin/settings') ?>" class="<?= ($activePage ?? '') === 'settings' ? 'on' : '' ?>" data-admin-nav-key="settings">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Settings
             </a>
         </nav>
 
@@ -65,26 +101,118 @@
         </nav>
 
         <div class="side-foot">
-            <div class="user"><strong><?= esc(session()->get('admin_name') ?? 'Admin') ?></strong></div>
-            <div class="user" style="margin-bottom:.4rem"><?= esc(session()->get('admin_email') ?? '') ?></div>
-            <a href="<?= site_url('asog-admin/logout') ?>" class="out">Sign out</a>
+            <div class="side-foot-user">
+                <div class="side-role-label side-role-label--<?= esc($sessionRole, 'attr') ?>" data-admin-sidebar-role><?= esc($sessionRoleLabel) ?></div>
+                <div class="user"><strong data-admin-sidebar-name><?= esc(session()->get('admin_name') ?? 'Admin') ?></strong></div>
+                <div class="user" data-admin-sidebar-email><?= esc(session()->get('admin_email') ?? '') ?></div>
+            </div>
+            <nav class="side-nav">
+                <a href="<?= site_url('asog-admin/logout') ?>" class="out">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Sign out
+                </a>
+            </nav>
         </div>
     </aside>
 
     <div class="body">
         <header class="bar">
-            <?php if (($activePage ?? '') === 'dashboard'): ?>
-                <div>
-                    <h1>Welcome back, <?= esc(session()->get('admin_name') ?? 'Admin') ?></h1>
+            <h1>
+                <?php if (($activePage ?? '') === 'dashboard'): ?>
+                    Welcome back, <?= esc(session()->get('admin_name') ?? 'Admin') ?>
+                <?php else: ?>
+                    <?= esc($pageTitle ?? 'Dashboard') ?>
+                <?php endif; ?>
+            </h1>
+            <div class="bar-tools">
+                <?php
+                    $canViewNotifications = in_array($sessionRole ?? '', ['editor', 'admin', 'superadmin'], true);
+                    $notifications = $adminNotifications ?? [];
+                    $unreadNotifications = (int) ($adminUnreadNotificationCount ?? 0);
+                    $hasMoreNotifications = ! empty($adminHasMoreNotifications);
+                ?>
+                <?php if ($canViewNotifications): ?>
+                <div class="admin-notifications"
+                    data-admin-notifications
+                    data-read-all-url="<?= site_url('admin/notifications/read-all') ?>"
+                    data-list-url="<?= site_url('admin/notifications') ?>">
+                    <button type="button"
+                        class="admin-notifications-trigger"
+                        data-admin-notifications-trigger
+                        aria-label="Open admin notifications"
+                        aria-expanded="false">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a3 3 0 006 0"/>
+                        </svg>
+                        <?php if ($unreadNotifications > 0): ?>
+                            <span class="admin-notifications-count" data-admin-notifications-count><?= $unreadNotifications > 9 ? '9+' : $unreadNotifications ?></span>
+                        <?php endif; ?>
+                    </button>
+                    <div class="admin-notifications-menu" data-admin-notifications-menu>
+                        <div class="admin-notifications-head">
+                            <div>
+                                <strong>Notifications</strong>
+                                <span data-admin-notifications-unread-label><?= $unreadNotifications ?> unread</span>
+                            </div>
+                            <?php if (! empty($notifications)): ?>
+                                <button type="button"
+                                    data-admin-notifications-read-all
+                                    data-read-url="<?= site_url('admin/notifications/read-all') ?>">
+                                    Mark all read
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                        <div class="admin-notifications-list">
+                            <?php if (empty($notifications)): ?>
+                                <div class="admin-notifications-empty">No notifications yet.</div>
+                            <?php else: ?>
+                                <?php foreach ($notifications as $notification): ?>
+                                    <?php
+                                        $notificationId = (int) ($notification['id'] ?? 0);
+                                        $isRead = ! empty($notification['userReadAt']) || ! empty($notification['isRead']);
+                                        $type = (string) ($notification['type'] ?? 'system_update');
+                                        $href = (string) ($notification['link'] ?? site_url('admin'));
+                                        $created = (string) ($notification['createdAt'] ?? '');
+                                        $timeLabel = $created !== '' && strtotime($created) !== false
+                                            ? date('M j, g:i A', strtotime($created))
+                                            : '';
+                                    ?>
+                                    <a href="<?= esc($href, 'attr') ?>"
+                                        class="admin-notification-item <?= $isRead ? 'is-read' : 'is-unread' ?>"
+                                        data-admin-notification-item
+                                        data-read-url="<?= site_url('admin/notifications/' . $notificationId . '/read') ?>">
+                                        <span class="admin-notification-dot type-<?= esc($type, 'attr') ?>"></span>
+                                        <span class="admin-notification-copy">
+                                            <strong><?= esc((string) ($notification['title'] ?? 'Notification')) ?></strong>
+                                            <?php if (! empty($notification['body'])): ?>
+                                                <span><?= esc((string) $notification['body']) ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($timeLabel !== ''): ?>
+                                                <small><?= esc($timeLabel) ?></small>
+                                            <?php endif; ?>
+                                        </span>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <div class="admin-notifications-foot" <?= $hasMoreNotifications ? '' : 'hidden' ?>>
+                            <button type="button"
+                                data-admin-notifications-load-more
+                                data-next-offset="<?= count($notifications) ?>"
+                                <?= $hasMoreNotifications ? '' : 'hidden' ?>>
+                                Load more
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;white-space:nowrap;">
+                <?php endif; ?>
+                <div class="bar-date">
                     <?= date('l, M j, Y') ?>
                 </div>
-            <?php else: ?>
-                <h1><?= esc($pageTitle ?? 'Dashboard') ?></h1>
-            <?php endif; ?>
+            </div>
         </header>
 
-        <div class="page">
+        <div class="page" data-admin-main data-admin-page="<?= esc((string) ($activePage ?? ''), 'attr') ?>" tabindex="-1">
             <?php helper('toast'); ?>
             <?= renderToast() ?>

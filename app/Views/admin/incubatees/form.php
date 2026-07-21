@@ -76,6 +76,26 @@ if (! is_array($selectedSdgs)) {
     $selectedSdgs = $rawSelectedSdgs !== '' ? explode(',', (string) $rawSelectedSdgs) : [];
 }
 $selectedSdgs = array_map('intval', $selectedSdgs);
+
+$sdgTitles = [
+    1  => 'No Poverty',
+    2  => 'Zero Hunger',
+    3  => 'Good Health and Well-Being',
+    4  => 'Quality Education',
+    5  => 'Gender Equality',
+    6  => 'Clean Water and Sanitation',
+    7  => 'Affordable and Clean Energy',
+    8  => 'Decent Work and Economic Growth',
+    9  => 'Industry, Innovation and Infrastructure',
+    10 => 'Reduced Inequalities',
+    11 => 'Sustainable Cities and Communities',
+    12 => 'Responsible Consumption and Production',
+    13 => 'Climate Action',
+    14 => 'Life Below Water',
+    15 => 'Life on Land',
+    16 => 'Peace, Justice and Strong Institutions',
+    17 => 'Partnerships for the Goals',
+];
 ?>
 
 <style>
@@ -83,7 +103,8 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
     background: #fff;
     border: 1px solid #eceae6;
     border-radius: .4rem;
-    padding: 1.4rem
+    padding: 1.4rem;
+    margin-bottom: 52px;
 }
 
 .form-grid {
@@ -123,11 +144,22 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
     font-size: .82rem;
     color: #1e293b;
     padding: .5rem .65rem;
-    border: 1px solid #ddd;
-    border-radius: .25rem;
+    border: 1px solid #e4e2dd;
+    border-radius: .3rem;
     background: #fff;
     outline: none;
     transition: border .15s
+}
+
+.field select {
+    padding-right: 2rem;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2394a3b8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .65rem center;
+    background-size: 14px 14px;
+    cursor: pointer
 }
 
 .field input:focus,
@@ -143,33 +175,95 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
 
 .sdg-select-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-    gap: .45rem
+    grid-template-columns: repeat(10, 1fr);
+    gap: .5rem;
+    max-width: 1000px;
 }
 
 .sdg-check {
-    display: inline-flex;
+    position: relative;
+    display: flex;
     align-items: center;
-    gap: .4rem;
-    border: 1px solid #e2e8f0;
+    justify-content: center;
+    border: 2px solid transparent;
+    border-radius: .35rem;
+    padding: .25rem;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.sdg-check img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
     border-radius: .25rem;
-    padding: .38rem .45rem;
-    background: #fff;
-    color: #334155;
-    font-size: .7rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    transition: border-color .15s, background .15s
+    display: block;
+    opacity: .3;
+    transition: opacity .15s;
+}
+
+.sdg-check:hover img {
+    opacity: .8;
+}
+
+.sdg-check:has(input:checked) img {
+    opacity: 1;
+}
+
+@media (max-width: 800px) {
+    .sdg-select-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
 }
 
 .sdg-check:hover {
+    border-color: #03558C
+}
+
+.sdg-check:has(input:checked) {
     border-color: #03558C;
-    background: #f8fbff
+    box-shadow: 0 0 0 2px rgba(3,85,140,.15);
 }
 
 .sdg-check input {
-    accent-color: #03558C
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
+
+.sdg-tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4a5a73;
+    color: #f1f5f9;
+    font-size: .6rem;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: .3rem .55rem;
+    border-radius: .25rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+
+.sdg-check:focus-within {
+    outline: 2px solid #03558C;
+    outline-offset: 2px;
+}
+
+.sdg-check:hover .sdg-tooltip,
+ .sdg-check:has(input:focus-visible) .sdg-tooltip {
+     opacity: 1;
+ }
 
 .sdg-help {
     margin-top: .45rem;
@@ -231,6 +325,24 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
     color: #03558C
 }
 
+.upload-zone.upload-zone-white {
+    background: #fff;
+    border-color: #d4d0ca
+}
+
+.upload-zone.upload-zone-white:hover {
+    border-color: #03558C;
+    background: #fafcff
+}
+
+.upload-zone.upload-zone-white .label {
+    color: #94a3b8
+}
+
+.upload-zone.upload-zone-white .label strong {
+    color: #03558C
+}
+
 .upload-preview {
     margin-top: .6rem
 }
@@ -240,6 +352,44 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
     max-width: 100%;
     border-radius: .3rem;
     border: 1px solid #eceae6
+}
+
+.upload-preview.upload-preview-white {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(170deg, #04406b, #03355a 40%, #022a48);
+    padding: .5rem;
+    border-radius: .3rem;
+    border: 1px solid rgba(255,255,255,.16)
+}
+
+.upload-preview.upload-preview-white.has-preview {
+    display: inline-flex
+}
+
+.upload-preview.upload-preview-white img {
+    border: 0;
+    background: transparent;
+}
+
+.upload-preview-white-logo {
+    filter: brightness(0) invert(1)
+}
+
+.upload-help {
+    margin-top: .35rem;
+    font-size: .62rem;
+    line-height: 1.4;
+    color: #94a3b8
+}
+
+.upload-zone.upload-zone-white + .upload-help {
+    margin-top: .55rem
+}
+
+.upload-help.is-error {
+    color: #b91c1c
 }
 
 .switch-row {
@@ -252,6 +402,17 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
 /* Founders repeater */
 .tm-section {
     margin-top: .25rem
+}
+
+.tm-help-stack {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    margin-bottom: .85rem
+}
+
+.tm-help-stack .upload-help {
+    margin-top: 0
 }
 
 .tm-section .section-label {
@@ -539,9 +700,15 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
     gap: .55rem;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 1rem;
-    padding-top: .8rem;
-    border-top: 1px solid #eceae6
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 220px;
+    z-index: 950;
+    height: 52px;
+    padding: 0 32px;
+    background: #fff;
+    border-top: 1px solid #eceae6;
 }
 
 .form-actions .btn-p,
@@ -580,7 +747,7 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
 }
 </style>
 
-<form action="<?= $formUrl ?>" method="POST" enctype="multipart/form-data" id="incubateeForm">
+<form action="<?= $formUrl ?>" method="POST" enctype="multipart/form-data" id="incubateeForm" data-dirty-check data-dirty-btn=".btn-p" data-preserve-scroll>
     <?= csrf_field() ?>
 
     <div class="form-card">
@@ -658,6 +825,7 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                 <label>SDGs</label>
                 <div class="sdg-select-grid">
                     <?php for ($sdgId = 1; $sdgId <= 17; $sdgId++): ?>
+                    <?php $sdgNum = str_pad((string) $sdgId, 2, '0', STR_PAD_LEFT); ?>
                     <label class="sdg-check">
                         <input
                             type="checkbox"
@@ -665,7 +833,8 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                             value="<?= $sdgId ?>"
                             <?= in_array($sdgId, $selectedSdgs, true) ? 'checked' : '' ?>
                         >
-                        <span>SDG <?= $sdgId ?></span>
+                        <img src="<?= base_url('assets/img/sdg/sdg-' . $sdgNum . '.webp') ?>" alt="SDG <?= $sdgId ?> — <?= esc($sdgTitles[$sdgId] ?? '') ?>">
+                        <span class="sdg-tooltip">SDG <?= $sdgId ?> — <?= esc($sdgTitles[$sdgId] ?? '') ?></span>
                     </label>
                     <?php endfor; ?>
                 </div>
@@ -697,7 +866,7 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
             <div class="field">
                 <label>Company Logo</label>
                 <div class="upload-zone" id="uploadZone">
-                    <input type="file" name="logo" id="logoInput" accept="image/*">
+                    <input type="file" name="logo" id="logoInput" accept="image/*" data-max-bytes="<?= esc((string) ($logoUploadMaxBytes ?? 1048576)) ?>" data-max-label="<?= esc($logoUploadMaxLabel ?? '1 MB') ?>">
                     <div class="label" id="uploadLabel"><strong>Click to upload</strong> or drag a logo here</div>
                     <div class="upload-preview" id="uploadPreview">
                         <?php if ($isEdit && ! empty($incubatee['logoPath'])): ?>
@@ -705,26 +874,30 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                         <?php endif; ?>
                     </div>
                 </div>
-                <?php if ($isEdit && ! empty($incubatee['logoPath'])): ?>
-                <p style="font-size:.62rem;color:#94a3b8;margin-top:.35rem">Click to replace the current logo</p>
-                <?php endif; ?>
+                <p class="upload-help" id="logoUploadHelp">
+                    Allowed: PNG, JPG, GIF, WEBP.<br>
+                    Best results: a clean, centered logo with enough padding around the mark so it does not feel cramped in the card.<br>
+                    Transparent PNG or WEBP is preferred for logos with cutouts or irregular shapes. Keep the file under <?= esc($logoUploadMaxLabel ?? '1 MB') ?>.
+                </p>
             </div>
 
             <!-- White Logo upload (for big card) -->
             <div class="field">
                 <label>White Logo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b0aaa0">(used on the navy card)</span></label>
-                <div class="upload-zone" id="uploadZoneWhite">
-                    <input type="file" name="logoWhite" id="logoWhiteInput" accept="image/*">
+                <div class="upload-zone upload-zone-white" id="uploadZoneWhite">
+                    <input type="file" name="logoWhite" id="logoWhiteInput" accept="image/*" data-max-bytes="<?= esc((string) ($logoUploadMaxBytes ?? 1048576)) ?>" data-max-label="<?= esc($logoUploadMaxLabel ?? '1 MB') ?>">
                     <div class="label" id="uploadLabelWhite"><strong>Click to upload</strong> white version of the logo</div>
-                    <div class="upload-preview" id="uploadPreviewWhite">
+                    <div class="upload-preview upload-preview-white<?= ($isEdit && ! empty($incubatee['logoWhitePath'])) ? ' has-preview' : '' ?>" id="uploadPreviewWhite">
                         <?php if ($isEdit && ! empty($incubatee['logoWhitePath'])): ?>
-                        <img src="<?= site_url($incubatee['logoWhitePath']) ?>" alt="" style="background:#03355a;padding:.5rem;border-radius:.3rem;filter:brightness(0) invert(1)">
+                        <img class="upload-preview-white-logo" src="<?= site_url($incubatee['logoWhitePath']) ?>" alt="">
                         <?php endif; ?>
                     </div>
                 </div>
-                <?php if ($isEdit && ! empty($incubatee['logoWhitePath'])): ?>
-                <p style="font-size:.62rem;color:#94a3b8;margin-top:.35rem">Click to replace the current white logo</p>
-                <?php endif; ?>
+                <p class="upload-help" id="logoWhiteUploadHelp">
+                    This is the version used on the navy card.<br>
+                    Upload a white or light-colored logo if you have one. If you leave this blank, the site will fall back to the main logo and auto-invert it for the navy background.<br>
+                    Transparent PNG or WEBP is ideal. Keep the file under <?= esc($logoUploadMaxLabel ?? '1 MB') ?>.
+                </p>
             </div>
 
             <!-- Founders -->
@@ -736,13 +909,19 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
             ?>
             <div class="tm-section">
                 <span class="section-label">Founders</span>
+                <div class="tm-help-stack">
+                    <p class="upload-help">
+                        Founder photos must be square (1:1). Please upload tightly cropped portraits that sit well inside the frame. Max <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> per photo.
+                    </p>
+                    <p class="upload-help" id="tmUploadHelp">Square founder photos under <?= esc($teamPhotoUploadMaxLabel ?? '10 MB') ?> work best for the team layout.</p>
+                </div>
                 <div class="tm-rows" id="tmRows">
                     <?php if (! empty($existingMembers)): ?>
                     <?php foreach ($existingMembers as $member): ?>
                     <div class="tm-row">
                         <label class="tm-photo-zone">
                             <input type="hidden" name="tm_photo_existing[]" value="<?= esc($member['photo'] ?? '') ?>">
-                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*">
+                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*" data-max-bytes="<?= esc((string) ($teamPhotoUploadMaxBytes ?? 10485760)) ?>" data-aspect="square">
                             <?php if (! empty($member['photo'])): ?>
                                 <img class="tm-photo-preview" src="<?= site_url($member['photo']) ?>" alt="<?= esc($member['name'] ?? '') ?>">
                             <?php else: ?>
@@ -760,7 +939,7 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                     <div class="tm-row">
                         <label class="tm-photo-zone">
                             <input type="hidden" name="tm_photo_existing[]" value="">
-                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*">
+                            <input type="file" name="tm_photo[]" class="tm-photo-input" accept="image/*" data-max-bytes="<?= esc((string) ($teamPhotoUploadMaxBytes ?? 10485760)) ?>" data-aspect="square">
                             <span class="tm-photo-placeholder">Founder<br>Photo</span>
                         </label>
                         <input type="text" name="tm_name[]" placeholder="Name">
@@ -781,19 +960,19 @@ $selectedSdgs = array_map('intval', $selectedSdgs);
                     Publish
                 </label>
             </div>
-
-            <div class="form-actions">
-                <a href="<?= site_url('admin/incubatees') ?>" class="btn-o">← Back to incubatees</a>
-                <span style="flex:1"></span>
-                <button type="submit" class="btn-p">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <?= $isEdit ? 'Save changes' : 'Add incubatee' ?>
-                </button>
-            </div>
         </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="<?= site_url('admin/incubatees') ?>" class="btn-o">← Back to incubatees</a>
+        <span style="flex:1"></span>
+        <button type="submit" class="btn-p">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <?= $isEdit ? 'Save changes' : 'Add incubatee' ?>
+        </button>
     </div>
 </form>
 
@@ -952,8 +1131,17 @@ function cfmAdd() {
 
 /* ── Delete cohort via AJAX ── */
 function cfmDelete(id, name) {
-    if (!confirm('Delete ' + name + '?')) return;
-    fetch('<?= site_url('admin/cohorts/') ?>' + id + '/delete', {
+    // Change note: this inline manager shares the same admin delete modal as full-page tables.
+    var confirmDelete = window.AdminDeleteConfirm
+        ? window.AdminDeleteConfirm.ask({
+            title: 'Delete cohort?',
+            message: 'This removes the "' + name + '" cohort from the cohort options for incubatees. This action cannot be undone.',
+        })
+        : Promise.resolve(confirm('Delete ' + name + '?'));
+
+    confirmDelete.then(function(confirmed) {
+        if (!confirmed) return;
+        fetch('<?= site_url('admin/cohorts/') ?>' + id + '/delete', {
         method: 'POST',
         headers: {'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json'},
         body: JSON.stringify({})
@@ -987,7 +1175,8 @@ function cfmDelete(id, name) {
             alert(data.error || 'Failed to delete');
         }
     })
-    .catch(function() { alert('Network error'); });
+        .catch(function() { alert('Network error'); });
+    });
 }
 </script>
 <script src="<?= base_url('assets/js/admin/incubatees/form.js') ?>"></script>

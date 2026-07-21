@@ -2,17 +2,21 @@
      ║  COHORT PAGE — Dedicated incubatee showcase per cohort        ║
      ╚══════════════════════════════════════════════════════════════╝ -->
 <?php
+helper('incubatees');
+
 $incubatees    = $incubatees ?? [];
 $hasIncubatees = ! empty($incubatees);
 $count         = count($incubatees);
 $cohortLabel   = $cohortLabel ?? 'Cohort';
-$sealUrl       = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
+$sealUrl       = base_url('assets/img/ASOG TBI/WebP/ASOG-TBI-stacked-v2.webp');
 ?>
 
 <link rel="stylesheet" href="<?= base_url('assets/css/incubatees.css') ?>">
 
 <!-- Section -->
-<section class="ib-s relative min-h-screen py-20 pb-16">
+<section class="ib-s relative min-h-screen py-20 pb-16" 
+         id="ibCohortSection"
+         style="opacity: 0; transition: opacity 0.4s ease;">
     <div class="ib-w mx-auto px-6 md:px-10 lg:px-14">
 
         <!-- Header -->
@@ -45,7 +49,7 @@ $sealUrl       = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
                 The journey of a thousand startups begins with a single application.
             </p>
             <a href="<?= site_url('apply') ?>"
-                class="inline-block mt-8 text-[.7rem] font-bold tracking-[.14em] uppercase text-white bg-navy px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-navy/85">
+                class="inline-block mt-8 text-[.7rem] font-bold tracking-[.14em] uppercase text-navy bg-gold px-8 py-3.5 rounded-sm no-underline transition-colors hover:bg-gold-dk">
                 Apply Now
             </a>
         </div>
@@ -147,6 +151,7 @@ $sealUrl       = base_url('assets/img/ASOG TBI/PNG/ASOG-TBI-stacked-v2.png');
     </div>
 </div>
 
+<script src="<?= base_url('assets/loader/vendor/gsap.min.js') ?>" defer></script>
 <script src="<?= base_url('assets/js/features/incubatees/incubateesLoader.js') ?>" defer
     data-api-url="<?= site_url('api/incubatees') ?>" data-cohort="<?= esc($cohortLabel, 'attr') ?>"
     data-app-script="<?= base_url('assets/js/features/incubatees/incubatees.js') ?>"></script>

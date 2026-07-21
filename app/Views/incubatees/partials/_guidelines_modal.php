@@ -5,23 +5,24 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/guidelinesModal.css') ?>">
 
 <div id="guidelinesModal"
-    class="fixed inset-0 z-[9998] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    class="fixed inset-0 z-[9998] flex items-center justify-center p-3 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
     <!-- Backdrop -->
     <div id="guidelinesBackdrop" class="absolute inset-0 bg-dark/60 backdrop-blur-sm"></div>
 
     <!-- Modal body -->
     <div id="guidelinesBody"
-        class="relative w-full max-w-[720px] max-h-[85vh] overflow-y-auto bg-white rounded-lg shadow-2xl border border-navy/10 transform scale-95 transition-transform duration-300 guidelines-scroll">
+        class="guidelines-modal-card relative w-full max-w-[720px] bg-white rounded-lg shadow-2xl border border-navy/10 transform scale-95 transition-transform duration-300">
 
         <!-- Header -->
         <div
-            class="sticky top-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-between px-7 py-5 border-b border-navy/[.08]">
-            <div>
+            class="guidelines-modal-header bg-white/95 backdrop-blur-sm z-10 flex items-center justify-between gap-4 px-5 sm:px-7 py-4 sm:py-5 border-b border-navy/[.08]">
+            <div class="min-w-0">
                 <span class="text-[.48rem] font-bold tracking-[.22em] uppercase text-gold block mb-0.5">ASOG TBI</span>
                 <h2 class="text-[1rem] font-display text-dark m-0">Call for Startups — Guidelines</h2>
             </div>
             <button id="btnCloseGuidelines"
-                class="w-9 h-9 rounded-md bg-transparent flex items-center justify-center text-dark/30 hover:text-gold hover:bg-gold/8 transition-all cursor-pointer border border-navy/8">
+                class="w-9 h-9 shrink-0 rounded-md bg-transparent flex items-center justify-center text-dark/30 hover:text-gold hover:bg-gold/8 transition-all cursor-pointer border border-navy/8"
+                type="button" aria-label="Close guidelines">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -29,7 +30,7 @@
         </div>
 
         <!-- Content -->
-        <div class="px-7 py-6 space-y-7">
+        <div class="guidelines-modal-scroll guidelines-scroll px-5 sm:px-7 py-6 space-y-7">
 
             <!-- Eligibility Criteria -->
             <div>

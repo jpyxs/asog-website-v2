@@ -12,10 +12,9 @@
 
             <!-- COL 1: Brand -->
             <div class="ft-col ft-col-brand">
-                <picture>
-                    <source srcset="<?= base_url('assets/img/ASOG TBI/WebP/asog logo variations_full-colored_landscape-light.webp') ?>" type="image/webp">
-                    <img src="<?= base_url('assets/img/ASOG TBI/PNG/asog logo variations_full-colored_landscape-light.png') ?>" alt="ASOG TBI" class="ft-logo" />
-                </picture>
+                <div class="ft-logo-frame">
+                    <?= responsiveStaticImg('assets/img/ASOG TBI/WebP/asog logo variations_full-colored_landscape-light', 'footer-logo', 'ASOG TBI', 'ft-logo') ?>
+                </div>
                 <p class="ft-tagline">
                     Empowering startups &amp; MSMEs in Bicol through engineering, AI, and food value chain innovation.
                 </p>
@@ -88,6 +87,12 @@
     </div>
 </footer>
 <?php endif; ?>
+
+<button type="button" class="ft-return-top" id="returnToTop" aria-label="Return to top">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 5l-7 7 1.41 1.41L11 8.83V19h2V8.83l4.59 4.58L19 12z"></path>
+    </svg>
+</button>
 
 <!-- Toast notifications -->
 <?= function_exists('renderToast') ? renderToast() : '' ?>

@@ -39,7 +39,7 @@ class PostModel extends Model
         'title'            => 'required|min_length[3]|max_length[255]',
         'shortDescription' => 'permit_empty|max_length[500]',
         'content'          => 'permit_empty',
-        'category'         => 'required|in_list[news,events,features,opinions]',
+        'category'         => 'required|in_list[news,events,features]',
         'sortOrder'        => 'permit_empty|integer',
     ];
 
@@ -49,7 +49,7 @@ class PostModel extends Model
             'min_length' => 'Title must be at least 3 characters.',
         ],
         'category' => [
-            'in_list' => 'Category must be one of: news, events, features, opinions.',
+            'in_list' => 'Category must be one of: news, events, features.',
         ],
     ];
 
@@ -87,6 +87,29 @@ class PostModel extends Model
                         ->orderBy('publishedAt', 'DESC');
 
         return $limit > 0 ? $builder->findAll($limit) : $builder->findAll();
+    }
+
+    public function getPublishedPage(array $categories = [], string $sort = 'newest', int $perPage = 10, int $page = 1): array
+    {
+        $builder = $this->where('isPublished', 1);
+
+        if (!empty($categories)) {
+            $builder->whereIn('category', $categories);
+        }
+
+        $builder->orderBy('publishedAt', $sort === 'oldest' ? 'ASC' : 'DESC');
+
+        $total  = $builder->countAllResults(false);
+        $offset = max(0, ($page - 1) * $perPage);
+        $posts  = $builder->findAll($perPage, $offset);
+
+        return [
+            'posts'   => $posts,
+            'total'   => $total,
+            'perPage' => $perPage,
+            'page'    => $page,
+            'pages'   => max(1, (int) ceil($total / $perPage)),
+        ];
     }
 
     /**
@@ -137,7 +160,7 @@ class PostModel extends Model
     /**
      * Return posts in admin-friendly order.
      */
-    public function getAdminList(): array
+    public function getAdminList(int $perPage = 10, int $offset = 0): array
     {
         $builder = $this;
 
@@ -145,7 +168,64 @@ class PostModel extends Model
             $builder = $builder->orderBy('sortOrder', 'ASC');
         }
 
-        return $builder->orderBy('createdAt', 'DESC')->findAll();
+        return $builder->orderBy('createdAt', 'DESC')->findAll($perPage, $offset);
+    }
+
+    public function getAdminPage(string $search = '', string $status = 'all', string $category = 'all', int $perPage = 10, int $page = 1, string $sort = 'default'): array
+    {
+        $search = trim($search);
+        $status = in_array($status, ['all', 'published', 'draft', 'featured'], true) ? $status : 'all';
+        $category = in_array($category, ['all', 'news', 'events', 'features'], true) ? $category : 'all';
+        $sort = in_array($sort, ['default', 'date_desc', 'date_asc'], true) ? $sort : 'default';
+        $page = max(1, $page);
+
+        $builder = $this->builder();
+
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('title', $search)
+                ->orLike('shortDescription', $search)
+                ->orLike('category', $search)
+                ->orLike('authorName', $search)
+                ->orLike('slug', $search)
+                ->groupEnd();
+        }
+
+        if ($status === 'published') {
+            $builder->where('isPublished', 1);
+        } elseif ($status === 'draft') {
+            $builder->where('isPublished', 0);
+        } elseif ($status === 'featured') {
+            $builder->where('isFeatured', 1);
+        }
+
+        if ($category !== 'all') {
+            $builder->where('category', $category);
+        }
+
+        $total = $builder->countAllResults(false);
+        $totalPages = $total > 0 ? (int) ceil($total / $perPage) : 1;
+        $page = min($page, $totalPages);
+        $offset = ($page - 1) * $perPage;
+
+        if ($sort === 'date_desc' || $sort === 'date_asc') {
+            $builder->orderBy('COALESCE(publishedAt, createdAt)', $sort === 'date_asc' ? 'ASC' : 'DESC', false);
+        } elseif ($this->supportsSortOrder()) {
+            $builder->orderBy('sortOrder', 'ASC');
+        }
+
+        $posts = $builder
+            ->orderBy('createdAt', 'DESC')
+            ->get($perPage, $offset)
+            ->getResultArray();
+
+        return [
+            'posts' => $posts,
+            'total' => $total,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'perPage' => $perPage,
+        ];
     }
 
     /**

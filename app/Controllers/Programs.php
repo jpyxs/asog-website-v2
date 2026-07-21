@@ -13,6 +13,7 @@ class Programs extends BaseController
             'heroSubtitle' => 'What We Offer',
             'heroTitle'    => 'Programs & Services',
             'heroDesc'     => 'Explore the programs, services, and facilities that power innovation at ASOG TBI.',
+            'extraCss'     => [base_url('assets/css/altitude3d.css')],
         ];
 
         return view('templates/header', $data)

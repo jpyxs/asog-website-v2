@@ -5,11 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Sign in — ASOG TBI</title>
-    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('icon.png') ?>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap"
-        rel="stylesheet">
+    <link rel="icon" href="<?= base_url('assets/favicon/favicon.ico') ?>" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/favicon/favicon-32x32.png') ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/favicon/favicon-16x16.png') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/favicon/apple-touch-icon.png') ?>">
+    <link rel="manifest" href="<?= base_url('assets/favicon/site.webmanifest') ?>">
+    <link rel="preload" as="font" href="<?= base_url('assets/fonts/dm-sans-normal-400.ttf') ?>" type="font/ttf" crossorigin>
+    <link rel="preload" as="font" href="<?= base_url('assets/fonts/dm-sans-normal-600.ttf') ?>" type="font/ttf" crossorigin>
+    <link rel="preload" as="image" href="<?= base_url('assets/img/ASOG TBI/WebP/ASOG-TBI_full-colored_stacked-white.webp') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/localFonts.css') ?>">
     <style>
     * {
         margin: 0;
@@ -40,6 +44,14 @@
             background: #03558C;
             padding: 3rem;
             color: #fff
+        }
+
+        .brand img {
+            display: block;
+            width: 160px;
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1.4rem
         }
 
         .brand h1 {
@@ -189,7 +201,7 @@
         display: flex;
         align-items: center;
         gap: .5rem;
-        margin: .9rem 0 .2rem;
+        margin: .9rem 0 .8rem;
         color: #94a3b8;
         font-size: .67rem;
         text-transform: uppercase;
@@ -255,14 +267,29 @@
     .back:hover {
         color: #03558C
     }
+    .forgot-link {
+        font-size: .67rem;
+        color: #03558C;
+        text-decoration: none;
+        transition: opacity .15s
+    }
+
+    .forgot-link:hover {
+        opacity: .75
+    }
+
+    .forgot-wrap {
+        text-align: right;
+        margin: -.6rem 0 .6rem
+    }
+
     </style>
 </head>
 
 <body>
 
     <div class="brand">
-        <img src="<?= base_url('assets/img/ASOG TBI/PNG/ASOG-TBI_full-colored_stacked-white.png') ?>" alt="ASOG TBI"
-            style="width:160px;margin-bottom:1.4rem">
+        <?= responsiveStaticImg('assets/img/ASOG TBI/WebP/ASOG-TBI_full-colored_stacked-white', 'default', 'ASOG TBI', 'block w-[160px] mb-[1.4rem]', false) ?>
         <h1>ASOG Technology<br>Business Incubator</h1>
         <p>Content management system for the ASOG TBI website. Sign in to manage posts and site content.</p>
     </div>
@@ -304,6 +331,10 @@
                             </svg>
                         </button>
                     </div>
+                </div>
+
+                <div class="forgot-wrap">
+                    <a href="<?= site_url('asog-admin/forgot-password') ?>" class="forgot-link">Forgot password?</a>
                 </div>
 
                 <button type="submit" class="btn">Sign in</button>
